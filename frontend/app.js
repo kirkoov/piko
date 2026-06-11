@@ -6,7 +6,7 @@ let pendingDelete = null;
 
 const translations = {
   en: {
-    appTitle: `KindaGrinda_${VER}`,
+    appTitle: "KindaGrinda",
     save: "Save",
     cancel: "Cancel",
     min: "min",
@@ -28,7 +28,7 @@ const translations = {
   },
 
   fi: {
-    appTitle: `Päiko_${VER}`,
+    appTitle: "Päiko",
     save: "Save",
     cancel: "Cancel",
     min: "min",
@@ -50,7 +50,7 @@ const translations = {
   },
 
   ru: {
-    appTitle: `ДетCадоМазо_${VER}`,
+    appTitle: "ДетCадоМазо",
     save: "Сохранить",
     cancel: "Отмена",
     min: "мин",
