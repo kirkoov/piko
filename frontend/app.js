@@ -1,4 +1,4 @@
-const VER = "0.1"
+const VER = "0.1";
 const CURRENT_USER_ID = 1;
 let lang = "fi";
 let currentShiftId = null;
@@ -25,6 +25,7 @@ const translations = {
     edit: "Edit",
     delete: "Delete",
     reallyDelete: "Really delete?",
+    morningBonus: "Morning bonus",
   },
 
   fi: {
@@ -47,6 +48,7 @@ const translations = {
     edit: "Muokkaa",
     delete: "Poista",
     reallyDelete: "Poistetaanko?",
+    morningBonus: "Aamulisä",
   },
 
   ru: {
@@ -69,6 +71,7 @@ const translations = {
     edit: "Изменить",
     delete: "Удалить",
     reallyDelete: "Точно удалить?",
+    morningBonus: "Утро-надбавка",
   },
 };
 
@@ -149,6 +152,12 @@ async function loadData() {
                 <p class="${deltaClass}">
                     Δ ${formatDelta(s.delta_minutes)}
                 </p>
+
+                ${
+                  s.morning_bonus > 0
+                    ? `<p>${t("morningBonus")}: +${s.morning_bonus} ${t("min")}</p>`
+                    : ""
+                }
 
                 <button onclick="openEditor(
                     ${s.id},

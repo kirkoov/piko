@@ -1,5 +1,43 @@
 from datetime import datetime
 
+MORNING_BONUS_MULTIPLIER = 9
+SHIFT_DIV_MIN = 30
+
+
+def overlap_minutes(
+    start: str,
+    end: str,
+    period_start: str,
+    period_end: str,
+) -> int:
+
+    fmt = "%H:%M"
+
+    work_start = datetime.strptime(start, fmt)
+    work_end = datetime.strptime(end, fmt)
+
+    bonus_start = datetime.strptime(period_start, fmt)
+    bonus_end = datetime.strptime(period_end, fmt)
+
+    overlap_start = max(work_start, bonus_start)
+    overlap_end = min(work_end, bonus_end)
+
+    if overlap_end <= overlap_start:
+        return 0
+
+    return int((overlap_end - overlap_start).total_seconds() // 60)
+
+
+def morning_bonus(actual_start: str, actual_end: str) -> int:
+    minutes = overlap_minutes(
+        actual_start,
+        actual_end,
+        "05:00",
+        "07:00",
+    )
+    completed_blocks = minutes // SHIFT_DIV_MIN
+    return completed_blocks * MORNING_BONUS_MULTIPLIER
+
 
 def to_minutes(t: str) -> int:
     h, m = map(int, t.split(":"))

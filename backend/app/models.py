@@ -14,7 +14,7 @@ class User(Base):
 
     starting_balance_minutes: Mapped[int] = mapped_column(
         Integer,
-        default=56,  # in minutes!
+        default=0,  # in minutes!
     )
 
 

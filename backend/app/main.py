@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
-from app.timecalc import duration, shift_difference
+from app.timecalc import duration, morning_bonus, shift_difference
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
@@ -177,6 +177,10 @@ async def list_shifts(
                 s.actual_start,
                 s.actual_end,
             ),
+            "morning_bonus": morning_bonus(
+                s.actual_start,
+                s.actual_end,
+            ),
             "latest_child_name": s.latest_child_name,
             "latest_child_time": s.latest_child_time,
         }
@@ -250,6 +254,11 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
         total += shift_difference(
             s.planned_start,
             s.planned_end,
+            s.actual_start,
+            s.actual_end,
+        )
+
+        total += morning_bonus(
             s.actual_start,
             s.actual_end,
         )
