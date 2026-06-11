@@ -15,24 +15,81 @@ async def main():
         await db.flush()
 
         shifts = [
-            ("2026-06-08", "13:30", "21:30", "Masha", "21:15"),
-            ("2026-06-09", "14:30", "22:30", "Petya", "21:45"),
-            ("2026-06-10", "14:15", "21:30", "Vanya", "21:00"),
-            ("2026-06-11", "14:30", "22:30", "Sofia", "21:00"),
-            ("2026-06-12", "14:30", "21:30", "Artem", "21:00"),
+            (
+                "2026-06-08",
+                "13:30",
+                "21:30",
+                "13:30",
+                "21:30",
+                "Masha",
+                "21:15",
+                "",
+            ),
+            # Child leaves early, Lora leaves too
+            (
+                "2026-06-09",
+                "14:30",
+                "22:30",
+                "14:30",
+                "21:45",
+                "Petya",
+                "21:45",
+                "left_with_latest_child",
+            ),
+            (
+                "2026-06-10",
+                "14:15",
+                "21:30",
+                "14:15",
+                "21:30",
+                "Vanya",
+                "21:00",
+                "",
+            ),
+            # SMS before shift -> shift moved earlier
+            (
+                "2026-06-11",
+                "13:00",
+                "21:00",
+                "13:00",
+                "21:00",
+                "Sofia",
+                "21:00",
+                "shift_adjusted_before_start",
+            ),
+            (
+                "2026-06-12",
+                "14:30",
+                "21:30",
+                "14:30",
+                "21:30",
+                "Artem",
+                "21:00",
+                "",
+            ),
         ]
 
-        for date, start, end, child, child_time in shifts:
+        for (
+            date,
+            p_start,
+            p_end,
+            a_start,
+            a_end,
+            child,
+            child_time,
+            note,
+        ) in shifts:
             db.add(
                 Shift(
                     user_id=user.id,
                     date=date,
-                    planned_start=start,
-                    planned_end=end,
-                    actual_start=start,
-                    actual_end=end,
+                    planned_start=p_start,
+                    planned_end=p_end,
+                    actual_start=a_start,
+                    actual_end=a_end,
                     latest_child_name=child,
                     latest_child_time=child_time,
+                    note=note,
                 )
             )
 

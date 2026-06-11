@@ -37,4 +37,9 @@ class Shift(Base):
     latest_child_name: Mapped[str] = mapped_column(String)
     latest_child_time: Mapped[str] = mapped_column(String)
 
+    note: Mapped[str] = mapped_column(
+        String,
+        default="",
+    )
+
     user = relationship("User")

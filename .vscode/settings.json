@@ -1,5 +1,6 @@
 {
     "cSpell.ignoreWords": [
+        "Aamulisä",
         "Artem",
         "Cадо",
         "Grinda",
@@ -14,6 +15,7 @@
         "sessionmaker",
         "timecalc",
         "uvicorn",
+        "Детсадо",
         "Мазо"
     ],
     "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python"

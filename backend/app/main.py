@@ -183,6 +183,7 @@ async def list_shifts(
             ),
             "latest_child_name": s.latest_child_name,
             "latest_child_time": s.latest_child_time,
+            "note": s.note,
         }
         for s in shifts
         # for d in [datetime.strptime(s.date, "%Y-%m-%d")]

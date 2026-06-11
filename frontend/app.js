@@ -1,6 +1,6 @@
 const VER = "0.1";
 const CURRENT_USER_ID = 1;
-let lang = "fi";
+let lang = localStorage.getItem("lang") || "fi";
 let currentShiftId = null;
 let pendingDelete = null;
 
@@ -52,7 +52,7 @@ const translations = {
   },
 
   ru: {
-    appTitle: "ДетCадоМазо",
+    appTitle: "ДетсадоМазо",
     save: "Сохранить",
     cancel: "Отмена",
     min: "мин",
@@ -149,6 +149,9 @@ async function loadData() {
                     ? `<p>${t("latestChild")}: ${s.latest_child_name} (leaves ${s.latest_child_time})</p>`
                     : ""
                 }
+
+                ${s.note ? `<p><i>${s.note}</i></p>` : ""}
+                
                 <p class="${deltaClass}">
                     Δ ${formatDelta(s.delta_minutes)}
                 </p>
