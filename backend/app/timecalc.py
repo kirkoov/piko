@@ -4,6 +4,51 @@ MORNING_BONUS_MULTIPLIER = 9
 SHIFT_DIV_MIN = 30
 
 
+def recommended_shift(
+    planned_start: str,
+    planned_end: str,
+    latest_child_time: str,
+) -> str | None:
+
+    if latest_child_time >= planned_end:
+        return None
+
+    planned_duration = duration(
+        planned_start,
+        planned_end,
+    )
+
+    latest = to_minutes(latest_child_time)
+
+    new_start = latest - planned_duration
+
+    hours = new_start // 60
+    mins = new_start % 60
+
+    start_str = f"{hours:02d}:{mins:02d}"
+
+    return f"{start_str}-{latest_child_time}"
+
+
+def recommended_start(
+    planned_start: str,
+    planned_end: str,
+    latest_child_time: str,
+) -> str:
+
+    planned_minutes = duration(
+        planned_start,
+        planned_end,
+    )
+
+    latest = to_minutes(latest_child_time)
+    start = latest - planned_minutes
+    hours = start // 60
+    mins = start % 60
+
+    return f"{hours:02d}:{mins:02d}"
+
+
 def overlap_minutes(
     start: str,
     end: str,

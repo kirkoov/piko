@@ -151,7 +151,13 @@ async function loadData() {
                 }
 
                 ${s.note ? `<p><i>${s.note}</i></p>` : ""}
-                
+
+                ${
+                  s.recommended_shift
+                    ? `<p>Suggested shift: ${s.recommended_shift}</p>`
+                    : ""
+                }
+
                 <p class="${deltaClass}">
                     Δ ${formatDelta(s.delta_minutes)}
                 </p>
