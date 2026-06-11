@@ -1,0 +1,15 @@
+{
+    "cSpell.ignoreWords": [
+        "Artem",
+        "Masha",
+        "Petya",
+        "Piko",
+        "Vanya",
+        "fastapi",
+        "mypy",
+        "sessionmaker",
+        "timecalc",
+        "uvicorn"
+    ],
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python"
+}

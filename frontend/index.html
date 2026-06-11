@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Piko</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+</head>
+<body>
+  <h1>Piko App 0.1</h1>
+
+  <button onclick="loadData()">Refresh</button>
+
+  <h2>Balance</h2>
+  <div id="balance">...</div>
+
+    <div id="editor" class="card-panel" style="display:none;">
+      <h2>Edit Shift</h2>
+        <input id="e_planned" placeholder="Planned (HH:MM-HH:MM)" />
+        <br/><br/>
+        <input id="e_actual" placeholder="Actual (HH:MM-HH:MM)" />
+        <br/><br/>
+        <input id="e_latest_child_name"
+            placeholder="Latest child name"
+        />
+        <br/><br/>
+        <input
+            id="e_latest_child_time"
+            placeholder="Latest child time (HH:MM)"
+        />
+        <button onclick="saveShift()">
+          Save
+      </button>
+
+      <button onclick="closeEditor()">
+          Cancel
+      </button>
+    </div>
+
+  <h2>Shifts</h2>
+  <div id="shifts"></div>
+
+  <h2>Add Shift</h2>
+  <div class="card-panel">
+    <input id="new_date" type="date" />
+    <br/><br/>
+
+    <input id="new_planned" placeholder="Planned (HH:MM-HH:MM)" />
+
+    <input id="new_actual" placeholder="Actual (HH:MM-HH:MM)" />
+    <br/><br/>
+
+    <input
+        id="new_latest_child_name"
+        placeholder="Latest child name"
+    />
+
+    <input
+        id="new_latest_child_time"
+        placeholder="Latest child time (HH:MM)"
+    />
+    <br/><br/>
+    <button onclick="addShift()">Add Shift</button>
+  </div>
+
+  <div id="modal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h2>Edit Shift</h2>
+
+    <label for="m_planned">Planned shift (HH:MM-HH:MM)</label><br/>
+    <input id="m_planned" type="text" />
+    <br/><br/>
+
+    <label for="m_actual">Actual shift (HH:MM-HH:MM)</label><br/>
+    <input id="m_actual" type="text" />
+    <br/><br/>
+
+    <label for="m_latest_child_name">Latest child name</label><br/>
+    <input id="m_latest_child_name" type="text" />
+    <br/><br/>
+
+    <label for="m_latest_child_time">Latest child leaving time (HH:MM)</label><br/>
+    <input id="m_latest_child_time" type="text" />
+    <br/><br/>
+
+    <button onclick="saveModal()">Save</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
