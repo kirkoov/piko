@@ -5,6 +5,9 @@ let pendingDelete = null;
 
 const translations = {
   en: {
+    min: "min",
+    m: "m",
+    h: "h",
     refresh: "Refresh",
     balance: "Balance",
     shifts: "Shifts",
@@ -18,6 +21,9 @@ const translations = {
   },
 
   fi: {
+    min: "min",
+    m: "m",
+    h: "t",
     refresh: "Päivitä",
     balance: "Saldo",
     shifts: "Vuorot",
@@ -31,6 +37,9 @@ const translations = {
   },
 
   ru: {
+    min: "мин",
+    m: "м",
+    h: "ч",
     refresh: "Обновить",
     balance: "Баланс",
     shifts: "Смены",
@@ -70,7 +79,7 @@ async function loadData() {
 
   document.getElementById("balance").innerHTML =
     `<div class="balance-card ${balanceClass}">
-            ${sign}${minutes} min (${hours}h ${mins}m)
+            ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
         </div>`;
 
   const shiftsRes = await fetch(`/shifts?user_id=${CURRENT_USER_ID}`);
@@ -309,7 +318,7 @@ function minutesToText(minutes) {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
 
-  return `${hours}h ${mins}m`;
+  return `${hours}${t("h")} ${mins}${t("m")}`;
 }
 
 function formatDelta(minutes) {
