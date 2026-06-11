@@ -158,8 +158,8 @@ async def list_shifts(
         {
             "id": s.id,
             "date": s.date,
-            "display_date": d.strftime("%d.%m.%Y"),
-            "weekday": d.strftime("%A"),
+            # "display_date": d.strftime("%d.%m.%Y"),
+            # "weekday": d.strftime("%A"),
             "planned": f"{s.planned_start}-{s.planned_end}",
             "actual": f"{s.actual_start}-{s.actual_end}",
             "planned_minutes": duration(
@@ -180,7 +180,7 @@ async def list_shifts(
             "latest_child_time": s.latest_child_time,
         }
         for s in shifts
-        for d in [datetime.strptime(s.date, "%Y-%m-%d")]
+        # for d in [datetime.strptime(s.date, "%Y-%m-%d")]
     ]
 
 

@@ -1,6 +1,52 @@
 const CURRENT_USER_ID = 1;
+let lang = "fi";
 let currentShiftId = null;
 let pendingDelete = null;
+
+const translations = {
+  en: {
+    refresh: "Refresh",
+    balance: "Balance",
+    shifts: "Shifts",
+    addShift: "Add Shift",
+    planned: "Planned",
+    actual: "Actual",
+    latestChild: "Latest child",
+    edit: "Edit",
+    delete: "Delete",
+    reallyDelete: "Really delete?",
+  },
+
+  fi: {
+    refresh: "Päivitä",
+    balance: "Saldo",
+    shifts: "Vuorot",
+    addShift: "Lisää vuoro",
+    planned: "Suunniteltu",
+    actual: "Toteutunut",
+    latestChild: "Viimeinen lapsi",
+    edit: "Muokkaa",
+    delete: "Poista",
+    reallyDelete: "Poistetaanko?",
+  },
+
+  ru: {
+    refresh: "Обновить",
+    balance: "Баланс",
+    shifts: "Смены",
+    addShift: "Добавить смену",
+    planned: "по плану",
+    actual: "по факту",
+    latestChild: "Последний ребёнок",
+    edit: "Изменить",
+    delete: "Удалить",
+    reallyDelete: "Точно удалить?",
+  },
+};
+
+function t(key) {
+  return translations[lang][key];
+}
 
 function askDelete(id) {
   pendingDelete = id;
@@ -41,23 +87,23 @@ async function loadData() {
 
       return `
             <div class="shift-card">
-                <b>${s.weekday} ${s.display_date}</b>
+                <b>${formatDate(s.date)}</b>
 
                 <p>
-                    Planned:
+                    ${t("planned")}:
                     ${s.planned}
                     (${minutesToText(s.planned_minutes)})
                 </p>
 
                 <p>
-                    Actual:
+                    ${t("actual")}:
                     ${s.actual}
                     (${minutesToText(s.actual_minutes)})
                 </p>
 
                 ${
                   s.latest_child_name
-                    ? `<p>Latest child: ${s.latest_child_name} (leaves ${s.latest_child_time})</p>`
+                    ? `<p>${t("latestChild")}: ${s.latest_child_name} (leaves ${s.latest_child_time})</p>`
                     : ""
                 }
                 <p class="${deltaClass}">
@@ -71,13 +117,13 @@ async function loadData() {
                     '${s.latest_child_name}',
                     '${s.latest_child_time}'
                 )">
-                Edit
+                ${t("edit")}
             </button>
 
         ${
           pendingDelete === s.id
-            ? `<button onclick="deleteShift(${s.id})">Really delete?</button>`
-            : `<button onclick="askDelete(${s.id})">Del</button>`
+            ? `<button onclick="deleteShift(${s.id})">${t("reallyDelete")}</button>`
+            : `<button onclick="askDelete(${s.id})">${t("delete")}</button>`
         }
 
             </div>
@@ -122,15 +168,6 @@ async function deleteShift(id) {
 
   loadData();
 }
-
-// function openEditor(id, planned, actual, latest_child_name, latest_child_time) {
-//     currentShiftId = id;
-//     document.getElementById("editor").style.display = "block";
-//     document.getElementById("e_planned").value = planned;
-//     document.getElementById("e_actual").value = actual;
-//     document.getElementById("e_latest_child_name").value = latest_child_name;
-//     document.getElementById("e_latest_child_time").value = latest_child_time;
-// }
 
 function openEditor(id, planned, actual, childName, childTime) {
   currentShiftId = id;
@@ -257,6 +294,17 @@ async function addShift() {
   loadData();
 }
 
+function formatDate(dateString) {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString(lang, {
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 function minutesToText(minutes) {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -273,6 +321,19 @@ function formatDelta(minutes) {
   return `${sign}${hours}h ${mins}m`;
 }
 
+function changeLanguage() {
+  lang = document.getElementById("language").value;
+  localStorage.setItem("language", lang);
+  loadData();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  const savedLang = localStorage.getItem("language");
+
+  if (savedLang) {
+    lang = savedLang;
+    document.getElementById("language").value = savedLang;
+  }
+
   loadData();
 });
