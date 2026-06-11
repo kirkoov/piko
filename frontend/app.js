@@ -1,3 +1,4 @@
+const VER = "0.1"
 const CURRENT_USER_ID = 1;
 let lang = "fi";
 let currentShiftId = null;
@@ -5,6 +6,9 @@ let pendingDelete = null;
 
 const translations = {
   en: {
+    appTitle: `KindaGrinda_${VER}`,
+    save: "Save",
+    cancel: "Cancel",
     min: "min",
     m: "m",
     h: "h",
@@ -13,14 +17,20 @@ const translations = {
     shifts: "Shifts",
     addShift: "Add Shift",
     planned: "Planned",
+    plannedPhldr: "Planned (HH:MM-HH:MM)",
+    actualPhldr: "Actual (HH:MM-HH:MM)",
     actual: "Actual",
-    latestChild: "Latest child",
+    latestChild: "Latest kid",
+    latestChildNamePhldr: "Latest kid's name",
     edit: "Edit",
     delete: "Delete",
     reallyDelete: "Really delete?",
   },
 
   fi: {
+    appTitle: `Päiko_${VER}`,
+    save: "Save",
+    cancel: "Cancel",
     min: "min",
     m: "m",
     h: "t",
@@ -29,14 +39,20 @@ const translations = {
     shifts: "Vuorot",
     addShift: "Lisää vuoro",
     planned: "Suunniteltu",
+    plannedPhldr: "Planned (TT:MM-TT:MM)",
+    actualPhldr: "Actual (HH:MM-HH:MM)",
     actual: "Toteutunut",
     latestChild: "Viimeinen lapsi",
+    latestChildNamePhldr: "Latest kid's name",
     edit: "Muokkaa",
     delete: "Poista",
     reallyDelete: "Poistetaanko?",
   },
 
   ru: {
+    appTitle: `ДетCадоМазо_${VER}`,
+    save: "Сохранить",
+    cancel: "Отмена",
     min: "мин",
     m: "м",
     h: "ч",
@@ -45,8 +61,11 @@ const translations = {
     shifts: "Смены",
     addShift: "Добавить смену",
     planned: "по плану",
+    plannedPhldr: "По плану (ч:м-ч:м)",
+    actualPhldr: "По факту (ч:м-ч:м)",
     actual: "по факту",
     latestChild: "Последний ребёнок",
+    latestChildNamePhldr: "Имя посл. ребёнка",
     edit: "Изменить",
     delete: "Удалить",
     reallyDelete: "Точно удалить?",
@@ -55,6 +74,18 @@ const translations = {
 
 function t(key) {
   return translations[lang][key];
+}
+
+function applyTranslations() {
+  // Text nodes
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = t(el.dataset.i18n);
+  });
+
+  // Placeholders
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
 }
 
 function askDelete(id) {
@@ -327,12 +358,13 @@ function formatDelta(minutes) {
   const hours = Math.floor(Math.abs(minutes) / 60);
   const mins = Math.abs(minutes) % 60;
 
-  return `${sign}${hours}h ${mins}m`;
+  return `${sign}${hours}${t("h")} ${mins}${t("m")}`;
 }
 
 function changeLanguage() {
   lang = document.getElementById("language").value;
   localStorage.setItem("language", lang);
+  applyTranslations();
   loadData();
 }
 
@@ -344,5 +376,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("language").value = savedLang;
   }
 
+  applyTranslations();
   loadData();
 });
