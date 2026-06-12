@@ -14,4 +14,4 @@ asyncio.run(main())
 
 # rm piko.db
 # uv run python init_db.py
-# uv run python test_feed.py
+# uv run python init_with_data.py
