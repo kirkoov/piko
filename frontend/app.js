@@ -262,6 +262,21 @@ async function saveModal() {
   const childTime = document.getElementById("m_latest_child_time").value;
   const note = document.getElementById("m_note").value;
 
+  if (!isValidShift(planned)) {
+    alert("Invalid planned shift");
+    return;
+  }
+
+  if (!isValidShift(actual)) {
+    alert("Invalid actual shift");
+    return;
+  }
+
+  if (!isValidTime(childTime)) {
+    alert("Invalid latest child time");
+    return;
+  }
+
   const [pStart, pEnd] = planned.split("-");
   const [aStart, aEnd] = actual.split("-");
 
@@ -299,6 +314,21 @@ async function addShift() {
 
   if (!date || !planned || !actual || !childName || !childTime) {
     alert("Fill all fields");
+    return;
+  }
+
+  if (!isValidShift(planned)) {
+    alert("Invalid planned shift");
+    return;
+  }
+
+  if (!isValidShift(actual)) {
+    alert("Invalid actual shift");
+    return;
+  }
+
+  if (!isValidTime(childTime)) {
+    alert("Invalid latest child time");
     return;
   }
 
@@ -370,6 +400,14 @@ function changeLanguage() {
   localStorage.setItem("language", lang);
   applyTranslations();
   loadData();
+}
+
+function isValidTime(time) {
+  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
+}
+
+function isValidShift(shift) {
+  return /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/.test(shift);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

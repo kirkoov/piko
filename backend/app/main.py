@@ -59,8 +59,7 @@ async def get_db():
 async def get_stats(
     user_id: int,
     db: AsyncSession = Depends(get_db),
-):
-    ...
+): ...
 
 
 @app.post("/users")
@@ -250,7 +249,6 @@ async def update_shift(
 
     # return {"status": "updated", "shift_id": shift_id, "delta_minutes": diff}
     return {"status": "updated", "shift_id": shift_id}
-
 
 
 @app.delete("/shifts/{shift_id}")
