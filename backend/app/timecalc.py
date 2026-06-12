@@ -30,25 +30,6 @@ def recommended_shift(
     return f"{start_str}-{latest_child_time}"
 
 
-def recommended_start(
-    planned_start: str,
-    planned_end: str,
-    latest_child_time: str,
-) -> str:
-
-    planned_minutes = duration(
-        planned_start,
-        planned_end,
-    )
-
-    latest = to_minutes(latest_child_time)
-    start = latest - planned_minutes
-    hours = start // 60
-    mins = start % 60
-
-    return f"{hours:02d}:{mins:02d}"
-
-
 def overlap_minutes(
     start: str,
     end: str,

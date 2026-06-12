@@ -26,6 +26,7 @@ class ShiftUpdate(BaseModel):
     actual_end: str
     latest_child_name: str
     latest_child_time: str
+    note: str = ""
 
 
 @asynccontextmanager
@@ -215,6 +216,7 @@ async def update_shift(
     shift.actual_end = data.actual_end
     shift.latest_child_name = data.latest_child_name
     shift.latest_child_time = data.latest_child_time
+    shift.note = data.note
 
     await db.commit()
 

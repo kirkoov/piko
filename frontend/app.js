@@ -1,6 +1,6 @@
 const VER = "0.1";
 const CURRENT_USER_ID = 1;
-let lang = localStorage.getItem("lang") || "fi";
+let lang = localStorage.getItem("language") || "fi";
 let currentShiftId = null;
 let pendingDelete = null;
 
@@ -52,7 +52,7 @@ const translations = {
   },
 
   ru: {
-    appTitle: "ДетсадоМазо",
+    appTitle: "ДетсАдик",
     save: "Сохранить",
     cancel: "Отмена",
     min: "мин",
@@ -173,7 +173,8 @@ async function loadData() {
                     '${s.planned}',
                     '${s.actual}',
                     '${s.latest_child_name}',
-                    '${s.latest_child_time}'
+                    '${s.latest_child_time}',
+                    '${s.note}'
                 )">
                 ${t("edit")}
             </button>
@@ -227,13 +228,14 @@ async function deleteShift(id) {
   loadData();
 }
 
-function openEditor(id, planned, actual, childName, childTime) {
+function openEditor(id, planned, actual, childName, childTime, note) {
   currentShiftId = id;
   document.getElementById("modal").style.display = "block";
   document.getElementById("m_planned").value = planned;
   document.getElementById("m_actual").value = actual;
   document.getElementById("m_latest_child_name").value = childName;
   document.getElementById("m_latest_child_time").value = childTime;
+  document.getElementById("m_note").value = note;
 }
 
 function closeModal() {
@@ -246,6 +248,7 @@ async function saveModal() {
   const actual = document.getElementById("m_actual").value;
   const childName = document.getElementById("m_latest_child_name").value;
   const childTime = document.getElementById("m_latest_child_time").value;
+  const note = document.getElementById("m_note").value;
 
   const [pStart, pEnd] = planned.split("-");
   const [aStart, aEnd] = actual.split("-");
@@ -262,6 +265,7 @@ async function saveModal() {
       actual_end: aEnd,
       latest_child_name: childName,
       latest_child_time: childTime,
+      note: note,
     }),
   });
 
