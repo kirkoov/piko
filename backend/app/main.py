@@ -12,7 +12,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
-from app.timecalc import duration, morning_bonus, recommended_shift, shift_difference
+from app.timecalc import (
+    duration,
+    evening_bonus,
+    morning_bonus,
+    recommended_shift,
+    shift_difference,
+)
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
@@ -179,6 +185,10 @@ async def list_shifts(
                 s.actual_end,
             ),
             "morning_bonus": morning_bonus(
+                s.actual_start,
+                s.actual_end,
+            ),
+            "evening_bonus": evening_bonus(
                 s.actual_start,
                 s.actual_end,
             ),

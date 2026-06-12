@@ -1,6 +1,12 @@
 from datetime import datetime
 
+MORNING_SHIFT_START = "05:00"
+MORNING_SHIFT_END = "07:00"
+EVENING_SHIFT_START = "18:00"
+EVENING_SHIFT_END = "22:00"
+
 MORNING_BONUS_MULTIPLIER = 9
+EVENING_BONUS_MULTIPLIER = 4
 SHIFT_DIV_MIN = 30
 
 
@@ -58,11 +64,22 @@ def morning_bonus(actual_start: str, actual_end: str) -> int:
     minutes = overlap_minutes(
         actual_start,
         actual_end,
-        "05:00",
-        "07:00",
+        MORNING_SHIFT_START,
+        MORNING_SHIFT_END,
     )
     completed_blocks = minutes // SHIFT_DIV_MIN
     return completed_blocks * MORNING_BONUS_MULTIPLIER
+
+
+def evening_bonus(actual_start: str, actual_end: str) -> int:
+    minutes = overlap_minutes(
+        actual_start,
+        actual_end,
+        EVENING_SHIFT_START,
+        EVENING_SHIFT_END,
+    )
+    completed_blocks = minutes // SHIFT_DIV_MIN
+    return completed_blocks * EVENING_BONUS_MULTIPLIER
 
 
 def to_minutes(t: str) -> int:
@@ -86,8 +103,6 @@ def format_minutes(minutes: int) -> str:
 
 def duration(start: str, end: str) -> int:
     fmt = "%H:%M"
-
     start_dt = datetime.strptime(start, fmt)
     end_dt = datetime.strptime(end, fmt)
-
     return int((end_dt - start_dt).total_seconds() // 60)
