@@ -26,6 +26,8 @@ const translations = {
     delete: "Delete",
     reallyDelete: "Really delete?",
     morningBonus: "Morning bonus",
+    eveningBonus: "Evening bonus",
+    suggestedShift: "Suggested shift",
   },
 
   fi: {
@@ -49,6 +51,8 @@ const translations = {
     delete: "Poista",
     reallyDelete: "Poistetaanko?",
     morningBonus: "Aamulisä",
+    eveningBonus: "Iltalisä",
+    suggestedShift: "Ehdotettu vuoro",
   },
 
   ru: {
@@ -71,7 +75,9 @@ const translations = {
     edit: "Изменить",
     delete: "Удалить",
     reallyDelete: "Точно удалить?",
-    morningBonus: "Утро-надбавка",
+    morningBonus: "Утро-кап",
+    eveningBonus: "Вечер-кап",
+    suggestedShift: "Рекомендуемая смена",
   },
 };
 
@@ -154,7 +160,7 @@ async function loadData() {
 
                 ${
                   s.recommended_shift
-                    ? `<p>Suggested shift: ${s.recommended_shift}</p>`
+                    ? `<p>${t("suggestedShift")}: ${s.recommended_shift}</p>`
                     : ""
                 }
 
@@ -170,7 +176,7 @@ async function loadData() {
 
                 ${
                   s.evening_bonus > 0
-                    ? `<p>Evening bonus: +${s.evening_bonus} ${t("min")}</p>`
+                    ? `<p>${t("eveningBonus")}: +${s.evening_bonus} ${t("min")}</p>`
                     : ""
                 }
 
@@ -322,9 +328,7 @@ async function addShift() {
   const childTime = document
     .getElementById("new_latest_child_time")
     .value.trim();
-  const note = document
-    .getElementById("new_note")
-    .value.trim();
+  const note = document.getElementById("new_note").value.trim();
 
   if (!date || !planned || !actual || !childName || !childTime) {
     alert("Fill all fields");
@@ -343,7 +347,7 @@ async function addShift() {
     actual_end: aEnd,
     latest_child_name: childName,
     latest_child_time: childTime,
-    note: note
+    note: note,
   });
 
   const response = await fetch(`/shifts?${params}`, {

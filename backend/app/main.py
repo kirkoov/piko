@@ -117,6 +117,7 @@ async def create_shift(
     actual_end: str,
     latest_child_name: str,
     latest_child_time: str,
+    note: str = "",
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
@@ -143,6 +144,7 @@ async def create_shift(
         actual_end=actual_end,
         latest_child_name=latest_child_name,
         latest_child_time=latest_child_time,
+        note=note,
     )
 
     db.add(shift)
