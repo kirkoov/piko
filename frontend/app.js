@@ -1,8 +1,14 @@
-const VER = "0.1";
+// const VER = "0.1";
 const CURRENT_USER_ID = 1;
 let lang = localStorage.getItem("language") || "fi";
 let currentShiftId = null;
 let pendingDelete = null;
+const esc = (s) =>
+  String(s)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "");
 
 const translations = {
   en: {
@@ -184,9 +190,9 @@ async function loadData() {
                     ${s.id},
                     '${s.planned}',
                     '${s.actual}',
-                    '${s.latest_child_name}',
+                    '${esc(s.latest_child_name)}',
                     '${s.latest_child_time}',
-                    '${s.note}'
+                    '${esc(s.note)}'
                 )">
                 ${t("edit")}
             </button>
@@ -203,38 +209,54 @@ async function loadData() {
     .join("");
 }
 
-async function editShift(id, planned, actual) {
-  const newPlanned = prompt("Planned (HH:MM-HH:MM)", planned);
-  if (!newPlanned) return;
+// async function editShift(id, planned, actual) {
+//   const newPlanned = prompt("Planned (HH:MM-HH:MM)", planned);
+//   if (!newPlanned) return;
 
-  const newActual = prompt("Actual (HH:MM-HH:MM)", actual);
-  if (!newActual) return;
+//   const newActual = prompt("Actual (HH:MM-HH:MM)", actual);
+//   if (!newActual) return;
 
-  const [pStart, pEnd] = newPlanned.split("-");
-  const [aStart, aEnd] = newActual.split("-");
+//   if (!shiftEndAfterStart(newPlanned)) {
+//     alert("Planned shift end must be after start");
+//     return;
+//   }
 
-  await fetch(`/shifts/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      planned_start: pStart,
-      planned_end: pEnd,
-      actual_start: aStart,
-      actual_end: aEnd,
-    }),
-  });
+//   if (!shiftEndAfterStart(newActual)) {
+//     alert("Actual shift end must be after start");
+//     return;
+//   }
 
-  loadData();
-}
+//   const [pStart, pEnd] = newPlanned.split("-");
+//   const [aStart, aEnd] = newActual.split("-");
+
+//   await fetch(`/shifts/${id}`, {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       planned_start: pStart,
+//       planned_end: pEnd,
+//       actual_start: aStart,
+//       actual_end: aEnd,
+//     }),
+//   });
+
+//   loadData();
+// }
 
 async function deleteShift(id) {
   // if (!confirm("Delete this shift?")) return;
 
-  await fetch(`/shifts/${id}`, {
+  const response = await fetch(`/shifts/${id}`, {
     method: "DELETE",
   });
+
+  if (!response.ok) {
+    const err = await response.json();
+    alert(err.detail);
+    return;
+  }
   pendingDelete = null;
 
   loadData();
@@ -277,10 +299,20 @@ async function saveModal() {
     return;
   }
 
+  if (!shiftEndAfterStart(planned)) {
+    alert("Planned shift end must be after start");
+    return;
+  }
+
+  if (!shiftEndAfterStart(actual)) {
+    alert("Actual shift end must be after start");
+    return;
+  }
+
   const [pStart, pEnd] = planned.split("-");
   const [aStart, aEnd] = actual.split("-");
 
-  await fetch(`/shifts/${currentShiftId}`, {
+  const response = await fetch(`/shifts/${currentShiftId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -295,6 +327,12 @@ async function saveModal() {
       note: note,
     }),
   });
+
+  if (!response.ok) {
+    const err = await response.json();
+    alert(err.detail);
+    return;
+  }
 
   closeModal();
   loadData();
@@ -312,8 +350,8 @@ async function addShift() {
     .value.trim();
   const note = document.getElementById("new_note").value.trim();
 
-  if (!date || !planned || !actual || !childName || !childTime) {
-    alert("Fill all fields");
+  if (!date || !planned || !actual || !childTime) {
+    alert("All fields mandatory except child name");
     return;
   }
 
@@ -329,6 +367,16 @@ async function addShift() {
 
   if (!isValidTime(childTime)) {
     alert("Invalid latest child time");
+    return;
+  }
+
+  if (!shiftEndAfterStart(planned)) {
+    alert("Planned shift end must be after start");
+    return;
+  }
+
+  if (!shiftEndAfterStart(actual)) {
+    alert("Actual shift end must be after start");
     return;
   }
 
@@ -408,6 +456,18 @@ function isValidTime(time) {
 
 function isValidShift(shift) {
   return /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/.test(shift);
+}
+
+function shiftEndAfterStart(shift) {
+  const [start, end] = shift.split("-");
+
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+
+  const startMin = sh * 60 + sm;
+  const endMin = eh * 60 + em;
+
+  return endMin > startMin;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
-
-# from datetime import datetime
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -19,6 +18,7 @@ from app.timecalc import (
     recommended_shift,
     shift_difference,
 )
+from app.validators import validate_shift_data
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
@@ -120,6 +120,19 @@ async def create_shift(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(400, "Invalid date")
+
+    validate_shift_data(
+        planned_start,
+        planned_end,
+        actual_start,
+        actual_end,
+        latest_child_time,
+    )
+
     # CHECK EXISTING SHIFT
     result = await db.execute(
         select(Shift).where(Shift.user_id == user_id, Shift.date == date)
@@ -130,7 +143,7 @@ async def create_shift(
     if existing:
         return {
             "status": "error",
-            "message": "Shift already exists for this user & latest child on this date",
+            "message": "Shift already exists for this user on this date",
             "shift_id": existing.id,
         }
 
@@ -229,6 +242,14 @@ async def update_shift(
 
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
+
+    validate_shift_data(
+        data.planned_start,
+        data.planned_end,
+        data.actual_start,
+        data.actual_end,
+        data.latest_child_time,
+    )
 
     shift.planned_start = data.planned_start
     shift.planned_end = data.planned_end
