@@ -281,6 +281,11 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
             s.actual_end,
         )
 
+        total += evening_bonus(
+            s.actual_start,
+            s.actual_end,
+        )
+
     # starting_balance = 0  # later: from DB or payroll system
     user_result = await db.execute(select(User).where(User.id == user_id))
     user = user_result.scalars().first()

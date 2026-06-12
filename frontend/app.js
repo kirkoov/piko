@@ -168,6 +168,12 @@ async function loadData() {
                     : ""
                 }
 
+                ${
+                  s.evening_bonus > 0
+                    ? `<p>Evening bonus: +${s.evening_bonus} ${t("min")}</p>`
+                    : ""
+                }
+
                 <button onclick="openEditor(
                     ${s.id},
                     '${s.planned}',
@@ -316,6 +322,9 @@ async function addShift() {
   const childTime = document
     .getElementById("new_latest_child_time")
     .value.trim();
+  const note = document
+    .getElementById("new_note")
+    .value.trim();
 
   if (!date || !planned || !actual || !childName || !childTime) {
     alert("Fill all fields");
@@ -334,6 +343,7 @@ async function addShift() {
     actual_end: aEnd,
     latest_child_name: childName,
     latest_child_time: childTime,
+    note: note
   });
 
   const response = await fetch(`/shifts?${params}`, {
@@ -352,6 +362,7 @@ async function addShift() {
   document.getElementById("new_actual").value = "";
   document.getElementById("new_latest_child_name").value = "";
   document.getElementById("new_latest_child_time").value = "";
+  document.getElementById("new_note").value = "";
 
   loadData();
 }
