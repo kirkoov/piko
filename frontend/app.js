@@ -285,39 +285,6 @@ async function saveModal() {
   loadData();
 }
 
-function closeEditor() {
-  currentShiftId = null;
-  document.getElementById("editor").style.display = "none";
-}
-
-async function saveShift() {
-  const planned = document.getElementById("e_planned").value;
-  const actual = document.getElementById("e_actual").value;
-  const latest_child_n = document.getElementById("e_latest_child_name").value;
-  const latest_child_t = document.getElementById("e_latest_child_time").value;
-
-  const [pStart, pEnd] = planned.split("-");
-  const [aStart, aEnd] = actual.split("-");
-
-  await fetch(`/shifts/${currentShiftId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      planned_start: pStart,
-      planned_end: pEnd,
-      actual_start: aStart,
-      actual_end: aEnd,
-      latest_child_name: latest_child_n,
-      latest_child_time: latest_child_t,
-    }),
-  });
-
-  closeEditor();
-  loadData();
-}
-
 async function addShift() {
   const date = document.getElementById("new_date").value.trim();
   const planned = document.getElementById("new_planned").value.trim();
