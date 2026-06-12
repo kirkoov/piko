@@ -59,7 +59,7 @@ const translations = {
     m: "м",
     h: "ч",
     refresh: "Обновить",
-    balance: "Баланс",
+    balance: "Накапало",
     shifts: "Смены",
     addShift: "Добавить смену",
     planned: "по плану",

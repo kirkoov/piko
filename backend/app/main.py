@@ -55,6 +55,14 @@ async def get_db():
         yield session
 
 
+@app.get("/stats")
+async def get_stats(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    ...
+
+
 @app.post("/users")
 async def create_user(
     name: str,
@@ -140,14 +148,15 @@ async def create_shift(
     db.add(shift)
     await db.commit()
 
-    diff = shift_difference(
-        planned_start,
-        planned_end,
-        actual_start,
-        actual_end,
-    )
+    # diff = shift_difference(
+    #     planned_start,
+    #     planned_end,
+    #     actual_start,
+    #     actual_end,
+    # )
 
-    return {"status": "created", "overtime_minutes": diff}
+    # return {"status": "created", "delta_minutes": diff}
+    return {"status": "created"}
 
 
 @app.get("/shifts")
@@ -230,14 +239,16 @@ async def update_shift(
 
     await db.commit()
 
-    diff = shift_difference(
-        shift.planned_start,
-        shift.planned_end,
-        shift.actual_start,
-        shift.actual_end,
-    )
+    # diff = shift_difference(
+    #     shift.planned_start,
+    #     shift.planned_end,
+    #     shift.actual_start,
+    #     shift.actual_end,
+    # )
 
-    return {"status": "updated", "shift_id": shift_id, "overtime_minutes": diff}
+    # return {"status": "updated", "shift_id": shift_id, "delta_minutes": diff}
+    return {"status": "updated", "shift_id": shift_id}
+
 
 
 @app.delete("/shifts/{shift_id}")
