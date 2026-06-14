@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv(
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=os.getenv("SQL_ECHO") == "1",
 )
 
 SessionLocal = async_sessionmaker(

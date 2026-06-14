@@ -1,4 +1,6 @@
 # DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
+# SQL_ECHO=1 ./check.sh
+# ./check.sh
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -168,6 +170,7 @@ async def test_get_balance():
     assert response.status_code == 200
     data = response.json()
     assert "balance_minutes" in data
+    assert data["balance_minutes"] == 60
 
 
 @pytest.mark.asyncio
@@ -190,6 +193,8 @@ async def test_get_shifts():
     assert isinstance(data[0], dict)
     assert len(data) >= 1
     assert any(s["date"] == "2026-06-14" for s in data)
+    assert data[0]["actual"] == "08:00-17:00"
+    assert data[0]["note"] == "Matti leaves later"
 
 
 @pytest.mark.asyncio
