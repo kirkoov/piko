@@ -116,8 +116,53 @@ async def test_create_shift_end_before_start():
             "/shifts",
             params=BAD_END,
         )
-    
+
     print(response.status_code)
     print(response.json())
 
     assert response.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_get_balance():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get(
+            "/balance",
+            params={"user_id": 1},
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "balance_minutes" in data
+
+
+@pytest.mark.asyncio
+async def test_get_shifts():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+
+        response = await client.get(
+            "/shifts",
+            params={"user_id": 1},
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert isinstance(data[0], dict)
+    assert len(data) >= 1
+    assert any(
+        s["date"] == "2026-06-14"
+        for s in data
+    )
