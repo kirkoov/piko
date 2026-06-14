@@ -61,6 +61,34 @@ async def test_create_shift_success():
 
 
 @pytest.mark.asyncio
+async def test_update_shift():
+
+    transport = ASGITransport(app=app)
+
+    UPDATER = TEST_SHIFT_PARAMS.copy()
+    del UPDATER["user_id"]
+    del UPDATER["date"]
+    UPDATER["actual_end"] = "17:00"
+    UPDATER["latest_child_name"] = "Sara"
+    UPDATER["latest_child_time"] = "16:30"
+    UPDATER["note"] = "Matti leaves later"
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.put(
+            "/shifts/1",
+            json=UPDATER,
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "updated"
+    assert data["shift_id"] == 1
+
+
+@pytest.mark.asyncio
 async def test_create_shift_duplicate():
 
     transport = ASGITransport(app=app)
@@ -151,7 +179,6 @@ async def test_get_shifts():
         transport=transport,
         base_url=BASE_URL,
     ) as client:
-
         response = await client.get(
             "/shifts",
             params={"user_id": 1},
@@ -162,7 +189,21 @@ async def test_get_shifts():
     assert isinstance(data, list)
     assert isinstance(data[0], dict)
     assert len(data) >= 1
-    assert any(
-        s["date"] == "2026-06-14"
-        for s in data
-    )
+    assert any(s["date"] == "2026-06-14" for s in data)
+
+
+@pytest.mark.asyncio
+async def test_delete_shift():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+
+        response = await client.delete("/shifts/1")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "deleted"
