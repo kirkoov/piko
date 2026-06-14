@@ -1,5 +1,6 @@
 {
     "cSpell.ignoreWords": [
+        "ASGI",
         "Aamulisä",
         "Artem",
         "Cадо",
@@ -19,5 +20,8 @@
         "Детсадо",
         "Мазо"
     ],
-    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python"
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "cSpell.words": [
+        "autouse"
+    ]
 }
