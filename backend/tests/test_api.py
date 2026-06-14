@@ -201,7 +201,6 @@ async def test_delete_shift():
         transport=transport,
         base_url=BASE_URL,
     ) as client:
-
         response = await client.delete("/shifts/1")
 
     assert response.status_code == 200
