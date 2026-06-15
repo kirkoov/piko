@@ -84,10 +84,20 @@ async def test_update_shift():
             json=UPDATER,
         )
 
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "updated"
-    assert data["shift_id"] == 1
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "updated"
+        assert data["shift_id"] == 1
+
+        response = await client.get(
+            "/shifts",
+            params={"user_id": 1},
+        )
+
+        shifts = response.json()
+
+    assert shifts[0]["actual"] == "08:00-17:00"
+    assert shifts[0]["note"] == "Matti leaves later"
 
 
 @pytest.mark.asyncio
@@ -108,6 +118,7 @@ async def test_create_shift_duplicate():
 
     data = response.json()
     assert data["status"] == "error"
+    assert "already" in data["message"].lower()
 
 
 @pytest.mark.asyncio
@@ -170,7 +181,75 @@ async def test_get_balance():
     assert response.status_code == 200
     data = response.json()
     assert "balance_minutes" in data
+    # Planned 08-16 (480 min)
+    # Actual 08-17 (540 min)
+    # Difference = +60
     assert data["balance_minutes"] == 60
+
+
+@pytest.mark.asyncio
+async def test_get_balance_unknown_user():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get(
+            "/balance",
+            params={"user_id": 999},
+        )
+
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "User not found"
+
+
+@pytest.mark.asyncio
+async def test_get_balance_empty_user():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        await client.post(
+            "/users",
+            params={"name": "Bob"},
+        )
+
+        response = await client.get(
+            "/balance",
+            params={"user_id": 2},
+        )
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["balance_minutes"] == 0
+
+
+@pytest.mark.asyncio
+async def test_get_balance_calculated():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get(
+            "/balance",
+            params={"user_id": 1},
+        )
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert "balance_minutes" in data
+    assert data["user_id"] == 1
 
 
 @pytest.mark.asyncio
@@ -208,6 +287,13 @@ async def test_delete_shift():
     ) as client:
         response = await client.delete("/shifts/1")
 
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "deleted"
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "deleted"
+
+        response = await client.get(
+            "/shifts",
+            params={"user_id": 1},
+        )
+        data = response.json()
+        assert len(data) == 0
