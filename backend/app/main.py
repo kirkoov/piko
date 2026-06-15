@@ -163,14 +163,6 @@ async def create_shift(
     db.add(shift)
     await db.commit()
 
-    # diff = shift_difference(
-    #     planned_start,
-    #     planned_end,
-    #     actual_start,
-    #     actual_end,
-    # )
-
-    # return {"status": "created", "delta_minutes": diff}
     return {"status": "created"}
 
 
@@ -190,8 +182,6 @@ async def list_shifts(
         {
             "id": s.id,
             "date": s.date,
-            # "display_date": d.strftime("%d.%m.%Y"),
-            # "weekday": d.strftime("%A"),
             "planned": f"{s.planned_start}-{s.planned_end}",
             "actual": f"{s.actual_start}-{s.actual_end}",
             "planned_minutes": duration(
@@ -226,7 +216,6 @@ async def list_shifts(
             ),
         }
         for s in shifts
-        # for d in [datetime.strptime(s.date, "%Y-%m-%d")]
     ]
 
 
@@ -262,14 +251,6 @@ async def update_shift(
 
     await db.commit()
 
-    # diff = shift_difference(
-    #     shift.planned_start,
-    #     shift.planned_end,
-    #     shift.actual_start,
-    #     shift.actual_end,
-    # )
-
-    # return {"status": "updated", "shift_id": shift_id, "delta_minutes": diff}
     return {"status": "updated", "shift_id": shift_id}
 
 
@@ -297,28 +278,6 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
 
     result = await db.execute(select(Shift).where(Shift.user_id == user_id))
     shifts = result.scalars().all()
-
-    # total = 0
-
-    # for s in shifts:
-    #     total += shift_difference(
-    #         s.planned_start,
-    #         s.planned_end,
-    #         s.actual_start,
-    #         s.actual_end,
-    #     )
-
-    #     total += morning_bonus(
-    #         s.actual_start,
-    #         s.actual_end,
-    #     )
-
-    #     total += evening_bonus(
-    #         s.actual_start,
-    #         s.actual_end,
-    #     )
-
-    # starting_balance = 0  # later: from DB or payroll system
 
     user_result = await db.execute(select(User).where(User.id == user_id))
     user = user_result.scalars().first()
