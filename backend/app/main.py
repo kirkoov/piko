@@ -56,11 +56,11 @@ async def get_db():
         yield session
 
 
-@app.get("/stats")
-async def get_stats(
-    user_id: int,
-    db: AsyncSession = Depends(get_db),
-): ...
+# @app.get("/stats")
+# async def get_stats(
+#     user_id: int,
+#     db: AsyncSession = Depends(get_db),
+# ): ...
 
 
 @app.post("/users")
