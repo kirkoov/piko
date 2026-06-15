@@ -34,18 +34,10 @@ def shifts_in_period(
 ) -> list[dict]:
 
     start, end = period_for_date(date_str)
-    start_dt = datetime.strptime(start, "%Y-%m-%d").date()
-    end_dt = datetime.strptime(end, "%Y-%m-%d").date()
-
     result = []
-
     for shift in shifts:
-        shift_date = datetime.strptime(
-            shift["date"],
-            "%Y-%m-%d",
-        ).date()
+        shift_date = shift["date"]
 
-        if start_dt <= shift_date <= end_dt:
+        if start <= shift_date <= end:
             result.append(shift)
-
     return result
