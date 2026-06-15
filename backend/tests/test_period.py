@@ -35,3 +35,27 @@ def test_shifts_in_period():
     assert result[0]["date"] == "2026-06-08"
     assert result[1]["date"] == "2026-06-15"
     assert result[2]["date"] == "2026-06-28"
+
+
+def test_empty_period():
+    shifts = [
+        {"date": "2026-05-01"},
+        {"date": "2026-05-15"},
+    ]
+    result = shifts_in_period(
+        shifts,
+        "2026-06-20",
+    )
+    assert result == []
+
+
+def test_period_boundaries():
+    shifts = [
+        {"date": "2026-06-08"},
+        {"date": "2026-06-28"},
+    ]
+    result = shifts_in_period(
+        shifts,
+        "2026-06-20",
+    )
+    assert result == [{"date": "2026-06-08"}, {"date": "2026-06-28"}]
