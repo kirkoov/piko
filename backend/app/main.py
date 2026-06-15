@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.balance import calculate_balance
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
 from app.timecalc import (
@@ -295,30 +296,30 @@ async def delete_shift(
 async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
 
     result = await db.execute(select(Shift).where(Shift.user_id == user_id))
-
     shifts = result.scalars().all()
 
-    total = 0
+    # total = 0
 
-    for s in shifts:
-        total += shift_difference(
-            s.planned_start,
-            s.planned_end,
-            s.actual_start,
-            s.actual_end,
-        )
+    # for s in shifts:
+    #     total += shift_difference(
+    #         s.planned_start,
+    #         s.planned_end,
+    #         s.actual_start,
+    #         s.actual_end,
+    #     )
 
-        total += morning_bonus(
-            s.actual_start,
-            s.actual_end,
-        )
+    #     total += morning_bonus(
+    #         s.actual_start,
+    #         s.actual_end,
+    #     )
 
-        total += evening_bonus(
-            s.actual_start,
-            s.actual_end,
-        )
+    #     total += evening_bonus(
+    #         s.actual_start,
+    #         s.actual_end,
+    #     )
 
     # starting_balance = 0  # later: from DB or payroll system
+
     user_result = await db.execute(select(User).where(User.id == user_id))
     user = user_result.scalars().first()
 
@@ -328,9 +329,14 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
             detail="User not found",
         )
 
+    balance = calculate_balance(
+        user.starting_balance_minutes,
+        shifts,
+    )
+
     return {
         "user_id": user_id,
-        "balance_minutes": user.starting_balance_minutes + total,
+        "balance_minutes": balance,
     }
 
 
