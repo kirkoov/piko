@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.balance import calculate_balance
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
+from app.period import period_for_date, shifts_in_period
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -54,13 +55,6 @@ app = FastAPI(title="Piko", lifespan=lifespan)
 async def get_db():
     async with SessionLocal() as session:
         yield session
-
-
-# @app.get("/stats")
-# async def get_stats(
-#     user_id: int,
-#     db: AsyncSession = Depends(get_db),
-# ): ...
 
 
 @app.post("/users")
@@ -296,6 +290,54 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
     return {
         "user_id": user_id,
         "balance_minutes": balance,
+    }
+
+
+@app.get("/current-period")
+async def current_period(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+
+    user_result = await db.execute(select(User).where(User.id == user_id))
+
+    user = user_result.scalars().first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    result = await db.execute(
+        select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
+    )
+
+    shifts = result.scalars().all()
+
+    today = date.today().isoformat()
+
+    start, end = period_for_date(today)
+
+    shift_dicts = [
+        {
+            "id": s.id,
+            "date": s.date,
+            "planned": f"{s.planned_start}-{s.planned_end}",
+            "actual": f"{s.actual_start}-{s.actual_end}",
+        }
+        for s in shifts
+    ]
+
+    current_shifts = shifts_in_period(
+        shift_dicts,
+        today,
+    )
+
+    return {
+        "period_start": start,
+        "period_end": end,
+        "shifts": current_shifts,
     }
 
 

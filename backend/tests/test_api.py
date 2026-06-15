@@ -397,3 +397,28 @@ async def test_get_users():
     assert isinstance(data, list)
     assert len(data) >= 1
     assert any(u["name"] == "Alice" for u in data)
+
+
+@pytest.mark.asyncio
+async def test_current_period():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get(
+            "/current-period",
+            params={"user_id": 1},
+        )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "period_start" in data
+    assert "period_end" in data
+    assert "shifts" in data
+    assert isinstance(data["shifts"], list)
+    assert data["period_start"] <= data["period_end"]
