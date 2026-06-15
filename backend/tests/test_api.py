@@ -44,6 +44,29 @@ async def test_create_user():
 
 
 @pytest.mark.asyncio
+async def test_create_user_duplicate():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        await client.post(
+            "/users",
+            params={"name": "Charlie"},
+        )
+
+        response = await client.post(
+            "/users",
+            params={"name": "Charlie"},
+        )
+
+    data = response.json()
+    assert data["status"] == "error"
+
+
+@pytest.mark.asyncio
 async def test_create_shift_success():
 
     transport = ASGITransport(app=app)
@@ -297,3 +320,80 @@ async def test_delete_shift():
         )
         data = response.json()
         assert len(data) == 0
+
+
+@pytest.mark.asyncio
+async def test_update_shift_not_found():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.put(
+            "/shifts/999",
+            json={
+                "planned_start": "08:00",
+                "planned_end": "16:00",
+                "actual_start": "08:00",
+                "actual_end": "16:00",
+                "latest_child_name": "Test",
+                "latest_child_time": "15:00",
+                "note": "",
+            },
+        )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_shift_not_found():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.delete("/shifts/999")
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_shifts_empty_user():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get(
+            "/shifts",
+            params={"user_id": 999},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_get_users():
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=BASE_URL,
+    ) as client:
+        response = await client.get("/users")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    assert any(u["name"] == "Alice" for u in data)
