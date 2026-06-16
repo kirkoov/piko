@@ -115,7 +115,7 @@ async function loadAllShifts() {
   renderShifts(shifts);
 }
 
-async function loadData() {
+async function loadCurrentPeriod() {
   const balanceRes = await fetch(`/balance?user_id=${CURRENT_USER_ID}`);
   const balance = await balanceRes.json();
 
@@ -329,7 +329,7 @@ async function saveModal() {
   }
 
   closeModal();
-  loadData();
+  await refreshShifts();
 }
 
 async function addShift() {
@@ -407,7 +407,7 @@ async function addShift() {
   document.getElementById("new_latest_child_time").value = "";
   document.getElementById("new_note").value = "";
 
-  loadData();
+  await refreshShifts();
 }
 
 function formatDate(dateString) {
@@ -437,11 +437,11 @@ function formatDelta(minutes) {
   return `${sign}${hours}${t("h")} ${mins}${t("m")}`;
 }
 
-function changeLanguage() {
+async function changeLanguage() {
   lang = document.getElementById("language").value;
   localStorage.setItem("language", lang);
   applyTranslations();
-  loadData();
+  await refreshShifts();
 }
 
 function isValidTime(time) {
@@ -474,7 +474,7 @@ async function toggleShiftsView() {
   } else {
     button.textContent = "Show all shifts";
     document.getElementById("period-title").textContent = "Current period";
-    await loadData();
+    await loadCurrentPeriod();
   }
 }
 
@@ -482,7 +482,7 @@ async function refreshShifts() {
   if (showAllShifts) {
     await loadAllShifts();
   } else {
-    await loadData();
+    await loadCurrentPeriod();
   }
 }
 
@@ -495,5 +495,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   applyTranslations();
-  loadData();
+  refreshShifts();
 });
