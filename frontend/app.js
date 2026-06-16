@@ -108,6 +108,12 @@ function askDelete(id) {
   loadData();
 }
 
+async function loadAllShifts() {
+  const response = await fetch(`/shifts?user_id=${CURRENT_USER_ID}`);
+  const shifts = await response.json();
+  renderShifts(shifts);
+}
+
 async function loadData() {
   const balanceRes = await fetch(`/balance?user_id=${CURRENT_USER_ID}`);
   const balance = await balanceRes.json();
@@ -128,16 +134,16 @@ async function loadData() {
             ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
         </div>`;
 
-  const shiftsRes = await fetch(
-    `/current-period?user_id=${CURRENT_USER_ID}`,
-  );
+  const shiftsRes = await fetch(`/current-period?user_id=${CURRENT_USER_ID}`);
 
   const periodData = await shiftsRes.json();
   document.getElementById("period").textContent =
-  `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
-
+    `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
   const shifts = periodData.shifts;
+  renderShifts(shifts);
+}
 
+function renderShifts(shifts) {
   document.getElementById("shifts").innerHTML = shifts
     .map((s) => {
       const deltaClass =
@@ -215,8 +221,6 @@ async function loadData() {
     })
     .join("");
 }
-
-
 
 async function deleteShift(id) {
   // if (!confirm("Delete this shift?")) return;
