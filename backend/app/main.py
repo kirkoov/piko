@@ -388,20 +388,9 @@ async def list_periods(
     )
 
     shifts = result.scalars().all()
-
     shift_dicts = [shift_to_dict(s) for s in shifts]
-
     periods = group_shifts_by_period(shift_dicts)
-
-    return [
-        {
-            "period_start": p["period_start"],
-            "period_end": p["period_end"],
-            "balance_minutes": p["balance_minutes"],
-            "shift_count": p["shift_count"],
-        }
-        for p in periods
-    ]
+    return periods
 
 
 app.mount(

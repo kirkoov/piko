@@ -10,6 +10,7 @@ const esc = (s) =>
     .replace(/\n/g, "\\n")
     .replace(/\r/g, "");
 let showAllShifts = false;
+let expandedPeriods = {};
 
 const translations = {
   en: {
@@ -240,26 +241,56 @@ function renderShifts(shifts) {
 
 function renderPeriods(periods) {
   document.getElementById("shifts").innerHTML = periods
-    .map(
-      (p) => `
-      <div class="shift-card">
-        <h3>
-          ${formatDate(p.period_start)}
-          -
-          ${formatDate(p.period_end)}
-        </h3>
+    .map((p) => {
+      const key = `${p.period_start}-${p.period_end}`;
+      const expanded = expandedPeriods[key];
 
-        <p>Balance:
-          ${formatDelta(p.balance_minutes)}
-        </p>
+      return `
+        <div class="shift-card">
 
-        <p>
-          Shifts: ${p.shift_count}
-        </p>
-      </div>
-    `,
-    )
+          <div onclick="togglePeriod('${key}')">
+
+            <h3>
+              ${formatDate(p.period_start)}
+              -
+              ${formatDate(p.period_end)}
+            </h3>
+
+            <p>
+              Balance:
+              ${formatDelta(p.balance_minutes)}
+            </p>
+
+            <p>
+              Shifts: ${p.shift_count}
+            </p>
+
+          </div>
+
+          ${
+            expanded
+              ? p.shifts
+                  .map(
+                    (s) => `
+                    <div class="shift-subcard">
+                      <b>${formatDate(s.date)}</b>
+                      <p>${s.actual}</p>
+                    </div>
+                  `,
+                  )
+                  .join("")
+              : ""
+          }
+
+        </div>
+      `;
+    })
     .join("");
+}
+
+function togglePeriod(periodKey) {
+  expandedPeriods[periodKey] = !expandedPeriods[periodKey];
+  loadAllShifts();
 }
 
 async function deleteShift(id) {
