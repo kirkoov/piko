@@ -106,7 +106,7 @@ function applyTranslations() {
 
 function askDelete(id) {
   pendingDelete = id;
-  loadData();
+  refreshShifts();
 }
 
 async function loadAllShifts() {
@@ -238,9 +238,8 @@ function renderShifts(shifts) {
     .join("");
 }
 
-async function deleteShift(id) {
-  // if (!confirm("Delete this shift?")) return;
 
+async function deleteShift(id) {
   const response = await fetch(`/shifts/${id}`, {
     method: "DELETE",
   });
@@ -250,10 +249,12 @@ async function deleteShift(id) {
     alert(err.detail);
     return;
   }
+
   pendingDelete = null;
 
-  loadData();
+  await refreshShifts();
 }
+
 
 function openEditor(id, planned, actual, childName, childTime, note) {
   currentShiftId = id;
@@ -473,6 +474,14 @@ async function toggleShiftsView() {
   } else {
     button.textContent = "Show all shifts";
     document.getElementById("period-title").textContent = "Current period";
+    await loadData();
+  }
+}
+
+async function refreshShifts() {
+  if (showAllShifts) {
+    await loadAllShifts();
+  } else {
     await loadData();
   }
 }
