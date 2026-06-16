@@ -34,6 +34,7 @@ const translations = {
     morningBonus: "Morning bonus",
     eveningBonus: "Evening bonus",
     suggestedShift: "Suggested shift",
+    currentPeriod: "Current period",
   },
 
   fi: {
@@ -59,6 +60,7 @@ const translations = {
     morningBonus: "Aamulisä",
     eveningBonus: "Iltalisä",
     suggestedShift: "Ehdotettu vuoro",
+    currentPeriod: "Current period",
   },
 
   ru: {
@@ -84,6 +86,7 @@ const translations = {
     morningBonus: "Утро-кап",
     eveningBonus: "Вечер-кап",
     suggestedShift: "Рекомендуемая смена",
+    currentPeriod: "Отчетный период",
   },
 };
 
