@@ -110,9 +110,9 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
-  const response = await fetch(`/shifts?user_id=${CURRENT_USER_ID}`);
-  const shifts = await response.json();
-  renderShifts(shifts);
+  const response = await fetch(`/periods?user_id=${CURRENT_USER_ID}`);
+  const periods = await response.json();
+  renderPeriods(periods);
 }
 
 async function loadCurrentPeriod() {
@@ -238,6 +238,29 @@ function renderShifts(shifts) {
     .join("");
 }
 
+function renderPeriods(periods) {
+  document.getElementById("shifts").innerHTML = periods
+    .map(
+      (p) => `
+      <div class="shift-card">
+        <h3>
+          ${formatDate(p.period_start)}
+          -
+          ${formatDate(p.period_end)}
+        </h3>
+
+        <p>Balance:
+          ${formatDelta(p.balance_minutes)}
+        </p>
+
+        <p>
+          Shifts: ${p.shift_count}
+        </p>
+      </div>
+    `,
+    )
+    .join("");
+}
 
 async function deleteShift(id) {
   const response = await fetch(`/shifts/${id}`, {
@@ -254,7 +277,6 @@ async function deleteShift(id) {
 
   await refreshShifts();
 }
-
 
 function openEditor(id, planned, actual, childName, childTime, note) {
   currentShiftId = id;
