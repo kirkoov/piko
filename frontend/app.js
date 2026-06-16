@@ -26,8 +26,8 @@ const translations = {
     plannedPhldr: "Planned (HH:MM-HH:MM)",
     actualPhldr: "Actual (HH:MM-HH:MM)",
     actual: "Actual",
-    latestChild: "Latest kid",
-    latestChildNamePhldr: "Latest kid's name",
+    latestChild: "Latest child",
+    latestChildNamePhldr: "Latest child name",
     edit: "Edit",
     delete: "Delete",
     reallyDelete: "Really delete?",
@@ -52,7 +52,7 @@ const translations = {
     actualPhldr: "Actual (HH:MM-HH:MM)",
     actual: "Toteutunut",
     latestChild: "Viimeinen lapsi",
-    latestChildNamePhldr: "Latest kid's name",
+    latestChildNamePhldr: "Latest child name",
     edit: "Muokkaa",
     delete: "Poista",
     reallyDelete: "Poistetaanko?",
@@ -128,8 +128,15 @@ async function loadData() {
             ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
         </div>`;
 
-  const shiftsRes = await fetch(`/shifts?user_id=${CURRENT_USER_ID}`);
-  const shifts = await shiftsRes.json();
+  const shiftsRes = await fetch(
+    `/current-period?user_id=${CURRENT_USER_ID}`,
+  );
+
+  const periodData = await shiftsRes.json();
+  document.getElementById("period").textContent =
+  `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
+
+  const shifts = periodData.shifts;
 
   document.getElementById("shifts").innerHTML = shifts
     .map((s) => {
@@ -209,41 +216,7 @@ async function loadData() {
     .join("");
 }
 
-// async function editShift(id, planned, actual) {
-//   const newPlanned = prompt("Planned (HH:MM-HH:MM)", planned);
-//   if (!newPlanned) return;
 
-//   const newActual = prompt("Actual (HH:MM-HH:MM)", actual);
-//   if (!newActual) return;
-
-//   if (!shiftEndAfterStart(newPlanned)) {
-//     alert("Planned shift end must be after start");
-//     return;
-//   }
-
-//   if (!shiftEndAfterStart(newActual)) {
-//     alert("Actual shift end must be after start");
-//     return;
-//   }
-
-//   const [pStart, pEnd] = newPlanned.split("-");
-//   const [aStart, aEnd] = newActual.split("-");
-
-//   await fetch(`/shifts/${id}`, {
-//     method: "PUT",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       planned_start: pStart,
-//       planned_end: pEnd,
-//       actual_start: aStart,
-//       actual_end: aEnd,
-//     }),
-//   });
-
-//   loadData();
-// }
 
 async function deleteShift(id) {
   // if (!confirm("Delete this shift?")) return;

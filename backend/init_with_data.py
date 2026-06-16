@@ -34,7 +34,7 @@ async def main():
                 "21:45",
                 "Petya",
                 "21:45",
-                "left_with_latest_child",
+                "Left with latest child",
             ),
             (
                 "2026-06-10",
@@ -55,7 +55,7 @@ async def main():
                 "21:00",
                 "Sofia",
                 "21:00",
-                "shift_adjusted_before_start",
+                "Shift adjusted before start",
             ),
             (
                 "2026-06-12",

@@ -37,7 +37,6 @@ def shifts_in_period(
     result = []
     for shift in shifts:
         shift_date = shift["date"]
-
         if start <= shift_date <= end:
             result.append(shift)
     return result
