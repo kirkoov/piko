@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.balance import calculate_balance
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
-from app.period import period_for_date, shifts_in_period
+from app.period import group_shifts_by_period, period_for_date, shifts_in_period
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -376,6 +376,32 @@ async def current_period(
         "period_end": end,
         "shifts": current_shifts,
     }
+
+
+@app.get("/periods")
+async def list_periods(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> list[dict]:
+    result = await db.execute(
+        select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
+    )
+
+    shifts = result.scalars().all()
+
+    shift_dicts = [shift_to_dict(s) for s in shifts]
+
+    periods = group_shifts_by_period(shift_dicts)
+
+    return [
+        {
+            "period_start": p["period_start"],
+            "period_end": p["period_end"],
+            "balance_minutes": p["balance_minutes"],
+            "shift_count": p["shift_count"],
+        }
+        for p in periods
+    ]
 
 
 app.mount(
