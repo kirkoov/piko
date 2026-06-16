@@ -9,6 +9,7 @@ const esc = (s) =>
     .replace(/'/g, "\\'")
     .replace(/\n/g, "\\n")
     .replace(/\r/g, "");
+let showAllShifts = false;
 
 const translations = {
   en: {
@@ -80,8 +81,8 @@ const translations = {
     edit: "Изменить",
     delete: "Удалить",
     reallyDelete: "Точно удалить?",
-    morningBonus: "Утро-кап",
-    eveningBonus: "Вечер-кап",
+    morningBonus: "Капнуло за утро",
+    eveningBonus: "Капнуло за вечер",
     suggestedShift: "Рекомендуемая смена",
     currentPeriod: "Отчетный период",
   },
@@ -445,6 +446,20 @@ function shiftEndAfterStart(shift) {
   const endMin = eh * 60 + em;
 
   return endMin > startMin;
+}
+
+async function toggleShiftsView() {
+  showAllShifts = !showAllShifts;
+  const button = document.getElementById("toggle-shifts");
+  if (showAllShifts) {
+    button.textContent = "Current period";
+    document.getElementById("period-title").textContent = "All shifts";
+    await loadAllShifts();
+  } else {
+    button.textContent = "Show all shifts";
+    document.getElementById("period-title").textContent = "Current period";
+    await loadData();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

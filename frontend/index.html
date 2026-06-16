@@ -19,8 +19,12 @@
       <option value="en">English</option>
     </select>
 
-    <h2 data-i18n="currentPeriod">Period</h2>
+    <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
     <div id="period"></div>
+
+    <button id="toggle-shifts" onclick="toggleShiftsView()">
+      Show all shifts
+    </button>
 
     <h2 data-i18n="balance">Balance</h2>
     <div id="balance"></div>
@@ -84,10 +88,6 @@
         <button data-i18n="cancel" onclick="closeModal()">Cancel</button>
       </div>
     </div>
-
-    <button onclick="loadAllShifts()">
-      Show all shifts
-  </button>
 
     <script src="app.js"></script>
   </body>
