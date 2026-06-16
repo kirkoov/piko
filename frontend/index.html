@@ -13,8 +13,6 @@
   <body>
     <h1 data-i18n="appTitle">Piko App 0.1</h1>
 
-    <button data-i18n="refresh" onclick="loadData()">Refresh</button>
-
     <select id="language" onchange="changeLanguage()">
       <option value="ru">русский</option>
       <option value="fi">Suomi</option>
@@ -26,9 +24,6 @@
 
     <h2 data-i18n="balance">Balance</h2>
     <div id="balance"></div>
-
-    <!-- <h2>Statistics</h2>
-    <div id="stats"></div> -->
 
     <h2 data-i18n="shifts">Shifts</h2>
     <div id="shifts"></div>
@@ -54,10 +49,7 @@
       />
       <br /><br />
 
-      <input
-        id="new_note"
-        placeholder="Note"
-      />
+      <input id="new_note" placeholder="Note" />
       <br /><br />
       <button data-i18n="addShift" onclick="addShift()">Add Shift</button>
     </div>
