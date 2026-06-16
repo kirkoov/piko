@@ -60,6 +60,7 @@ def group_shifts_by_period(shifts):
                 "period_start": start,
                 "period_end": end,
                 "balance_minutes": balance,
+                "shift_count": len(period_shifts),
                 "shifts": period_shifts,
             }
         )

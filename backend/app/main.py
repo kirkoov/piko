@@ -52,6 +52,51 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Piko", lifespan=lifespan)
 
 
+def shift_to_dict(s: Shift) -> dict:
+    period_start, period_end = period_for_date(
+        s.date,
+    )
+
+    return {
+        "id": s.id,
+        "date": s.date,
+        "period_start": period_start,
+        "period_end": period_end,
+        "planned": f"{s.planned_start}-{s.planned_end}",
+        "actual": f"{s.actual_start}-{s.actual_end}",
+        "planned_minutes": duration(
+            s.planned_start,
+            s.planned_end,
+        ),
+        "actual_minutes": duration(
+            s.actual_start,
+            s.actual_end,
+        ),
+        "delta_minutes": shift_difference(
+            s.planned_start,
+            s.planned_end,
+            s.actual_start,
+            s.actual_end,
+        ),
+        "morning_bonus": morning_bonus(
+            s.actual_start,
+            s.actual_end,
+        ),
+        "evening_bonus": evening_bonus(
+            s.actual_start,
+            s.actual_end,
+        ),
+        "latest_child_name": s.latest_child_name,
+        "latest_child_time": s.latest_child_time,
+        "note": s.note,
+        "recommended_shift": recommended_shift(
+            s.planned_start,
+            s.planned_end,
+            s.latest_child_time,
+        ),
+    }
+
+
 async def get_db():
     async with SessionLocal() as session:
         yield session
@@ -172,55 +217,7 @@ async def list_shifts(
 
     shifts = result.scalars().all()
 
-    result_list = []
-
-    for s in shifts:
-        period_start, period_end = period_for_date(
-            s.date,
-        )
-
-        result_list.append(
-            {
-                "id": s.id,
-                "date": s.date,
-                "period_start": period_start,
-                "period_end": period_end,
-                "planned": f"{s.planned_start}-{s.planned_end}",
-                "actual": f"{s.actual_start}-{s.actual_end}",
-                "planned_minutes": duration(
-                    s.planned_start,
-                    s.planned_end,
-                ),
-                "actual_minutes": duration(
-                    s.actual_start,
-                    s.actual_end,
-                ),
-                "delta_minutes": shift_difference(
-                    s.planned_start,
-                    s.planned_end,
-                    s.actual_start,
-                    s.actual_end,
-                ),
-                "morning_bonus": morning_bonus(
-                    s.actual_start,
-                    s.actual_end,
-                ),
-                "evening_bonus": evening_bonus(
-                    s.actual_start,
-                    s.actual_end,
-                ),
-                "latest_child_name": s.latest_child_name,
-                "latest_child_time": s.latest_child_time,
-                "note": s.note,
-                "recommended_shift": recommended_shift(
-                    s.planned_start,
-                    s.planned_end,
-                    s.latest_child_time,
-                ),
-            }
-        )
-
-    return result_list
+    return [shift_to_dict(s) for s in shifts]
 
 
 @app.put("/shifts/{shift_id}")

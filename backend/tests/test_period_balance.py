@@ -32,6 +32,7 @@ def test_group_shifts_by_period():
 
     assert periods[1]["period_start"] == "2026-06-29"
     assert periods[1]["period_end"] == "2026-07-19"
+    assert periods[1]["shift_count"] == 1
 
 
 def test_period_balance():
