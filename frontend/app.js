@@ -145,8 +145,22 @@ async function loadData() {
 }
 
 function renderShifts(shifts) {
+  let previousPeriod = "";
   document.getElementById("shifts").innerHTML = shifts
     .map((s) => {
+      const periodKey = `${s.period_start}-${s.period_end}`;
+      let header = "";
+      if (showAllShifts && periodKey !== previousPeriod) {
+        header = `
+              <h3>Period:
+                  ${formatDate(s.period_start)}
+                  -
+                  ${formatDate(s.period_end)}
+              </h3>
+          `;
+        previousPeriod = periodKey;
+      }
+
       const deltaClass =
         s.delta_minutes > 0
           ? "delta-positive"
@@ -155,6 +169,7 @@ function renderShifts(shifts) {
             : "delta-neutral";
 
       return `
+            ${header}
             <div class="shift-card">
                 <b>${formatDate(s.date)}</b>
 
