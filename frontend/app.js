@@ -39,8 +39,11 @@ const translations = {
     currentPeriod: "Current period",
     allShifts: "All shifts",
     showAllShifts: "Show all shifts",
+    showCurrentPeriod: "Show current period",
     childLeaves: "leaves",
     addShiftNotePhldr: "Note",
+    showAllShiftsBalance: "Balance",
+    showAllShiftsBalanceShifts: "Shifts",
   },
 
   fi: {
@@ -69,8 +72,11 @@ const translations = {
     currentPeriod: "Current period",
     allShifts: "All shifts",
     showAllShifts: "Show all shifts",
+    showCurrentPeriod: "Показать отчетный период",
     childLeaves: "leaves",
     addShiftNotePhldr: "Note",
+    showAllShiftsBalance: "Balance",
+    showAllShiftsBalanceShifts: "Shifts",
   },
 
   ru: {
@@ -99,8 +105,11 @@ const translations = {
     currentPeriod: "Отчетный период",
     allShifts: "Все смены",
     showAllShifts: "Показать все смены",
+    showCurrentPeriod: "Показать отчетный период",
     childLeaves: "забирают в",
     addShiftNotePhldr: "Примечание",
+    showAllShiftsBalance: "Капнуло",
+    showAllShiftsBalanceShifts: "Смен",
   },
 };
 
@@ -273,12 +282,12 @@ function renderPeriods(periods) {
           </h3>
 
             <p>
-              Balance:
+              ${t("showAllShiftsBalance")}:
               ${formatDelta(p.balance_minutes)}
             </p>
 
             <p>
-              Shifts: ${p.shift_count}
+              ${t("showAllShiftsBalanceShifts")}: ${p.shift_count}
             </p>
 
           </div>
@@ -537,12 +546,12 @@ async function toggleShiftsView() {
   showAllShifts = !showAllShifts;
   const button = document.getElementById("toggle-shifts");
   if (showAllShifts) {
-    button.textContent = `${t("currentPeriod")}`;
-    document.getElementById("period-title").textContent = `${t("allShifts")}`;
+    button.textContent = `${t("showCurrentPeriod")}`;
+    document.getElementById("period-title").textContent = `${t("showAllShifts")}`;
     await loadAllShifts();
   } else {
     button.textContent = `${t("showAllShifts")}`;
-    document.getElementById("period-title").textContent = `${t("currentPeriod")}`;
+    document.getElementById("period-title").textContent = `${t("showCurrentPeriod")}`;
     await loadCurrentPeriod();
   }
 }

@@ -22,7 +22,7 @@
     <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
     <div id="period"></div>
 
-    <button id="toggle-shifts" onclick="toggleShiftsView()">
+    <button id="toggle-shifts" data-i18n="showAllShifts" onclick="toggleShiftsView()">
       Show all shifts
     </button>
 
@@ -36,23 +36,18 @@
     <div class="card-panel">
       <input id="new_date" type="date" />
       <br /><br />
-
       <input id="new_planned" data-i18n-placeholder="plannedPhldr" />
-
       <input id="new_actual" data-i18n-placeholder="actualPhldr" />
       <br /><br />
-
       <input
         id="new_latest_child_name"
         data-i18n-placeholder="latestChildNamePhldr"
       />
-
       <input
         id="new_latest_child_time"
         data-i18n-placeholder="latestChildTimePhldr"
       />
       <br /><br />
-
       <input id="new_note" data-i18n-placeholder="addShiftNotePhldr" />
       <br /><br />
       <button data-i18n="addShift" onclick="addShift()">Add Shift</button>
