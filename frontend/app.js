@@ -29,6 +29,7 @@ const translations = {
     actual: "Actual",
     latestChild: "Latest child",
     latestChildNamePhldr: "Latest child name",
+    latestChildTimePhldr: "Latest child time (HH:MM)",
     edit: "Edit",
     delete: "Delete",
     reallyDelete: "Really delete?",
@@ -36,6 +37,10 @@ const translations = {
     eveningBonus: "Evening bonus",
     suggestedShift: "Suggested shift",
     currentPeriod: "Current period",
+    allShifts: "All shifts",
+    showAllShifts: "Show all shifts",
+    childLeaves: "leaves",
+    addShiftNotePhldr: "Note",
   },
 
   fi: {
@@ -54,6 +59,7 @@ const translations = {
     actual: "Toteutunut",
     latestChild: "Viimeinen lapsi",
     latestChildNamePhldr: "Latest child name",
+    latestChildTimePhldr: "Latest child time (HH:MM)",
     edit: "Muokkaa",
     delete: "Poista",
     reallyDelete: "Poistetaanko?",
@@ -61,6 +67,10 @@ const translations = {
     eveningBonus: "Iltalisä",
     suggestedShift: "Ehdotettu vuoro",
     currentPeriod: "Current period",
+    allShifts: "All shifts",
+    showAllShifts: "Show all shifts",
+    childLeaves: "leaves",
+    addShiftNotePhldr: "Note",
   },
 
   ru: {
@@ -78,7 +88,8 @@ const translations = {
     actualPhldr: "По факту (ч:м-ч:м)",
     actual: "по факту",
     latestChild: "Последний ребёнок",
-    latestChildNamePhldr: "Имя посл. ребёнка",
+    latestChildNamePhldr: "Имя последнего ребёнка",
+    latestChildTimePhldr: "Последнего забирают в (ч:м)",
     edit: "Изменить",
     delete: "Удалить",
     reallyDelete: "Точно удалить?",
@@ -86,6 +97,10 @@ const translations = {
     eveningBonus: "Капнуло за вечер",
     suggestedShift: "Рекомендуемая смена",
     currentPeriod: "Отчетный период",
+    allShifts: "Все смены",
+    showAllShifts: "Показать все смены",
+    childLeaves: "забирают в",
+    addShiftNotePhldr: "Примечание",
   },
 };
 
@@ -188,7 +203,7 @@ function renderShifts(shifts) {
 
                 ${
                   s.latest_child_name
-                    ? `<p>${t("latestChild")}: ${s.latest_child_name} (leaves ${s.latest_child_time})</p>`
+                    ? `<p>${t("latestChild")}: ${s.latest_child_name} (${t("childLeaves")} ${s.latest_child_time})</p>`
                     : ""
                 }
 
@@ -522,12 +537,12 @@ async function toggleShiftsView() {
   showAllShifts = !showAllShifts;
   const button = document.getElementById("toggle-shifts");
   if (showAllShifts) {
-    button.textContent = "Current period";
-    document.getElementById("period-title").textContent = "All shifts";
+    button.textContent = `${t("currentPeriod")}`;
+    document.getElementById("period-title").textContent = `${t("allShifts")}`;
     await loadAllShifts();
   } else {
-    button.textContent = "Show all shifts";
-    document.getElementById("period-title").textContent = "Current period";
+    button.textContent = `${t("showAllShifts")}`;
+    document.getElementById("period-title").textContent = `${t("currentPeriod")}`;
     await loadCurrentPeriod();
   }
 }
