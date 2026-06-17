@@ -244,17 +244,18 @@ function renderPeriods(periods) {
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
       const expanded = expandedPeriods[key];
+      const arrowClass = expanded ? "expanded" : "";
 
       return `
         <div class="shift-card">
 
-          <div onclick="togglePeriod('${key}')">
-
+          <div class="period-header" onclick="togglePeriod('${key}')">
             <h3>
+              <span class="period-arrow ${arrowClass}">▶</span>
               ${formatDate(p.period_start)}
               -
               ${formatDate(p.period_end)}
-            </h3>
+          </h3>
 
             <p>
               Balance:

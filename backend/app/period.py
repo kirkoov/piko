@@ -43,7 +43,7 @@ def shifts_in_period(
     return result
 
 
-def group_shifts_by_period(shifts):
+def group_shifts_by_period(shifts) -> list[dict]:
     groups = defaultdict(list)
     for shift in shifts:
         start, end = period_for_date(shift["date"])
