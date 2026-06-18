@@ -49,7 +49,7 @@ async function loadAllShifts() {
   renderPeriods(periods);
 }
 
-async function loadCurrentPeriod() {
+async function loadBalance() {
   const balanceRes = await fetch(`/balance?user_id=${CURRENT_USER_ID}`);
   const balance = await balanceRes.json();
 
@@ -66,11 +66,12 @@ async function loadCurrentPeriod() {
 
   document.getElementById("balance").innerHTML =
     `<div class="balance-card ${balanceClass}">
-            ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
-        </div>`;
+        ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
+     </div>`;
+}
 
+async function loadCurrentPeriod() {
   const shiftsRes = await fetch(`/current-period?user_id=${CURRENT_USER_ID}`);
-
   const periodData = await shiftsRes.json();
   document.getElementById("period").textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
@@ -482,6 +483,8 @@ async function toggleShiftsView() {
 }
 
 async function refreshShifts() {
+  await loadBalance();
+
   if (showAllShifts) {
     await loadAllShifts();
   } else {
