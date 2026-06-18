@@ -1,4 +1,12 @@
 // const VER = "0.1";
+import {
+  isValidTime,
+  isValidShift,
+  shiftEndAfterStart,
+  minutesToText,
+  formatDelta,
+} from "./utils.js";
+
 const CURRENT_USER_ID = 1;
 let lang = localStorage.getItem('language') || 'fi';
 let currentShiftId = null;
@@ -424,47 +432,12 @@ function formatDate(dateString) {
   });
 }
 
-function minutesToText(minutes) {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  return `${hours}${t('h')} ${mins}${t('m')}`;
-}
-
-function formatDelta(minutes) {
-  const sign = minutes > 0 ? '+' : '';
-
-  const hours = Math.floor(Math.abs(minutes) / 60);
-  const mins = Math.abs(minutes) % 60;
-
-  return `${sign}${hours}${t('h')} ${mins}${t('m')}`;
-}
 
 async function changeLanguage() {
   lang = document.getElementById('language').value;
   localStorage.setItem('language', lang);
   applyTranslations();
   await refreshShifts();
-}
-
-function isValidTime(time) {
-  return /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
-}
-
-function isValidShift(shift) {
-  return /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/.test(shift);
-}
-
-function shiftEndAfterStart(shift) {
-  const [start, end] = shift.split('-');
-
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-
-  const startMin = sh * 60 + sm;
-  const endMin = eh * 60 + em;
-
-  return endMin > startMin;
 }
 
 async function toggleShiftsView() {
@@ -503,3 +476,14 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
   refreshShifts();
 });
+
+
+// if (typeof module !== "undefined") {
+//   module.exports = {
+//     isValidTime,
+//     isValidShift,
+//     shiftEndAfterStart,
+//     minutesToText,
+//     formatDelta,
+//   };
+// }
