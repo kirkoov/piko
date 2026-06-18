@@ -547,11 +547,11 @@ async function toggleShiftsView() {
   const button = document.getElementById("toggle-shifts");
   if (showAllShifts) {
     button.textContent = `${t("showCurrentPeriod")}`;
-    document.getElementById("period-title").textContent = `${t("showAllShifts")}`;
+    document.getElementById("period-title").textContent = `${t("allShifts")}`;
     await loadAllShifts();
   } else {
     button.textContent = `${t("showAllShifts")}`;
-    document.getElementById("period-title").textContent = `${t("showCurrentPeriod")}`;
+    document.getElementById("period-title").textContent = `${t("currentPeriod")}`;
     await loadCurrentPeriod();
   }
 }
