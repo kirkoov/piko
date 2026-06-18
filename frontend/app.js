@@ -1,14 +1,14 @@
 // const VER = "0.1";
 const CURRENT_USER_ID = 1;
-let lang = localStorage.getItem("language") || "fi";
+let lang = localStorage.getItem('language') || 'fi';
 let currentShiftId = null;
 let pendingDelete = null;
 const esc = (s) =>
   String(s)
-    .replace(/\\/g, "\\\\")
+    .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'")
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "");
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '');
 let showAllShifts = false;
 let expandedPeriods = {};
 
@@ -18,22 +18,22 @@ function t(key) {
 
 function htmlEscape(str) {
   return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function applyTranslations() {
-  document.title = t("appTitle");
+  document.title = t('appTitle');
   // Text nodes
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
     el.textContent = t(el.dataset.i18n);
   });
 
   // Placeholders
-  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
 }
@@ -54,40 +54,40 @@ async function loadBalance() {
   const balance = await balanceRes.json();
 
   const minutes = balance.balance_minutes;
-  const sign = minutes > 0 ? "+" : "";
+  const sign = minutes > 0 ? '+' : '';
 
   const hours = Math.floor(Math.abs(minutes) / 60);
   const mins = Math.abs(minutes) % 60;
 
-  let balanceClass = "balance-neutral";
+  let balanceClass = 'balance-neutral';
 
-  if (minutes > 0) balanceClass = "balance-positive";
-  else if (minutes < 0) balanceClass = "balance-negative";
+  if (minutes > 0) balanceClass = 'balance-positive';
+  else if (minutes < 0) balanceClass = 'balance-negative';
 
-  document.getElementById("balance").innerHTML =
+  document.getElementById('balance').innerHTML =
     `<div class="balance-card ${balanceClass}">
-        ${sign}${minutes} ${t("min")} (${hours}${t("h")} ${mins}${t("m")})
+        ${sign}${minutes} ${t('min')} (${hours}${t('h')} ${mins}${t('m')})
      </div>`;
 }
 
 async function loadCurrentPeriod() {
   const shiftsRes = await fetch(`/current-period?user_id=${CURRENT_USER_ID}`);
   const periodData = await shiftsRes.json();
-  document.getElementById("period").textContent =
+  document.getElementById('period').textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
   const shifts = periodData.shifts;
   renderShifts(shifts);
 }
 
 function renderShifts(shifts) {
-  let previousPeriod = "";
-  document.getElementById("shifts").innerHTML = shifts
+  let previousPeriod = '';
+  document.getElementById('shifts').innerHTML = shifts
     .map((s) => {
       const periodKey = `${s.period_start}-${s.period_end}`;
-      let header = "";
+      let header = '';
       if (showAllShifts && periodKey !== previousPeriod) {
         header = `
-              <h3>${t("period")}:
+              <h3>${t('period')}:
                   ${formatDate(s.period_start)}
                   -
                   ${formatDate(s.period_end)}
@@ -98,10 +98,10 @@ function renderShifts(shifts) {
 
       const deltaClass =
         s.delta_minutes > 0
-          ? "delta-positive"
+          ? 'delta-positive'
           : s.delta_minutes < 0
-            ? "delta-negative"
-            : "delta-neutral";
+            ? 'delta-negative'
+            : 'delta-neutral';
 
       return `
             ${header}
@@ -109,29 +109,29 @@ function renderShifts(shifts) {
                 <b>${formatDate(s.date)}</b>
 
                 <p>
-                    ${t("planned")}:
+                    ${t('planned')}:
                     ${s.planned}
                     (${minutesToText(s.planned_minutes)})
                 </p>
 
                 <p>
-                    ${t("actual")}:
+                    ${t('actual')}:
                     ${s.actual}
                     (${minutesToText(s.actual_minutes)})
                 </p>
 
                 ${
                   s.latest_child_name
-                    ? `<p>${t("latestChild")}: ${htmlEscape(s.latest_child_name)} (${t("childLeaves")} ${s.latest_child_time})</p>`
-                    : ""
+                    ? `<p>${t('latestChild')}: ${htmlEscape(s.latest_child_name)} (${t('childLeaves')} ${s.latest_child_time})</p>`
+                    : ''
                 }
 
-                ${s.note ? `<p><i>${htmlEscape(s.note)}</i></p>` : ""}
+                ${s.note ? `<p><i>${htmlEscape(s.note)}</i></p>` : ''}
 
                 ${
                   s.recommended_shift
-                    ? `<p>${t("suggestedShift")}: ${htmlEscape(s.recommended_shift)}</p>`
-                    : ""
+                    ? `<p>${t('suggestedShift')}: ${htmlEscape(s.recommended_shift)}</p>`
+                    : ''
                 }
 
                 <p class="${deltaClass}">
@@ -140,14 +140,14 @@ function renderShifts(shifts) {
 
                 ${
                   s.morning_bonus > 0
-                    ? `<p>${t("morningBonus")}: +${s.morning_bonus} ${t("min")}</p>`
-                    : ""
+                    ? `<p>${t('morningBonus')}: +${s.morning_bonus} ${t('min')}</p>`
+                    : ''
                 }
 
                 ${
                   s.evening_bonus > 0
-                    ? `<p>${t("eveningBonus")}: +${s.evening_bonus} ${t("min")}</p>`
-                    : ""
+                    ? `<p>${t('eveningBonus')}: +${s.evening_bonus} ${t('min')}</p>`
+                    : ''
                 }
 
                 <button onclick="openEditor(
@@ -159,27 +159,27 @@ function renderShifts(shifts) {
                     '${s.latest_child_time}',
                     '${esc(s.note)}'
                 )">
-                ${t("edit")}
+                ${t('edit')}
             </button>
 
         ${
           pendingDelete === s.id
-            ? `<button onclick="deleteShift(${s.id})">${t("reallyDelete")}</button>`
-            : `<button onclick="askDelete(${s.id})">${t("delete")}</button>`
+            ? `<button onclick="deleteShift(${s.id})">${t('reallyDelete')}</button>`
+            : `<button onclick="askDelete(${s.id})">${t('delete')}</button>`
         }
 
             </div>
         `;
     })
-    .join("");
+    .join('');
 }
 
 function renderPeriods(periods) {
-  document.getElementById("shifts").innerHTML = periods
+  document.getElementById('shifts').innerHTML = periods
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
       const expanded = expandedPeriods[key];
-      const arrowClass = expanded ? "expanded" : "";
+      const arrowClass = expanded ? 'expanded' : '';
 
       return `
         <div class="shift-card">
@@ -193,12 +193,12 @@ function renderPeriods(periods) {
           </h3>
 
             <p>
-              ${t("showAllShiftsBalance")}:
+              ${t('showAllShiftsBalance')}:
               ${formatDelta(p.balance_minutes)}
             </p>
 
             <p>
-              ${t("showAllShiftsBalanceShifts")}: ${p.shift_count}
+              ${t('showAllShiftsBalanceShifts')}: ${p.shift_count}
             </p>
 
           </div>
@@ -221,25 +221,25 @@ function renderPeriods(periods) {
                       '${s.latest_child_time}',
                       '${esc(s.note)}'
                     )">
-                      ${t("edit")}
+                      ${t('edit')}
                     </button>
 
                     ${
                       pendingDelete === s.id
-                        ? `<button onclick="deleteShift(${s.id})">${t("reallyDelete")}</button>`
-                        : `<button onclick="askDelete(${s.id})">${t("delete")}</button>`
+                        ? `<button onclick="deleteShift(${s.id})">${t('reallyDelete')}</button>`
+                        : `<button onclick="askDelete(${s.id})">${t('delete')}</button>`
                     }
                   </div>
-                  `,
+                  `
                   )
-                  .join("")
-              : ""
+                  .join('')
+              : ''
           }
 
         </div>
       `;
     })
-    .join("");
+    .join('');
 }
 
 async function togglePeriod(periodKey) {
@@ -249,7 +249,7 @@ async function togglePeriod(periodKey) {
 
 async function deleteShift(id) {
   const response = await fetch(`/shifts/${id}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
 
   if (!response.ok) {
@@ -265,59 +265,59 @@ async function deleteShift(id) {
 
 function openEditor(id, date, planned, actual, childName, childTime, note) {
   currentShiftId = id;
-  document.getElementById("modal").style.display = "block";
-  document.getElementById("modal_title").textContent = t("editShift");
-  document.getElementById("m_date").disabled = true;
-  document.getElementById("m_date").value = date;
-  document.getElementById("m_planned").value = planned;
-  document.getElementById("m_actual").value = actual;
-  document.getElementById("m_latest_child_name").value = childName;
-  document.getElementById("m_latest_child_time").value = childTime;
-  document.getElementById("m_note").value = note;
+  document.getElementById('modal').style.display = 'block';
+  document.getElementById('modal_title').textContent = t('editShift');
+  document.getElementById('m_date').disabled = true;
+  document.getElementById('m_date').value = date;
+  document.getElementById('m_planned').value = planned;
+  document.getElementById('m_actual').value = actual;
+  document.getElementById('m_latest_child_name').value = childName;
+  document.getElementById('m_latest_child_time').value = childTime;
+  document.getElementById('m_note').value = note;
 }
 
 function closeModal() {
   currentShiftId = null;
-  document.getElementById("modal").style.display = "none";
+  document.getElementById('modal').style.display = 'none';
 }
 
 function clearModal() {
-  document.getElementById("m_date").disabled = false;
-  document.getElementById("m_date").value = "";
-  document.getElementById("m_planned").value = "";
-  document.getElementById("m_actual").value = "";
-  document.getElementById("m_latest_child_name").value = "";
-  document.getElementById("m_latest_child_time").value = "";
-  document.getElementById("m_note").value = "";
+  document.getElementById('m_date').disabled = false;
+  document.getElementById('m_date').value = '';
+  document.getElementById('m_planned').value = '';
+  document.getElementById('m_actual').value = '';
+  document.getElementById('m_latest_child_name').value = '';
+  document.getElementById('m_latest_child_time').value = '';
+  document.getElementById('m_note').value = '';
 }
 
 function validateShiftForm() {
-  const planned = document.getElementById("m_planned").value;
-  const actual = document.getElementById("m_actual").value;
-  const childTime = document.getElementById("m_latest_child_time").value;
+  const planned = document.getElementById('m_planned').value;
+  const actual = document.getElementById('m_actual').value;
+  const childTime = document.getElementById('m_latest_child_time').value;
 
   if (!isValidShift(planned)) {
-    alert("Invalid planned shift");
+    alert('Invalid planned shift');
     return false;
   }
 
   if (!isValidShift(actual)) {
-    alert("Invalid actual shift");
+    alert('Invalid actual shift');
     return false;
   }
 
   if (!isValidTime(childTime)) {
-    alert("Invalid latest child time");
+    alert('Invalid latest child time');
     return false;
   }
 
   if (!shiftEndAfterStart(planned)) {
-    alert("Planned shift end must be after start");
+    alert('Planned shift end must be after start');
     return false;
   }
 
   if (!shiftEndAfterStart(actual)) {
-    alert("Actual shift end must be after start");
+    alert('Actual shift end must be after start');
     return false;
   }
 
@@ -337,14 +337,14 @@ async function saveShift() {
 }
 
 async function createShift() {
-  const date = document.getElementById("m_date").value;
-  const planned = document.getElementById("m_planned").value;
-  const actual = document.getElementById("m_actual").value;
-  const childName = document.getElementById("m_latest_child_name").value;
-  const childTime = document.getElementById("m_latest_child_time").value;
-  const note = document.getElementById("m_note").value;
-  const [pStart, pEnd] = planned.split("-");
-  const [aStart, aEnd] = actual.split("-");
+  const date = document.getElementById('m_date').value;
+  const planned = document.getElementById('m_planned').value;
+  const actual = document.getElementById('m_actual').value;
+  const childName = document.getElementById('m_latest_child_name').value;
+  const childTime = document.getElementById('m_latest_child_time').value;
+  const note = document.getElementById('m_note').value;
+  const [pStart, pEnd] = planned.split('-');
+  const [aStart, aEnd] = actual.split('-');
 
   const params = new URLSearchParams({
     user_id: CURRENT_USER_ID,
@@ -359,12 +359,12 @@ async function createShift() {
   });
 
   const response = await fetch(`/shifts?${params}`, {
-    method: "POST",
+    method: 'POST',
   });
 
   if (!response.ok) {
     const err = await response.json();
-    alert(err.detail || "Create failed");
+    alert(err.detail || 'Create failed');
     return;
   }
 
@@ -372,19 +372,19 @@ async function createShift() {
 }
 
 async function updateShift() {
-  const planned = document.getElementById("m_planned").value;
-  const actual = document.getElementById("m_actual").value;
-  const childName = document.getElementById("m_latest_child_name").value;
-  const childTime = document.getElementById("m_latest_child_time").value;
-  const note = document.getElementById("m_note").value;
+  const planned = document.getElementById('m_planned').value;
+  const actual = document.getElementById('m_actual').value;
+  const childName = document.getElementById('m_latest_child_name').value;
+  const childTime = document.getElementById('m_latest_child_time').value;
+  const note = document.getElementById('m_note').value;
 
-  const [pStart, pEnd] = planned.split("-");
-  const [aStart, aEnd] = actual.split("-");
+  const [pStart, pEnd] = planned.split('-');
+  const [aStart, aEnd] = actual.split('-');
 
   const response = await fetch(`/shifts/${currentShiftId}`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       planned_start: pStart,
@@ -399,7 +399,7 @@ async function updateShift() {
 
   if (!response.ok) {
     const err = await response.json();
-    alert(err.detail || "Update failed");
+    alert(err.detail || 'Update failed');
     return;
   }
 
@@ -409,18 +409,18 @@ async function updateShift() {
 function openAddShift() {
   currentShiftId = null;
   clearModal();
-  document.getElementById("modal_title").textContent = t("addShift");
-  document.getElementById("modal").style.display = "block";
+  document.getElementById('modal_title').textContent = t('addShift');
+  document.getElementById('modal').style.display = 'block';
 }
 
 function formatDate(dateString) {
   const date = new Date(dateString);
 
   return date.toLocaleDateString(lang, {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 }
 
@@ -428,21 +428,21 @@ function minutesToText(minutes) {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
 
-  return `${hours}${t("h")} ${mins}${t("m")}`;
+  return `${hours}${t('h')} ${mins}${t('m')}`;
 }
 
 function formatDelta(minutes) {
-  const sign = minutes > 0 ? "+" : "";
+  const sign = minutes > 0 ? '+' : '';
 
   const hours = Math.floor(Math.abs(minutes) / 60);
   const mins = Math.abs(minutes) % 60;
 
-  return `${sign}${hours}${t("h")} ${mins}${t("m")}`;
+  return `${sign}${hours}${t('h')} ${mins}${t('m')}`;
 }
 
 async function changeLanguage() {
-  lang = document.getElementById("language").value;
-  localStorage.setItem("language", lang);
+  lang = document.getElementById('language').value;
+  localStorage.setItem('language', lang);
   applyTranslations();
   await refreshShifts();
 }
@@ -456,10 +456,10 @@ function isValidShift(shift) {
 }
 
 function shiftEndAfterStart(shift) {
-  const [start, end] = shift.split("-");
+  const [start, end] = shift.split('-');
 
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
 
   const startMin = sh * 60 + sm;
   const endMin = eh * 60 + em;
@@ -469,15 +469,15 @@ function shiftEndAfterStart(shift) {
 
 async function toggleShiftsView() {
   showAllShifts = !showAllShifts;
-  const button = document.getElementById("toggle-shifts");
+  const button = document.getElementById('toggle-shifts');
   if (showAllShifts) {
-    button.textContent = `${t("showCurrentPeriod")}`;
-    document.getElementById("period-title").textContent = `${t("allShifts")}`;
+    button.textContent = `${t('showCurrentPeriod')}`;
+    document.getElementById('period-title').textContent = `${t('allShifts')}`;
     await loadAllShifts();
   } else {
-    button.textContent = `${t("showAllShifts")}`;
-    document.getElementById("period-title").textContent =
-      `${t("currentPeriod")}`;
+    button.textContent = `${t('showAllShifts')}`;
+    document.getElementById('period-title').textContent =
+      `${t('currentPeriod')}`;
     await loadCurrentPeriod();
   }
 }
@@ -492,12 +492,12 @@ async function refreshShifts() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const savedLang = localStorage.getItem("language");
+document.addEventListener('DOMContentLoaded', () => {
+  const savedLang = localStorage.getItem('language');
 
   if (savedLang) {
     lang = savedLang;
-    document.getElementById("language").value = savedLang;
+    document.getElementById('language').value = savedLang;
   }
 
   applyTranslations();
