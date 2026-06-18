@@ -13,6 +13,7 @@
         "Vanya",
         "fastapi",
         "mypy",
+        "quot",
         "sessionmaker",
         "subcard",
         "timecalc",

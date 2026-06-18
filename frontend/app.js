@@ -12,115 +12,17 @@ const esc = (s) =>
 let showAllShifts = false;
 let expandedPeriods = {};
 
-const translations = {
-  en: {
-    appTitle: "KindaGrinda",
-    save: "Save",
-    cancel: "Cancel",
-    min: "min",
-    m: "m",
-    h: "h",
-    balance: "Balance",
-    shifts: "Shifts",
-    addShift: "Add Shift",
-    editShift: "Edit Shift",
-    planned: "Planned",
-    plannedPhldr: "Planned (HH:MM-HH:MM)",
-    actualPhldr: "Actual (HH:MM-HH:MM)",
-    actual: "Actual",
-    latestChild: "Latest child",
-    latestChildNamePhldr: "Latest child name",
-    latestChildTimePhldr: "Latest child time (HH:MM)",
-    edit: "Edit",
-    delete: "Delete",
-    reallyDelete: "Really delete?",
-    morningBonus: "Morning bonus",
-    eveningBonus: "Evening bonus",
-    suggestedShift: "Suggested shift",
-    period: "Period",
-    currentPeriod: "Current period",
-    allShifts: "All shifts",
-    showAllShifts: "Show all shifts",
-    showCurrentPeriod: "Show current period",
-    childLeaves: "leaves",
-    addShiftNotePhldr: "Note",
-    showAllShiftsBalance: "Balance",
-    showAllShiftsBalanceShifts: "Shifts",
-  },
-
-  fi: {
-    appTitle: "Päiko",
-    save: "Save",
-    cancel: "Cancel",
-    min: "min",
-    m: "m",
-    h: "t",
-    balance: "Saldo",
-    shifts: "Vuorot",
-    addShift: "Lisää vuoro",
-    editShift: "Muokkaa vuoroa",
-    planned: "Suunniteltu",
-    plannedPhldr: "Planned (TT:MM-TT:MM)",
-    actualPhldr: "Actual (HH:MM-HH:MM)",
-    actual: "Toteutunut",
-    latestChild: "Viimeinen lapsi",
-    latestChildNamePhldr: "Latest child name",
-    latestChildTimePhldr: "Latest child time (HH:MM)",
-    edit: "Muokkaa",
-    delete: "Poista",
-    reallyDelete: "Poistetaanko?",
-    morningBonus: "Aamulisä",
-    eveningBonus: "Iltalisä",
-    suggestedShift: "Ehdotettu vuoro",
-    period: "Period",
-    currentPeriod: "Current period",
-    allShifts: "All shifts",
-    showAllShifts: "Show all shifts",
-    showCurrentPeriod: "Näytä nykyinen jakso",
-    childLeaves: "haetaan klo",
-    addShiftNotePhldr: "Note",
-    showAllShiftsBalance: "Balance",
-    showAllShiftsBalanceShifts: "Shifts",
-  },
-
-  ru: {
-    appTitle: "ДетсАдик",
-    save: "Сохранить",
-    cancel: "Отмена",
-    min: "мин",
-    m: "м",
-    h: "ч",
-    balance: "Накапало",
-    shifts: "Смены",
-    addShift: "Добавить смену",
-    editShift: "Изменить смену",
-    planned: "по плану",
-    plannedPhldr: "По плану (ч:м-ч:м)",
-    actualPhldr: "По факту (ч:м-ч:м)",
-    actual: "по факту",
-    latestChild: "Последний ребёнок",
-    latestChildNamePhldr: "Имя последнего ребёнка",
-    latestChildTimePhldr: "Последнего забирают в (ч:м)",
-    edit: "Изменить",
-    delete: "Удалить",
-    reallyDelete: "Точно удалить?",
-    morningBonus: "Капнуло за утро",
-    eveningBonus: "Капнуло за вечер",
-    suggestedShift: "Рекомендуемая смена",
-    period: "Период",
-    currentPeriod: "Отчетный период",
-    allShifts: "Все смены",
-    showAllShifts: "Показать все смены",
-    showCurrentPeriod: "Показать отчетный период",
-    childLeaves: "забирают в",
-    addShiftNotePhldr: "Примечание",
-    showAllShiftsBalance: "Накапало",
-    showAllShiftsBalanceShifts: "Смен",
-  },
-};
-
 function t(key) {
-  return translations[lang][key];
+  return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
+}
+
+function htmlEscape(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function applyTranslations() {
@@ -219,15 +121,15 @@ function renderShifts(shifts) {
 
                 ${
                   s.latest_child_name
-                    ? `<p>${t("latestChild")}: ${s.latest_child_name} (${t("childLeaves")} ${s.latest_child_time})</p>`
+                    ? `<p>${t("latestChild")}: ${htmlEscape(s.latest_child_name)} (${t("childLeaves")} ${s.latest_child_time})</p>`
                     : ""
                 }
 
-                ${s.note ? `<p><i>${s.note}</i></p>` : ""}
+                ${s.note ? `<p><i>${htmlEscape(s.note)}</i></p>` : ""}
 
                 ${
                   s.recommended_shift
-                    ? `<p>${t("suggestedShift")}: ${s.recommended_shift}</p>`
+                    ? `<p>${t("suggestedShift")}: ${htmlEscape(s.recommended_shift)}</p>`
                     : ""
                 }
 
