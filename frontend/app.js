@@ -108,7 +108,7 @@ const translations = {
     showCurrentPeriod: "Показать отчетный период",
     childLeaves: "забирают в",
     addShiftNotePhldr: "Примечание",
-    showAllShiftsBalance: "Капнуло",
+    showAllShiftsBalance: "Накапало",
     showAllShiftsBalanceShifts: "Смен",
   },
 };
