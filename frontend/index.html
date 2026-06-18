@@ -22,7 +22,11 @@
     <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
     <div id="period"></div>
 
-    <button id="toggle-shifts" data-i18n="showAllShifts" onclick="toggleShiftsView()">
+    <button
+      id="toggle-shifts"
+      data-i18n="showAllShifts"
+      onclick="toggleShiftsView()"
+    >
       Show all shifts
     </button>
 
@@ -32,30 +36,15 @@
     <h2 data-i18n="shifts">Shifts</h2>
     <div id="shifts"></div>
 
-    <h2 data-i18n="addShift">Add Shift</h2>
-    <div class="card-panel">
-      <input id="new_date" type="date" />
-      <br /><br />
-      <input id="new_planned" data-i18n-placeholder="plannedPhldr" />
-      <input id="new_actual" data-i18n-placeholder="actualPhldr" />
-      <br /><br />
-      <input
-        id="new_latest_child_name"
-        data-i18n-placeholder="latestChildNamePhldr"
-      />
-      <input
-        id="new_latest_child_time"
-        data-i18n-placeholder="latestChildTimePhldr"
-      />
-      <br /><br />
-      <input id="new_note" data-i18n-placeholder="addShiftNotePhldr" />
-      <br /><br />
-      <button data-i18n="addShift" onclick="addShift()">Add Shift</button>
-    </div>
+    <button onclick="openAddShift()" data-i18n="addShift">Add Shift</button>
 
     <div id="modal" class="modal" style="display: none">
       <div class="modal-content">
-        <h2>Edit Shift</h2>
+        <h2 id="modal_title">Shift</h2>
+
+        <label for="m_date">Date</label><br />
+        <input type="date" id="m_date" />
+        <br /><br />
 
         <label for="m_planned">Planned shift (HH:MM-HH:MM)</label><br />
         <input id="m_planned" type="text" />
@@ -79,7 +68,7 @@
         <input id="m_note" type="text" />
         <br /><br />
 
-        <button data-i18n="save" onclick="saveModal()">Save</button>
+        <button data-i18n="save" onclick="saveShift()">Save</button>
         <button data-i18n="cancel" onclick="closeModal()">Cancel</button>
       </div>
     </div>

@@ -23,6 +23,7 @@ const translations = {
     balance: "Balance",
     shifts: "Shifts",
     addShift: "Add Shift",
+    editShift: "Edit Shift",
     planned: "Planned",
     plannedPhldr: "Planned (HH:MM-HH:MM)",
     actualPhldr: "Actual (HH:MM-HH:MM)",
@@ -36,6 +37,7 @@ const translations = {
     morningBonus: "Morning bonus",
     eveningBonus: "Evening bonus",
     suggestedShift: "Suggested shift",
+    period: "Period",
     currentPeriod: "Current period",
     allShifts: "All shifts",
     showAllShifts: "Show all shifts",
@@ -56,6 +58,7 @@ const translations = {
     balance: "Saldo",
     shifts: "Vuorot",
     addShift: "Lisää vuoro",
+    editShift: "Muokkaa vuoroa",
     planned: "Suunniteltu",
     plannedPhldr: "Planned (TT:MM-TT:MM)",
     actualPhldr: "Actual (HH:MM-HH:MM)",
@@ -69,11 +72,12 @@ const translations = {
     morningBonus: "Aamulisä",
     eveningBonus: "Iltalisä",
     suggestedShift: "Ehdotettu vuoro",
+    period: "Period",
     currentPeriod: "Current period",
     allShifts: "All shifts",
     showAllShifts: "Show all shifts",
-    showCurrentPeriod: "Показать отчетный период",
-    childLeaves: "leaves",
+    showCurrentPeriod: "Näytä nykyinen jakso",
+    childLeaves: "haetaan klo",
     addShiftNotePhldr: "Note",
     showAllShiftsBalance: "Balance",
     showAllShiftsBalanceShifts: "Shifts",
@@ -89,6 +93,7 @@ const translations = {
     balance: "Накапало",
     shifts: "Смены",
     addShift: "Добавить смену",
+    editShift: "Изменить смену",
     planned: "по плану",
     plannedPhldr: "По плану (ч:м-ч:м)",
     actualPhldr: "По факту (ч:м-ч:м)",
@@ -102,6 +107,7 @@ const translations = {
     morningBonus: "Капнуло за утро",
     eveningBonus: "Капнуло за вечер",
     suggestedShift: "Рекомендуемая смена",
+    period: "Период",
     currentPeriod: "Отчетный период",
     allShifts: "Все смены",
     showAllShifts: "Показать все смены",
@@ -118,6 +124,7 @@ function t(key) {
 }
 
 function applyTranslations() {
+  document.title = t("appTitle");
   // Text nodes
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     el.textContent = t(el.dataset.i18n);
@@ -177,7 +184,7 @@ function renderShifts(shifts) {
       let header = "";
       if (showAllShifts && periodKey !== previousPeriod) {
         header = `
-              <h3>Period:
+              <h3>${t("period")}:
                   ${formatDate(s.period_start)}
                   -
                   ${formatDate(s.period_end)}
@@ -241,7 +248,8 @@ function renderShifts(shifts) {
                 }
 
                 <button onclick="openEditor(
-                    ${s.id},
+                     ${s.id},
+                    '${s.date}',
                     '${s.planned}',
                     '${s.actual}',
                     '${esc(s.latest_child_name)}',
@@ -313,9 +321,9 @@ function renderPeriods(periods) {
     .join("");
 }
 
-function togglePeriod(periodKey) {
+async function togglePeriod(periodKey) {
   expandedPeriods[periodKey] = !expandedPeriods[periodKey];
-  loadAllShifts();
+  await loadAllShifts();
 }
 
 async function deleteShift(id) {
@@ -334,9 +342,12 @@ async function deleteShift(id) {
   await refreshShifts();
 }
 
-function openEditor(id, planned, actual, childName, childTime, note) {
+function openEditor(id, date, planned, actual, childName, childTime, note) {
   currentShiftId = id;
   document.getElementById("modal").style.display = "block";
+  document.getElementById("modal_title").textContent = t("editShift");
+  document.getElementById("m_date").disabled = true;
+  document.getElementById("m_date").value = date;
   document.getElementById("m_planned").value = planned;
   document.getElementById("m_actual").value = actual;
   document.getElementById("m_latest_child_name").value = childName;
@@ -349,109 +360,68 @@ function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
-async function saveModal() {
+function clearModal() {
+  document.getElementById("m_date").disabled = false;
+  document.getElementById("m_date").value = "";
+  document.getElementById("m_planned").value = "";
+  document.getElementById("m_actual").value = "";
+  document.getElementById("m_latest_child_name").value = "";
+  document.getElementById("m_latest_child_time").value = "";
+  document.getElementById("m_note").value = "";
+}
+
+function validateShiftForm() {
+  const planned = document.getElementById("m_planned").value;
+  const actual = document.getElementById("m_actual").value;
+  const childTime = document.getElementById("m_latest_child_time").value;
+
+  if (!isValidShift(planned)) {
+    alert("Invalid planned shift");
+    return false;
+  }
+
+  if (!isValidShift(actual)) {
+    alert("Invalid actual shift");
+    return false;
+  }
+
+  if (!isValidTime(childTime)) {
+    alert("Invalid latest child time");
+    return false;
+  }
+
+  if (!shiftEndAfterStart(planned)) {
+    alert("Planned shift end must be after start");
+    return false;
+  }
+
+  if (!shiftEndAfterStart(actual)) {
+    alert("Actual shift end must be after start");
+    return false;
+  }
+
+  return true;
+}
+
+async function saveShift() {
+  if (!validateShiftForm()) return;
+
+  if (currentShiftId === null) {
+    await createShift();
+  } else {
+    await updateShift();
+  }
+
+  await refreshShifts();
+}
+
+async function createShift() {
+  const date = document.getElementById("m_date").value;
   const planned = document.getElementById("m_planned").value;
   const actual = document.getElementById("m_actual").value;
   const childName = document.getElementById("m_latest_child_name").value;
   const childTime = document.getElementById("m_latest_child_time").value;
   const note = document.getElementById("m_note").value;
-
-  if (!isValidShift(planned)) {
-    alert("Invalid planned shift");
-    return;
-  }
-
-  if (!isValidShift(actual)) {
-    alert("Invalid actual shift");
-    return;
-  }
-
-  if (!isValidTime(childTime)) {
-    alert("Invalid latest child time");
-    return;
-  }
-
-  if (!shiftEndAfterStart(planned)) {
-    alert("Planned shift end must be after start");
-    return;
-  }
-
-  if (!shiftEndAfterStart(actual)) {
-    alert("Actual shift end must be after start");
-    return;
-  }
-
-  const [pStart, pEnd] = planned.split("-");
-  const [aStart, aEnd] = actual.split("-");
-
-  const response = await fetch(`/shifts/${currentShiftId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      planned_start: pStart,
-      planned_end: pEnd,
-      actual_start: aStart,
-      actual_end: aEnd,
-      latest_child_name: childName,
-      latest_child_time: childTime,
-      note: note,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.json();
-    alert(err.detail);
-    return;
-  }
-
-  closeModal();
-  await refreshShifts();
-}
-
-async function addShift() {
-  const date = document.getElementById("new_date").value.trim();
-  const planned = document.getElementById("new_planned").value.trim();
-  const actual = document.getElementById("new_actual").value.trim();
-  const childName = document
-    .getElementById("new_latest_child_name")
-    .value.trim();
-  const childTime = document
-    .getElementById("new_latest_child_time")
-    .value.trim();
-  const note = document.getElementById("new_note").value.trim();
-
-  if (!date || !planned || !actual || !childTime) {
-    alert("All fields mandatory except child name");
-    return;
-  }
-
-  if (!isValidShift(planned)) {
-    alert("Invalid planned shift");
-    return;
-  }
-
-  if (!isValidShift(actual)) {
-    alert("Invalid actual shift");
-    return;
-  }
-
-  if (!isValidTime(childTime)) {
-    alert("Invalid latest child time");
-    return;
-  }
-
-  if (!shiftEndAfterStart(planned)) {
-    alert("Planned shift end must be after start");
-    return;
-  }
-
-  if (!shiftEndAfterStart(actual)) {
-    alert("Actual shift end must be after start");
-    return;
-  }
-
   const [pStart, pEnd] = planned.split("-");
   const [aStart, aEnd] = actual.split("-");
 
@@ -471,21 +441,55 @@ async function addShift() {
     method: "POST",
   });
 
-  const result = await response.json();
-
-  if (result.status === "error") {
-    alert(result.message);
+  if (!response.ok) {
+    const err = await response.json();
+    alert(err.detail || "Create failed");
     return;
   }
 
-  document.getElementById("new_date").value = "";
-  document.getElementById("new_planned").value = "";
-  document.getElementById("new_actual").value = "";
-  document.getElementById("new_latest_child_name").value = "";
-  document.getElementById("new_latest_child_time").value = "";
-  document.getElementById("new_note").value = "";
+  closeModal();
+}
 
-  await refreshShifts();
+async function updateShift() {
+  const planned = document.getElementById("m_planned").value;
+  const actual = document.getElementById("m_actual").value;
+  const childName = document.getElementById("m_latest_child_name").value;
+  const childTime = document.getElementById("m_latest_child_time").value;
+  const note = document.getElementById("m_note").value;
+
+  const [pStart, pEnd] = planned.split("-");
+  const [aStart, aEnd] = actual.split("-");
+
+  const response = await fetch(`/shifts/${currentShiftId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      planned_start: pStart,
+      planned_end: pEnd,
+      actual_start: aStart,
+      actual_end: aEnd,
+      latest_child_name: childName,
+      latest_child_time: childTime,
+      note,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    alert(err.detail || "Update failed");
+    return;
+  }
+
+  closeModal();
+}
+
+function openAddShift() {
+  currentShiftId = null;
+  clearModal();
+  document.getElementById("modal_title").textContent = t("addShift");
+  document.getElementById("modal").style.display = "block";
 }
 
 function formatDate(dateString) {
@@ -551,7 +555,8 @@ async function toggleShiftsView() {
     await loadAllShifts();
   } else {
     button.textContent = `${t("showAllShifts")}`;
-    document.getElementById("period-title").textContent = `${t("currentPeriod")}`;
+    document.getElementById("period-title").textContent =
+      `${t("currentPeriod")}`;
     await loadCurrentPeriod();
   }
 }
