@@ -5,7 +5,7 @@ import {
   shiftEndAfterStart,
   minutesToText,
   formatDelta,
-} from "./utils.js";
+} from './utils.js';
 
 const CURRENT_USER_ID = 1;
 let lang = localStorage.getItem('language') || 'fi';
@@ -432,7 +432,6 @@ function formatDate(dateString) {
   });
 }
 
-
 async function changeLanguage() {
   lang = document.getElementById('language').value;
   localStorage.setItem('language', lang);
@@ -476,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
   refreshShifts();
 });
-
 
 // if (typeof module !== "undefined") {
 //   module.exports = {
