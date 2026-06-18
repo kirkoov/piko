@@ -9,6 +9,7 @@ body {
 button {
   margin-right: 8px;
   cursor: pointer;
+  margin-bottom: 5px;
 }
 
 button:hover {
@@ -56,19 +57,11 @@ button:hover {
 
 .shift-subcard {
   margin-left: 1rem;
+  margin-top: 5px;
   border-left: 2px solid #ccc;
   padding-left: 0.5rem;
+  border-bottom: 1px solid #ddd;
 }
-
-/* .primary-btn {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.danger-btn {
-    padding: 8px 12px;
-    cursor: pointer;
-} */
 
 input {
   padding: 8px;

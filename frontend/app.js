@@ -208,9 +208,27 @@ function renderPeriods(periods) {
                   .map(
                     (s) => `
                     <div class="shift-subcard">
-                      <b>${formatDate(s.date)}</b>
-                      <p>${s.actual}</p>
-                    </div>
+                    <b>${formatDate(s.date)}</b>
+                    <p>${s.actual}</p>
+
+                    <button onclick="openEditor(
+                      ${s.id},
+                      '${s.date}',
+                      '${s.planned}',
+                      '${s.actual}',
+                      '${esc(s.latest_child_name)}',
+                      '${s.latest_child_time}',
+                      '${esc(s.note)}'
+                    )">
+                      ${t("edit")}
+                    </button>
+
+                    ${
+                      pendingDelete === s.id
+                        ? `<button onclick="deleteShift(${s.id})">${t("reallyDelete")}</button>`
+                        : `<button onclick="askDelete(${s.id})">${t("delete")}</button>`
+                    }
+                  </div>
                   `,
                   )
                   .join("")
