@@ -75,6 +75,30 @@ async function loadCurrentPeriod() {
   renderShifts(shifts);
 }
 
+function bindShiftButtons() {
+  document.querySelectorAll('.edit-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      openEditor(
+        Number(el.dataset.id),
+        el.dataset.date,
+        el.dataset.planned,
+        el.dataset.actual,
+        el.dataset.childName,
+        el.dataset.childTime,
+        el.dataset.note
+      );
+    });
+  });
+
+  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
+    el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
+  });
+
+  document.querySelectorAll('.delete-btn').forEach((el) => {
+    el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
+  });
+}
+
 function renderShifts(shifts) {
   let previousPeriod = '';
   document.getElementById('shifts').innerHTML = shifts
@@ -168,26 +192,7 @@ function renderShifts(shifts) {
     })
     .join('');
 
-  document.querySelectorAll('.edit-btn').forEach((el) => {
-    el.addEventListener('click', () => {
-      openEditor(
-        Number(el.dataset.id),
-        el.dataset.date,
-        el.dataset.planned,
-        el.dataset.actual,
-        el.dataset.childName,
-        el.dataset.childTime,
-        el.dataset.note
-      );
-    });
-  });
-
-  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
-    el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
-  });
-  document.querySelectorAll('.delete-btn').forEach((el) => {
-    el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
-  });
+  bindShiftButtons();
 }
 
 function renderPeriods(periods) {
@@ -257,28 +262,10 @@ function renderPeriods(periods) {
     })
     .join('');
 
-  document.querySelectorAll('.edit-btn').forEach((el) => {
-    el.addEventListener('click', () => {
-      openEditor(
-        Number(el.dataset.id),
-        el.dataset.date,
-        el.dataset.planned,
-        el.dataset.actual,
-        el.dataset.childName,
-        el.dataset.childTime,
-        el.dataset.note
-      );
-    });
-  });
+  bindShiftButtons();
 
   document.querySelectorAll('.period-header').forEach((el) => {
     el.addEventListener('click', () => togglePeriod(el.dataset.periodKey));
-  });
-  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
-    el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
-  });
-  document.querySelectorAll('.delete-btn').forEach((el) => {
-    el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
   });
 }
 
@@ -545,3 +532,5 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
   refreshShifts();
 });
+
+export { renderShifts };
