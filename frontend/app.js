@@ -3,8 +3,6 @@ import {
   isValidTime,
   isValidShift,
   shiftEndAfterStart,
-  minutesToText,
-  formatDelta,
 } from './utils.js';
 
 const CURRENT_USER_ID = 1;
@@ -432,6 +430,23 @@ function formatDate(dateString) {
   });
 }
 
+function minutesToText(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  return `${hours}${t('h')} ${mins}${t('m')}`;
+}
+
+function formatDelta(minutes) {
+  const sign = minutes > 0 ? '+' : '';
+
+  const hours = Math.floor(Math.abs(minutes) / 60);
+  const mins = Math.abs(minutes) % 60;
+
+  return `${sign}${hours}${t('h')} ${mins}${t('m')}`;
+}
+
+
 async function changeLanguage() {
   lang = document.getElementById('language').value;
   localStorage.setItem('language', lang);
@@ -485,3 +500,14 @@ document.addEventListener('DOMContentLoaded', () => {
 //     formatDelta,
 //   };
 // }
+
+window.openAddShift = openAddShift;
+window.toggleShiftsView = toggleShiftsView;
+window.saveShift = saveShift;
+window.closeModal = closeModal;
+window.changeLanguage = changeLanguage;
+
+window.openEditor = openEditor;
+window.askDelete = askDelete;
+window.deleteShift = deleteShift;
+window.togglePeriod = togglePeriod;
