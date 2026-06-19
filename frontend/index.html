@@ -12,8 +12,7 @@
   </head>
   <body>
     <h1 data-i18n="appTitle">Piko App 0.1</h1>
-
-    <select id="language" onchange="changeLanguage()">
+    <select id="language">
       <option value="ru">русский</option>
       <option value="fi">Suomi</option>
       <option value="en">English</option>
@@ -22,11 +21,7 @@
     <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
     <div id="period"></div>
 
-    <button
-      id="toggle-shifts"
-      data-i18n="showAllShifts"
-      onclick="toggleShiftsView()"
-    >
+    <button id="toggle-shifts" data-i18n="showAllShifts">
       Show all shifts
     </button>
 
@@ -36,7 +31,7 @@
     <h2 data-i18n="shifts">Shifts</h2>
     <div id="shifts"></div>
 
-    <button onclick="openAddShift()" data-i18n="addShift">Add Shift</button>
+    <button id="add-shift-btn" data-i18n="addShift">Add Shift</button>
 
     <div id="modal" class="modal" style="display: none">
       <div class="modal-content">
@@ -68,8 +63,8 @@
         <input id="m_note" type="text" />
         <br /><br />
 
-        <button data-i18n="save" onclick="saveShift()">Save</button>
-        <button data-i18n="cancel" onclick="closeModal()">Cancel</button>
+        <button id="save-btn" data-i18n="save">Save</button>
+        <button id="cancel-btn" data-i18n="cancel">Cancel</button>
       </div>
     </div>
     <script src="translations.js"></script>

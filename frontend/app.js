@@ -1,9 +1,5 @@
 // const VER = "0.1";
-import {
-  isValidTime,
-  isValidShift,
-  shiftEndAfterStart,
-} from './utils.js';
+import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 
 const CURRENT_USER_ID = 1;
 let lang = localStorage.getItem('language') || 'fi';
@@ -446,7 +442,6 @@ function formatDelta(minutes) {
   return `${sign}${hours}${t('h')} ${mins}${t('m')}`;
 }
 
-
 async function changeLanguage() {
   lang = document.getElementById('language').value;
   localStorage.setItem('language', lang);
@@ -479,6 +474,12 @@ async function refreshShifts() {
   }
 }
 
+// function listen_func_for_action_on_id(id_tag, action, func) {
+//   document
+//     .getElementById(id_tag)
+//     .addEventListener(action, func);
+// }
+
 document.addEventListener('DOMContentLoaded', () => {
   const savedLang = localStorage.getItem('language');
 
@@ -487,25 +488,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('language').value = savedLang;
   }
 
+  document
+    .getElementById('language')
+    .addEventListener('change', changeLanguage);
+
+  document
+    .getElementById('toggle-shifts')
+    .addEventListener('click', toggleShiftsView);
+
+  document
+    .getElementById('add-shift-btn')
+    .addEventListener('click', openAddShift);
+
+  document.getElementById('save-btn').addEventListener('click', saveShift);
+
+  document.getElementById('cancel-btn').addEventListener('click', closeModal);
+
   applyTranslations();
   refreshShifts();
 });
-
-// if (typeof module !== "undefined") {
-//   module.exports = {
-//     isValidTime,
-//     isValidShift,
-//     shiftEndAfterStart,
-//     minutesToText,
-//     formatDelta,
-//   };
-// }
-
-window.openAddShift = openAddShift;
-window.toggleShiftsView = toggleShiftsView;
-window.saveShift = saveShift;
-window.closeModal = closeModal;
-window.changeLanguage = changeLanguage;
 
 window.openEditor = openEditor;
 window.askDelete = askDelete;
