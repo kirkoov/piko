@@ -166,14 +166,21 @@ function renderShifts(shifts) {
 
         ${
           pendingDelete === s.id
-            ? `<button onclick="deleteShift(${s.id})">${t('reallyDelete')}</button>`
-            : `<button onclick="askDelete(${s.id})">${t('delete')}</button>`
+            ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
+            : `<button class="ask-delete-btn" data-id="${s.id}">${t('delete')}</button>`
         }
 
             </div>
         `;
     })
     .join('');
+  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
+    el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
+  });
+
+  document.querySelectorAll('.delete-btn').forEach((el) => {
+    el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
+  });
 }
 
 function renderPeriods(periods) {
@@ -186,7 +193,7 @@ function renderPeriods(periods) {
       return `
         <div class="shift-card">
 
-          <div class="period-header" onclick="togglePeriod('${key}')">
+          <div class="period-header" data-period-key="${key}">
             <h3>
               <span class="period-arrow ${arrowClass}">▶</span>
               ${formatDate(p.period_start)}
@@ -228,8 +235,8 @@ function renderPeriods(periods) {
 
                     ${
                       pendingDelete === s.id
-                        ? `<button onclick="deleteShift(${s.id})">${t('reallyDelete')}</button>`
-                        : `<button onclick="askDelete(${s.id})">${t('delete')}</button>`
+                        ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
+                        : `<button class="ask-delete-btn" data-id="${s.id}">${t('delete')}</button>`
                     }
                   </div>
                   `
@@ -237,11 +244,20 @@ function renderPeriods(periods) {
                   .join('')
               : ''
           }
-
         </div>
       `;
     })
     .join('');
+  document.querySelectorAll('.period-header').forEach((el) => {
+    el.addEventListener('click', () => togglePeriod(el.dataset.periodKey));
+  });
+  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
+    el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
+  });
+
+  document.querySelectorAll('.delete-btn').forEach((el) => {
+    el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
+  });
 }
 
 async function togglePeriod(periodKey) {
@@ -509,6 +525,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.openEditor = openEditor;
-window.askDelete = askDelete;
-window.deleteShift = deleteShift;
-window.togglePeriod = togglePeriod;
