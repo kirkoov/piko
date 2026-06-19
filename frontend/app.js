@@ -505,7 +505,7 @@ async function refreshShifts() {
 //     .addEventListener(action, func);
 // }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   const savedLang = localStorage.getItem('language');
 
   if (savedLang) {
@@ -531,6 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyTranslations();
   refreshShifts();
-});
+}
 
-export { renderShifts };
+document.addEventListener('DOMContentLoaded', initApp);
+
+export { renderShifts, initApp };
