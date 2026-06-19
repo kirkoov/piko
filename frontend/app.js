@@ -5,12 +5,6 @@ const CURRENT_USER_ID = 1;
 let lang = localStorage.getItem('language') || 'fi';
 let currentShiftId = null;
 let pendingDelete = null;
-const esc = (s) =>
-  String(s)
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '');
 let showAllShifts = false;
 let expandedPeriods = {};
 
@@ -151,19 +145,18 @@ function renderShifts(shifts) {
                     ? `<p>${t('eveningBonus')}: +${s.evening_bonus} ${t('min')}</p>`
                     : ''
                 }
-
-                <button onclick="openEditor(
-                     ${s.id},
-                    '${s.date}',
-                    '${s.planned}',
-                    '${s.actual}',
-                    '${esc(s.latest_child_name)}',
-                    '${s.latest_child_time}',
-                    '${esc(s.note)}'
-                )">
-                ${t('edit')}
+            <button
+              class="edit-btn"
+              data-id="${s.id}"
+              data-date="${s.date}"
+              data-planned="${s.planned}"
+              data-actual="${s.actual}"
+              data-child-name="${htmlEscape(s.latest_child_name)}"
+              data-child-time="${s.latest_child_time}"
+              data-note="${htmlEscape(s.note)}"
+            >
+              ${t('edit')}
             </button>
-
         ${
           pendingDelete === s.id
             ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
@@ -174,10 +167,24 @@ function renderShifts(shifts) {
         `;
     })
     .join('');
+
+  document.querySelectorAll('.edit-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      openEditor(
+        Number(el.dataset.id),
+        el.dataset.date,
+        el.dataset.planned,
+        el.dataset.actual,
+        el.dataset.childName,
+        el.dataset.childTime,
+        el.dataset.note
+      );
+    });
+  });
+
   document.querySelectorAll('.ask-delete-btn').forEach((el) => {
     el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
   });
-
   document.querySelectorAll('.delete-btn').forEach((el) => {
     el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
   });
@@ -221,15 +228,16 @@ function renderPeriods(periods) {
                     <b>${formatDate(s.date)}</b>
                     <p>${s.actual}</p>
 
-                    <button onclick="openEditor(
-                      ${s.id},
-                      '${s.date}',
-                      '${s.planned}',
-                      '${s.actual}',
-                      '${esc(s.latest_child_name)}',
-                      '${s.latest_child_time}',
-                      '${esc(s.note)}'
-                    )">
+                    <button
+                      class="edit-btn"
+                      data-id="${s.id}"
+                      data-date="${s.date}"
+                      data-planned="${s.planned}"
+                      data-actual="${s.actual}"
+                      data-child-name="${htmlEscape(s.latest_child_name)}"
+                      data-child-time="${s.latest_child_time}"
+                      data-note="${htmlEscape(s.note)}"
+                    >
                       ${t('edit')}
                     </button>
 
@@ -248,13 +256,27 @@ function renderPeriods(periods) {
       `;
     })
     .join('');
+
+  document.querySelectorAll('.edit-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      openEditor(
+        Number(el.dataset.id),
+        el.dataset.date,
+        el.dataset.planned,
+        el.dataset.actual,
+        el.dataset.childName,
+        el.dataset.childTime,
+        el.dataset.note
+      );
+    });
+  });
+
   document.querySelectorAll('.period-header').forEach((el) => {
     el.addEventListener('click', () => togglePeriod(el.dataset.periodKey));
   });
   document.querySelectorAll('.ask-delete-btn').forEach((el) => {
     el.addEventListener('click', () => askDelete(Number(el.dataset.id)));
   });
-
   document.querySelectorAll('.delete-btn').forEach((el) => {
     el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
   });
@@ -523,5 +545,3 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
   refreshShifts();
 });
-
-window.openEditor = openEditor;
