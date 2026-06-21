@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+
 import fs from 'fs';
 
 global.translations = {
@@ -6,7 +7,7 @@ global.translations = {
   en: {},
 };
 
-import { renderShifts } from '../app.js';
+import { renderShifts, initApp } from '../app.js';
 
 const html = fs.readFileSync('./index.html', 'utf8');
 
@@ -32,6 +33,8 @@ const t_data = {
   ],
 };
 
+const shift = t_data.shifts[0];
+
 describe('renderShifts', () => {
   it('opens editor when edit button is clicked', () => {
     document.documentElement.innerHTML = html;
@@ -43,8 +46,6 @@ describe('renderShifts', () => {
         period_end: t_data.period_end,
       },
     ]);
-
-    const shift = t_data.shifts[0];
 
     document.querySelector('.edit-btn').click();
 
@@ -68,5 +69,21 @@ describe('renderShifts', () => {
     expect(document.getElementById('shifts').textContent).toContain(
       shift.recommended_shift
     );
+  });
+});
+
+describe('Add Shift workflow', () => {
+  it('opens empty modal when Add Shift is clicked', () => {
+    document.documentElement.innerHTML = html;
+
+    // Pretend previous edit left values in fields
+    document.getElementById('m_date').value = shift.date;
+    document.getElementById('m_planned').value = shift.planned;
+    document.getElementById('m_actual').value = shift.actual;
+    document.getElementById('m_latest_child_name').value =
+      shift.latest_child_name;
+    document.getElementById('m_latest_child_time').value =
+      shift.latest_child_time;
+    document.getElementById('m_note').value = shift.note;
   });
 });
