@@ -1,5 +1,6 @@
 import asyncio
 
+from app.auth import hash_password
 from app.database import SessionLocal
 from app.models import Shift, User
 
@@ -7,7 +8,8 @@ from app.models import Shift, User
 async def main():
     async with SessionLocal() as db:
         user = User(
-            name="Lora",
+            name="Masha",
+            password_hash=hash_password("change_me"),
             starting_balance_minutes=36,
         )
 

@@ -16,6 +16,7 @@
         "htmlcov",
         "ipynb",
         "mypy",
+        "pwdlib",
         "quot",
         "sessionmaker",
         "subcard",

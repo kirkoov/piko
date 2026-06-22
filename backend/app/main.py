@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.auth import hash_password, verify_password
 from app.balance import calculate_balance
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
@@ -105,10 +106,14 @@ async def get_db():
 @app.post("/users")
 async def create_user(
     name: str,
+    password: str,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
-    user = User(name=name)
+    user = User(
+        name=name,
+        password_hash=hash_password(password),
+    )
     db.add(user)
 
     try:
@@ -144,6 +149,30 @@ async def delete_user(
     await db.commit()
 
     return {"status": "deleted", "id": user_id}
+
+
+@app.post("/login")
+async def login(
+    name: str,
+    password: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.name == name))
+
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not verify_password(password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    return {
+        "status": "ok",
+        "user_id": user.id,
+        "name": user.name,
+        "is_admin": user.is_admin,
+    }
 
 
 @app.post("/shifts")

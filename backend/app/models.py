@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -10,11 +10,25 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String, unique=True)
+
+    name: Mapped[str] = mapped_column(
+        String,
+        unique=True,
+    )
+
+    password_hash: Mapped[str] = mapped_column(
+        String,
+        default="",
+    )
+
+    is_admin: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+    )
 
     starting_balance_minutes: Mapped[int] = mapped_column(
         Integer,
-        default=0,  # in minutes!
+        default=0,
     )
 
 
