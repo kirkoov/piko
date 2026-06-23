@@ -7,13 +7,24 @@ from app.models import Shift, User
 
 async def main():
     async with SessionLocal() as db:
-        user = User(
-            name="Masha",
+        kk = User(
+            name="kk",
+            password_hash=hash_password("test123"),
+            is_admin=True,
+        )
+
+        lora = User(
+            name="Lora",
             password_hash=hash_password("change_me"),
             starting_balance_minutes=36,
         )
 
-        db.add(user)
+        masha = User(
+            name="Masha",
+            password_hash=hash_password("change_me"),
+        )
+
+        db.add_all([kk, lora, masha])
         await db.flush()
 
         shifts = [
@@ -123,7 +134,7 @@ async def main():
         ) in shifts:
             db.add(
                 Shift(
-                    user_id=user.id,
+                    user_id=lora.id,
                     date=date,
                     planned_start=p_start,
                     planned_end=p_end,
