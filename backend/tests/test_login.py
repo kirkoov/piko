@@ -4,6 +4,10 @@ from httpx import ASGITransport, AsyncClient
 from app.main import app
 
 BASE_URL = "http://test"
+USERS = [
+    "kk",
+]
+PWD = "test123"
 
 
 @pytest.mark.asyncio
@@ -18,8 +22,8 @@ async def test_login_success():
         response = await client.post(
             "/login",
             params={
-                "name": "kk",
-                "password": "test123",
+                "name": USERS[0],
+                "password": PWD,
             },
         )
 
@@ -39,7 +43,7 @@ async def test_login_wrong_password():
         response = await client.post(
             "/login",
             params={
-                "name": "kk",
+                "name": USERS[0],
                 "password": "wrong",
             },
         )
