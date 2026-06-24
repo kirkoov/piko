@@ -1,6 +1,4 @@
 # DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
-# SQL_ECHO=1 ./check.sh
-# ./check.sh
 
 import pytest
 from httpx import ASGITransport, AsyncClient
