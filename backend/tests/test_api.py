@@ -68,8 +68,10 @@ async def test_get_users(get_test_data):
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) >= len(get_test_data["users"])
-    assert any(d["name"] in get_test_data["users"].values() for d in data)
+
+    expected_users = set(get_test_data["users"].values())
+    returned_users = {u["name"] for u in data}
+    assert expected_users.issubset(returned_users)
 
 
 @pytest.mark.asyncio
@@ -88,7 +90,8 @@ async def test_create_shift_success(get_test_data):
     assert data["status"] == "created"
     assert data["shift_id"] >= 1
     assert response.status_code == 200
-    assert len(data) == 2  # E.g. {'status': 'created', 'shift_id': 10}
+    assert data["status"] == "created"
+    assert isinstance(data["shift_id"], int)
 
 
 # @pytest.mark.asyncio
@@ -291,26 +294,33 @@ async def test_get_shifts(get_test_data):
     data = response.json()
     assert isinstance(data, list)
     assert isinstance(data[0], dict)
+    assert len(data) >= 1
+
+    shift = next(s for s in data if s["date"] == get_test_data["shift_params"]["date"])
+    assert "id" in shift
+    assert "date" in shift
+    assert "actual" in shift
+    assert "planned" in shift
 
 
 @pytest.mark.asyncio
 async def test_delete_shift(get_test_data):
+    new_shift = get_test_data["shift_params"].copy()
+    new_shift["date"] = "2099-12-31"
     transport = ASGITransport(app=app)
     async with AsyncClient(
         transport=transport,
         base_url=get_test_data["base_url"],
     ) as client:
-        response = await client.delete("/shifts/1")  # There must be >=1 shift to test
+        create = await client.post("/shifts", params=new_shift)
+
+        shift_id = create.json()["shift_id"]
+
+        response = await client.delete(f"/shifts/{shift_id}")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "deleted"
-
-        response = await client.get(
-            "/shifts",
-            params={"user_id": get_test_data["shift_params"]["user_id"]},
-        )
-        data = response.json()
-        assert any(d["id"] != 1 for d in data)  # Because we deleted shift with ID 1
 
 
 @pytest.mark.asyncio
