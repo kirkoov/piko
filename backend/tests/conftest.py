@@ -17,7 +17,7 @@ def get_test_data():
             "standard": "Lora",
             "potential": "Masha",
             "test_user_a": "A",
-            "test_user_b": "B"
+            "test_user_b": "B",
         },
         "pwd_usu": "change_me",
         "pwd_admin": "test123",

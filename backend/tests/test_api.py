@@ -1,25 +1,11 @@
 # DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
 
+from sys import maxsize
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
-
-# PWD = "secret123"
-# USERS = ["TestUser_A", "TestUser_B"]
-
-# BASE_URL = "http://test"
-# TEST_SHIFT_PARAMS: dict[str, str | int] = {
-#     "user_id": 2,
-#     "date": "2026-06-14",
-#     "planned_start": "08:00",
-#     "planned_end": "16:00",
-#     "actual_start": "08:00",
-#     "actual_end": "16:00",
-#     "latest_child_name": "Matti",
-#     "latest_child_time": "15:30",
-#     "note": "Notes come here",
-# }
 
 
 @pytest.mark.asyncio
@@ -43,74 +29,66 @@ async def test_create_user(get_test_data):
     assert data["name"] == get_test_data["users"]["test_user_a"]
 
 
-# @pytest.mark.asyncio
-# async def test_create_user_duplicate():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         await client.post(
-#             "/users",
-#             params={
-#                 "name": USERS[1],
-#                 "password": PWD,
-#             },
-#         )
+@pytest.mark.asyncio
+async def test_create_user_duplicate(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        await client.post(
+            "/users",
+            params={
+                "name": get_test_data["users"]["test_user_b"],
+                "password": get_test_data["pwd_usu"],
+            },
+        )
 
-#         response = await client.post(
-#             "/users",
-#             params={
-#                 "name": USERS[1],
-#                 "password": PWD,
-#             },
-#         )
+        response = await client.post(
+            "/users",
+            params={
+                "name": get_test_data["users"]["test_user_b"],
+                "password": get_test_data["pwd_usu"],
+            },
+        )
 
-#     data = response.json()
-#     assert data["status"] == "error"
-
-
-# @pytest.mark.asyncio
-# async def test_get_users():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.get("/users")
-
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert isinstance(data, list)
-#     assert len(data) >= 1
-#     assert any(u["name"] == USERS[0] for u in data)
-#     assert any(u["name"] == USERS[1] for u in data)
+    data = response.json()
+    assert data["status"] == "error"
 
 
-# @pytest.mark.asyncio
-# async def test_create_shift_success():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.post(
-#             "/shifts",
-#             params=TEST_SHIFT_PARAMS,
-#         )
+@pytest.mark.asyncio
+async def test_get_users(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get("/users")
 
-#     data = response.json()
-#     assert data["status"] == "created"
-#     assert response.status_code == 200
-#     assert len(data) >= 1
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) >= len(get_test_data["users"])
+    assert any(d["name"] in get_test_data["users"].values() for d in data)
 
-#     # shift = next(
-#     #     s
-#     #     for s in data
-#     #     if s["date"] == TEST_SHIFT_PARAMS["date"]
-#     # )
 
-#     print(data)
+@pytest.mark.asyncio
+async def test_create_shift_success(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/shifts",
+            params=get_test_data["shift_params"],
+        )
+
+    data = response.json()
+    assert data["status"] == "created"
+    assert data["shift_id"] >= 1
+    assert response.status_code == 200
+    assert len(data) == 2  # E.g. {'status': 'created', 'shift_id': 10}
 
 
 # @pytest.mark.asyncio
@@ -128,7 +106,7 @@ async def test_create_user(get_test_data):
 
 #     async with AsyncClient(
 #         transport=transport,
-#         base_url=BASE_URL,
+#         base_url=get_test_data["base_url"],
 #     ) as client:
 #         response = await client.put(
 #             "/shifts/1",
@@ -151,63 +129,62 @@ async def test_create_user(get_test_data):
 #     assert shifts[0]["note"] == "Matti leaves later"
 
 
-# @pytest.mark.asyncio
-# async def test_create_shift_duplicate():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         await client.post("/shifts", params=TEST_SHIFT_PARAMS)
+@pytest.mark.asyncio
+async def test_create_shift_duplicate(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        await client.post("/shifts", params=get_test_data["shift_params"])
 
-#         response = await client.post(
-#             "/shifts",
-#             params=TEST_SHIFT_PARAMS,
-#         )
+        response = await client.post(
+            "/shifts",
+            params=get_test_data["shift_params"],
+        )
 
-#     data = response.json()
-#     assert data["status"] == "error"
-#     assert "already" in data["message"].lower()
-
-
-# @pytest.mark.asyncio
-# async def test_create_shift_bad_date():
-#     BAD_DATE = TEST_SHIFT_PARAMS.copy()
-#     BAD_DATE["date"] = "banana"
-#     transport = ASGITransport(app=app)
-
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.post(
-#             "/shifts",
-#             params=BAD_DATE,
-#         )
-
-#     assert response.status_code != 200
+    data = response.json()
+    assert data["status"] == "error"
+    assert "already" in data["message"].lower()
 
 
-# @pytest.mark.asyncio
-# async def test_create_shift_end_before_start():
+@pytest.mark.asyncio
+async def test_create_shift_bad_date(get_test_data):
+    BAD_DATE = get_test_data["shift_params"].copy()
+    BAD_DATE["date"] = "banana"
+    transport = ASGITransport(app=app)
 
-#     BAD_END = TEST_SHIFT_PARAMS.copy()
-#     BAD_END["actual_start"] = "16:00"
-#     BAD_END["actual_end"] = "08:00"
-#     transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/shifts",
+            params=BAD_DATE,
+        )
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.post(
-#             "/shifts",
-#             params=BAD_END,
-#         )
+    assert response.status_code != 200
 
-#     assert response.status_code == 400
-#     data = response.json()
-#     assert data["detail"] == "Actual shift end must be after start"
+
+@pytest.mark.asyncio
+async def test_create_shift_end_before_start(get_test_data):
+    BAD_END = get_test_data["shift_params"].copy()
+    BAD_END["actual_start"] = "16:00"
+    BAD_END["actual_end"] = "08:00"
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/shifts",
+            params=BAD_END,
+        )
+
+    assert response.status_code == 400
+    data = response.json()
+    assert data["detail"] == "Actual shift end must be after start"
 
 
 # @pytest.mark.asyncio
@@ -217,7 +194,7 @@ async def test_create_user(get_test_data):
 
 #     async with AsyncClient(
 #         transport=transport,
-#         base_url=BASE_URL,
+#         base_url=get_test_data["base_url"],
 #     ) as client:
 #         response = await client.get(
 #             "/balance",
@@ -240,7 +217,7 @@ async def test_create_user(get_test_data):
 
 #     async with AsyncClient(
 #         transport=transport,
-#         base_url=BASE_URL,
+#         base_url=get_test_data["base_url"],
 #     ) as client:
 #         response = await client.get(
 #             "/balance",
@@ -259,7 +236,7 @@ async def test_create_user(get_test_data):
 
 #     async with AsyncClient(
 #         transport=transport,
-#         base_url=BASE_URL,
+#         base_url=get_test_data["base_url"],
 #     ) as client:
 #         await client.post(
 #             "/users",
@@ -284,7 +261,7 @@ async def test_create_user(get_test_data):
 
 #     async with AsyncClient(
 #         transport=transport,
-#         base_url=BASE_URL,
+#         base_url=get_test_data["base_url"],
 #     ) as client:
 #         response = await client.get(
 #             "/balance",
@@ -298,123 +275,121 @@ async def test_create_user(get_test_data):
 #     assert data["user_id"] == 1
 
 
-# @pytest.mark.asyncio
-# async def test_get_shifts():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.get(
-#             "/shifts",
-#             params={"user_id": TEST_SHIFT_PARAMS["user_id"]},
-#         )
+@pytest.mark.asyncio
+async def test_get_shifts(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/shifts",
+            params={"user_id": get_test_data["shift_params"]["user_id"]},
+        )
 
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert isinstance(data, list)
-#     assert isinstance(data[0], dict)
-#     assert len(data) >= 1
-
-
-# @pytest.mark.asyncio
-# async def test_delete_shift():
-#     transport = ASGITransport(app=app)
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-
-#         response = await client.delete("/shifts/3")
-#         assert response.status_code == 200
-#         data = response.json()
-#         assert data["status"] == "deleted"
-
-#         response = await client.get(
-#             "/shifts",
-#             params={"user_id": TEST_SHIFT_PARAMS["user_id"]},
-#         )
-#         print(response.json())
-#         # assert len(response.json()) == 0
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert isinstance(data[0], dict)
 
 
-# @pytest.mark.asyncio
-# async def test_update_shift_not_found():
+@pytest.mark.asyncio
+async def test_delete_shift(get_test_data):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.delete("/shifts/1")  # There must be >=1 shift to test
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "deleted"
 
-#     transport = ASGITransport(app=app)
-
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.put(
-#             "/shifts/999",
-#             json={
-#                 "planned_start": "08:00",
-#                 "planned_end": "16:00",
-#                 "actual_start": "08:00",
-#                 "actual_end": "16:00",
-#                 "latest_child_name": "Test",
-#                 "latest_child_time": "15:00",
-#                 "note": "",
-#             },
-#         )
-
-#     assert response.status_code == 404
+        response = await client.get(
+            "/shifts",
+            params={"user_id": get_test_data["shift_params"]["user_id"]},
+        )
+        data = response.json()
+        assert any(d["id"] != 1 for d in data)  # Because we deleted shift with ID 1
 
 
-# @pytest.mark.asyncio
-# async def test_delete_shift_not_found():
+@pytest.mark.asyncio
+async def test_update_shift_not_found(get_test_data):
 
-#     transport = ASGITransport(app=app)
+    transport = ASGITransport(app=app)
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.delete("/shifts/999")
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.put(
+            f"/shifts/{maxsize}",
+            json={
+                "planned_start": "08:00",
+                "planned_end": "16:00",
+                "actual_start": "08:00",
+                "actual_end": "16:00",
+                "latest_child_name": "Test",
+                "latest_child_time": "15:00",
+                "note": "This code is supposed to be never reached!",
+            },
+        )
 
-#     assert response.status_code == 404
-
-
-# @pytest.mark.asyncio
-# async def test_get_shifts_empty_user():
-
-#     transport = ASGITransport(app=app)
-
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.get(
-#             "/shifts",
-#             params={"user_id": 999},
-#         )
-
-#     assert response.status_code == 200
-#     assert response.json() == []
+    assert response.status_code == 404
 
 
-# @pytest.mark.asyncio
-# async def test_current_period():
+@pytest.mark.asyncio
+async def test_delete_shift_not_found(get_test_data):
 
-#     transport = ASGITransport(app=app)
+    transport = ASGITransport(app=app)
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=BASE_URL,
-#     ) as client:
-#         response = await client.get(
-#             "/current-period",
-#             params={"user_id": 1},
-#         )
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.delete(f"/shifts/{maxsize}")
 
-#     assert response.status_code == 200
+    assert response.status_code == 404
 
-#     data = response.json()
 
-#     assert "period_start" in data
-#     assert "period_end" in data
-#     assert "shifts" in data
-#     assert isinstance(data["shifts"], list)
-#     assert data["period_start"] <= data["period_end"]
+@pytest.mark.asyncio
+async def test_get_shifts_empty_user(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/shifts",
+            params={"user_id": maxsize},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_current_period(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/current-period",
+            params={"user_id": get_test_data["shift_params"]["user_id"]},
+        )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "period_start" in data
+    assert "period_end" in data
+    assert "shifts" in data
+    assert isinstance(data["shifts"], list)
+    assert data["period_start"] <= data["period_end"]
