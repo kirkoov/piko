@@ -229,9 +229,14 @@ async def create_shift(
     )
 
     db.add(shift)
+    
     await db.commit()
+    await db.refresh(shift)
 
-    return {"status": "created"}
+    return {
+        "status": "created",
+        "shift_id": shift.id,
+    }
 
 
 @app.get("/shifts")
