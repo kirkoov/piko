@@ -229,7 +229,7 @@ async def create_shift(
     )
 
     db.add(shift)
-    
+
     await db.commit()
     await db.refresh(shift)
 
