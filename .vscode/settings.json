@@ -30,5 +30,8 @@
     "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
     "cSpell.words": [
         "autouse"
+    ],
+    "python.analysis.extraPaths": [
+        "./backend/app"
     ]
 }

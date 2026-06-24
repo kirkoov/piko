@@ -3,27 +3,21 @@ from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
-BASE_URL = "http://test"
-USERS = [
-    "kk",
-]
-PWD = "test123"
-
 
 @pytest.mark.asyncio
-async def test_login_success():
+async def test_admin_login_success(get_test_data):
 
     transport = ASGITransport(app=app)
 
     async with AsyncClient(
         transport=transport,
-        base_url=BASE_URL,
+        base_url=get_test_data["base_url"],
     ) as client:
         response = await client.post(
             "/login",
             params={
-                "name": USERS[0],
-                "password": PWD,
+                "name": get_test_data["users"]["admin"],
+                "password": get_test_data["pwd_admin"],
             },
         )
 
@@ -32,19 +26,60 @@ async def test_login_success():
 
 
 @pytest.mark.asyncio
-async def test_login_wrong_password():
+async def test_admin_login_wrong_password(get_test_data):
 
     transport = ASGITransport(app=app)
 
     async with AsyncClient(
         transport=transport,
-        base_url=BASE_URL,
+        base_url=get_test_data["base_url"],
     ) as client:
         response = await client.post(
             "/login",
             params={
-                "name": USERS[0],
-                "password": "wrong",
+                "name": get_test_data["users"]["admin"],
+                "password": "wrongAhem",
+            },
+        )
+
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_standard_user_login_success(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/login",
+            params={
+                "name": get_test_data["users"]["standard"],
+                "password": get_test_data["pwd_usu"],
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_standard_user_login_wrong_password(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/login",
+            params={
+                "name": get_test_data["users"]["standard"],
+                "password": "wrongAhem",
             },
         )
 
