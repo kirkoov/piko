@@ -230,7 +230,6 @@ async def test_get_balance(get_test_data):
         )
 
     data = response.json()
-    print(data)
     assert response.status_code == 200
     assert "balance_minutes" in data
 
@@ -309,7 +308,6 @@ async def test_get_balance_calculated(get_test_data):
 
     assert response.status_code == 200
     assert "balance_minutes" in data
-    print(data)
     assert data["user_id"] == get_test_data["shift_params"]["user_id"]
     assert data["balance_minutes"] == 239
 
