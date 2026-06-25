@@ -12,12 +12,16 @@ def calculate_balance(
     total = starting_balance
 
     for s in shifts:
-        total += shift_difference(
+        difference = shift_difference(
             s.planned_start,
             s.planned_end,
             s.actual_start,
             s.actual_end,
         )
+
+        # Deduct early departures only
+        if difference < 0:
+            total += difference
 
         total += morning_bonus(
             s.actual_start,

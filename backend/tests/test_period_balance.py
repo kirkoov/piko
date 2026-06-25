@@ -1,4 +1,56 @@
+from app.balance import calculate_balance
+from app.models import Shift
 from app.period import group_shifts_by_period
+
+
+def test_balance_deducts_early_leave():
+    shift = Shift(
+        planned_start="08:00",
+        planned_end="16:00",
+        actual_start="08:00",
+        actual_end="15:00",
+    )
+    assert calculate_balance(0, [shift]) == -60
+
+
+def test_balance_ignores_positive_overtime():
+    shift = Shift(
+        planned_start="08:00",
+        planned_end="16:00",
+        actual_start="08:00",
+        actual_end="17:00",
+    )
+    assert calculate_balance(0, [shift]) == 0
+
+
+def test_balance_adds_evening_bonus():
+    shift = Shift(
+        planned_start="14:00",
+        planned_end="22:00",
+        actual_start="14:00",
+        actual_end="22:00",
+    )
+    assert calculate_balance(0, [shift]) == 32
+
+
+def test_balance_adds_morning_bonus():
+    shift = Shift(
+        planned_start="05:00",
+        planned_end="07:00",
+        actual_start="05:00",
+        actual_end="07:00",
+    )
+    assert calculate_balance(0, [shift]) == 36
+
+
+def test_balance_combines_deduction_and_bonus():
+    shift = Shift(
+        planned_start="14:00",
+        planned_end="22:00",
+        actual_start="14:00",
+        actual_end="21:00",
+    )
+    assert calculate_balance(0, [shift]) == -36
 
 
 def test_group_shifts_by_period():

@@ -94,42 +94,57 @@ async def test_create_shift_success(get_test_data):
     assert isinstance(data["shift_id"], int)
 
 
-# @pytest.mark.asyncio
-# async def test_update_shift():
+@pytest.mark.asyncio
+async def test_update_shift(get_test_data):
+    shift = get_test_data["shift_params"].copy()
+    shift["date"] = "2100-01-02"
 
-#     transport = ASGITransport(app=app)
+    transport = ASGITransport(app=app)
 
-#     UPDATER = TEST_SHIFT_PARAMS.copy()
-#     del UPDATER["user_id"]
-#     del UPDATER["date"]
-#     UPDATER["actual_end"] = "17:00"
-#     UPDATER["latest_child_name"] = "Sara"
-#     UPDATER["latest_child_time"] = "16:30"
-#     UPDATER["note"] = "Matti leaves later"
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        create = await client.post(
+            "/shifts",
+            params=shift,
+        )
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=get_test_data["base_url"],
-#     ) as client:
-#         response = await client.put(
-#             "/shifts/1",
-#             json=UPDATER,
-#         )
+        shift_id = create.json()["shift_id"]
 
-#         assert response.status_code == 200
-#         data = response.json()
-#         assert data["status"] == "updated"
-#         assert data["shift_id"] == 1
+        update_data = {
+            "planned_start": "08:00",
+            "planned_end": "16:00",
+            "actual_start": "08:00",
+            "actual_end": "17:00",
+            "latest_child_name": "Sara",
+            "latest_child_time": "16:30",
+            "note": "Matti leaves later",
+        }
 
-#         response = await client.get(
-#             "/shifts",
-#             params={"user_id": 1},
-#         )
+        response = await client.put(
+            f"/shifts/{shift_id}",
+            json=update_data,
+        )
 
-#         shifts = response.json()
+        assert response.status_code == 200
 
-#     assert shifts[0]["actual"] == "08:00-17:00"
-#     assert shifts[0]["note"] == "Matti leaves later"
+        data = response.json()
+        assert data["status"] == "updated"
+        assert data["shift_id"] == shift_id
+
+        response = await client.get(
+            "/shifts",
+            params={"user_id": shift["user_id"]},
+        )
+
+        shifts = response.json()
+
+    updated = next(s for s in shifts if s["id"] == shift_id)
+
+    assert updated["actual"] == "08:00-17:00"
+    assert updated["note"] == "Matti leaves later"
+    assert updated["latest_child_name"] == "Sara"
 
 
 @pytest.mark.asyncio
@@ -190,71 +205,90 @@ async def test_create_shift_end_before_start(get_test_data):
     assert data["detail"] == "Actual shift end must be after start"
 
 
-# @pytest.mark.asyncio
-# async def test_get_balance():
+@pytest.mark.asyncio
+async def test_get_balance(get_test_data):
 
-#     transport = ASGITransport(app=app)
+    shift = get_test_data["shift_params"].copy()
+    shift["date"] = "2120-01-03"
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=get_test_data["base_url"],
-#     ) as client:
-#         response = await client.get(
-#             "/balance",
-#             params={"user_id": 1},
-#         )
+    transport = ASGITransport(app=app)
 
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert "balance_minutes" in data
-#     # Planned 08-16 (480 min)
-#     # Actual 08-17 (540 min)
-#     # Difference = +60
-#     assert data["balance_minutes"] == 60
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        create = await client.post(
+            "/shifts",
+            params=shift,
+        )
 
+        assert create.status_code == 200
 
-# @pytest.mark.asyncio
-# async def test_get_balance_unknown_user():
+        response = await client.get(
+            "/balance",
+            params={"user_id": shift["user_id"]},
+        )
 
-#     transport = ASGITransport(app=app)
+    data = response.json()
+    print(data)
+    assert response.status_code == 200
+    assert "balance_minutes" in data
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=get_test_data["base_url"],
-#     ) as client:
-#         response = await client.get(
-#             "/balance",
-#             params={"user_id": 999},
-#         )
-
-#     assert response.status_code == 404
-#     data = response.json()
-#     assert data["detail"] == "User not found"
+    # Provided the initial seed data never change & start @239 min
+    # Lora gets nothing for another usu daily shift
+    assert data["balance_minutes"] == 239
 
 
-# @pytest.mark.asyncio
-# async def test_get_balance_empty_user():
+@pytest.mark.asyncio
+async def test_get_balance_unknown_user(get_test_data):
 
-#     transport = ASGITransport(app=app)
+    transport = ASGITransport(app=app)
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=get_test_data["base_url"],
-#     ) as client:
-#         await client.post(
-#             "/users",
-#             params={"name": "Bob"},
-#         )
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/balance",
+            params={"user_id": maxsize},
+        )
 
-#         response = await client.get(
-#             "/balance",
-#             params={"user_id": 2},
-#         )
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "User not found"
 
-#     data = response.json()
 
-#     assert response.status_code == 200
-#     assert data["balance_minutes"] == 0
+@pytest.mark.asyncio
+async def test_get_balance_empty_user(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        create = await client.post(
+            "/users",
+            params={
+                "name": "EmptyBalanceUser",
+                "password": get_test_data["pwd_usu"],
+            },
+        )
+
+        assert create.status_code == 200
+
+        users = await client.get("/users")
+        user_id = next(u["id"] for u in users.json() if u["name"] == "EmptyBalanceUser")
+
+        response = await client.get(
+            "/balance",
+            params={"user_id": user_id},
+        )
+
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data["balance_minutes"] == 0
 
 
 # @pytest.mark.asyncio
