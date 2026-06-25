@@ -7,6 +7,8 @@ from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
+TEST_BONUS_MINS = 239  #  Provided the initial seed data never change & start @239 min
+
 
 @pytest.mark.asyncio
 async def test_create_user(get_test_data):
@@ -233,9 +235,8 @@ async def test_get_balance(get_test_data):
     assert response.status_code == 200
     assert "balance_minutes" in data
 
-    # Provided the initial seed data never change & start @239 min
     # Lora gets nothing for another usu daily shift
-    assert data["balance_minutes"] == 239
+    assert data["balance_minutes"] == TEST_BONUS_MINS
 
 
 @pytest.mark.asyncio
@@ -309,7 +310,7 @@ async def test_get_balance_calculated(get_test_data):
     assert response.status_code == 200
     assert "balance_minutes" in data
     assert data["user_id"] == get_test_data["shift_params"]["user_id"]
-    assert data["balance_minutes"] == 239
+    assert data["balance_minutes"] == TEST_BONUS_MINS
 
 
 @pytest.mark.asyncio
