@@ -7,7 +7,7 @@ from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
-TEST_BONUS_MINS = 239  #  Provided the initial seed data never change & start @239 min
+TEST_BONUS_MINS = 239  # Provided the initial seed data never change & start @239 min
 
 
 @pytest.mark.asyncio

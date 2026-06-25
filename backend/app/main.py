@@ -311,10 +311,9 @@ async def delete_shift(
 @app.get("/balance")
 async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
 
-    result = await db.execute(select(Shift).where(Shift.user_id == user_id))
-    shifts = result.scalars().all()
-
-    user_result = await db.execute(select(User).where(User.id == user_id))
+    user_result = await db.execute(
+    select(User).where(User.id == user_id)
+    )
     user = user_result.scalars().first()
 
     if not user:
@@ -323,6 +322,10 @@ async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
             detail="User not found",
         )
 
+    result = await db.execute(
+        select(Shift).where(Shift.user_id == user_id)
+    )
+    shifts = result.scalars().all()
     balance = calculate_balance(
         user.starting_balance_minutes,
         shifts,
