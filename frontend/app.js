@@ -68,7 +68,8 @@ async function loadBalance() {
 
 async function loadCurrentPeriod() {
   const shiftsRes = await fetch(`/current-period?user_id=${CURRENT_USER_ID}`);
-  document.getElementById('period-title').textContent = `Current period for user ID ${CURRENT_USER_ID} HARDCODED`
+  document.getElementById('period-title').textContent =
+    `Current period for user ID ${CURRENT_USER_ID} HARDCODED`;
   const periodData = await shiftsRes.json();
   document.getElementById('period').textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
