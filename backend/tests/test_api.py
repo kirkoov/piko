@@ -291,25 +291,27 @@ async def test_get_balance_empty_user(get_test_data):
     assert data["balance_minutes"] == 0
 
 
-# @pytest.mark.asyncio
-# async def test_get_balance_calculated():
+@pytest.mark.asyncio
+async def test_get_balance_calculated(get_test_data):
 
-#     transport = ASGITransport(app=app)
+    transport = ASGITransport(app=app)
 
-#     async with AsyncClient(
-#         transport=transport,
-#         base_url=get_test_data["base_url"],
-#     ) as client:
-#         response = await client.get(
-#             "/balance",
-#             params={"user_id": 1},
-#         )
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/balance",
+            params={"user_id": get_test_data["shift_params"]["user_id"]},
+        )
 
-#     data = response.json()
+    data = response.json()
 
-#     assert response.status_code == 200
-#     assert "balance_minutes" in data
-#     assert data["user_id"] == 1
+    assert response.status_code == 200
+    assert "balance_minutes" in data
+    print(data)
+    assert data["user_id"] == get_test_data["shift_params"]["user_id"]
+    assert data["balance_minutes"] == 239
 
 
 @pytest.mark.asyncio
