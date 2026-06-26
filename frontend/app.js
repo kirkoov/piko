@@ -1,12 +1,14 @@
 // const VER = "0.1";
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 
-const CURRENT_USER_ID = 2;
+// const CURRENT_USER_ID = 2;
 let lang = localStorage.getItem('language') || 'fi';
 let currentShiftId = null;
 let pendingDelete = null;
 let showAllShifts = false;
 let expandedPeriods = {};
+
+
 
 function t(key) {
   return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
@@ -40,13 +42,13 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
-  const response = await fetch(`/periods?user_id=${CURRENT_USER_ID}`);
+  const response = await fetch(`/periods?user_id=${currentUserId()}`);
   const periods = await response.json();
   renderPeriods(periods);
 }
 
 async function loadBalance() {
-  const balanceRes = await fetch(`/balance?user_id=${CURRENT_USER_ID}`);
+  const balanceRes = await fetch(`/balance?user_id=${currentUserId()}`);
   const balance = await balanceRes.json();
 
   const minutes = balance.balance_minutes;
@@ -67,9 +69,9 @@ async function loadBalance() {
 }
 
 async function loadCurrentPeriod() {
-  const shiftsRes = await fetch(`/current-period?user_id=${CURRENT_USER_ID}`);
+  const shiftsRes = await fetch(`/current-period?user_id=${currentUserId()}`);
   document.getElementById('period-title').textContent =
-    `Current period for user ID ${CURRENT_USER_ID} HARDCODED`;
+    `Current period for user ID ${currentUserId()}`;
   const periodData = await shiftsRes.json();
   document.getElementById('period').textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
@@ -376,7 +378,7 @@ async function createShift() {
   const [aStart, aEnd] = actual.split('-');
 
   const params = new URLSearchParams({
-    user_id: CURRENT_USER_ID,
+    user_id: currentUserId(),
     date: date,
     planned_start: pStart,
     planned_end: pEnd,
@@ -534,6 +536,18 @@ function initApp() {
   applyTranslations();
   refreshShifts();
 }
+
+function currentUserId() {
+  const id = localStorage.getItem("user_id");
+
+  if (!id) {
+    window.location.href = "/login.html";
+    return null;
+  }
+
+  return Number(id);
+}
+
 
 document.addEventListener('DOMContentLoaded', initApp);
 
