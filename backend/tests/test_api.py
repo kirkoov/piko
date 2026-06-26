@@ -59,6 +59,59 @@ async def test_create_user_duplicate(get_test_data):
 
 
 @pytest.mark.asyncio
+async def test_delete_user(get_test_data):
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        create = await client.post(
+            "/users",
+            params={
+                "name": "DeleteMe",
+                "password": get_test_data["pwd_usu"],
+            },
+        )
+
+        assert create.status_code == 200
+
+        users = await client.get("/users")
+        user_id = next(u["id"] for u in users.json() if u["name"] == "DeleteMe")
+
+        response = await client.delete(f"/users/{user_id}")
+
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert data["status"] == "deleted"
+        assert data["id"] == user_id
+
+        users = await client.get("/users")
+        names = {u["name"] for u in users.json()}
+
+        assert "DeleteMe" not in names
+
+
+@pytest.mark.asyncio
+async def test_delete_user_not_found(get_test_data):
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.delete(f"/users/{maxsize}")
+
+    assert response.status_code == 404
+
+    data = response.json()
+
+    assert data["detail"] == "User not found"
+
+
+@pytest.mark.asyncio
 async def test_get_users(get_test_data):
     transport = ASGITransport(app=app)
     async with AsyncClient(
@@ -438,3 +491,86 @@ async def test_current_period(get_test_data):
     assert "shifts" in data
     assert isinstance(data["shifts"], list)
     assert data["period_start"] <= data["period_end"]
+
+
+@pytest.mark.asyncio
+async def test_get_periods(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/periods",
+            params={
+                "user_id": get_test_data["shift_params"]["user_id"],
+            },
+        )
+
+    assert response.status_code == 200
+
+    periods = response.json()
+
+    assert isinstance(periods, list)
+    assert len(periods) >= 1
+
+    period = periods[0]
+
+    assert "period_start" in period
+    assert "period_end" in period
+    assert "balance_minutes" in period
+    assert "shift_count" in period
+    assert "shifts" in period
+
+    assert isinstance(period["shifts"], list)
+
+
+@pytest.mark.asyncio
+async def test_get_periods_empty_user(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        await client.post(
+            "/users",
+            params={
+                "name": "EmptyPeriodsUser",
+                "password": get_test_data["pwd_usu"],
+            },
+        )
+
+        users = await client.get("/users")
+
+        user_id = next(u["id"] for u in users.json() if u["name"] == "EmptyPeriodsUser")
+
+        response = await client.get(
+            "/periods",
+            params={"user_id": user_id},
+        )
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.asyncio
+async def test_get_periods_unknown_user(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.get(
+            "/periods",
+            params={"user_id": maxsize},
+        )
+
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "User not found"

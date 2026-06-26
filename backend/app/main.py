@@ -363,45 +363,7 @@ async def current_period(
 
     start, end = period_for_date(today)
 
-    shift_dicts = [
-        {
-            "id": s.id,
-            "date": s.date,
-            "planned": f"{s.planned_start}-{s.planned_end}",
-            "actual": f"{s.actual_start}-{s.actual_end}",
-            "planned_minutes": duration(
-                s.planned_start,
-                s.planned_end,
-            ),
-            "actual_minutes": duration(
-                s.actual_start,
-                s.actual_end,
-            ),
-            "delta_minutes": shift_difference(
-                s.planned_start,
-                s.planned_end,
-                s.actual_start,
-                s.actual_end,
-            ),
-            "morning_bonus": morning_bonus(
-                s.actual_start,
-                s.actual_end,
-            ),
-            "evening_bonus": evening_bonus(
-                s.actual_start,
-                s.actual_end,
-            ),
-            "latest_child_name": s.latest_child_name,
-            "latest_child_time": s.latest_child_time,
-            "note": s.note,
-            "recommended_shift": recommended_shift(
-                s.planned_start,
-                s.planned_end,
-                s.latest_child_time,
-            ),
-        }
-        for s in shifts
-    ]
+    shift_dicts = [shift_to_dict(s) for s in shifts]
 
     current_shifts = shifts_in_period(
         shift_dicts,
@@ -420,14 +382,27 @@ async def list_periods(
     user_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
+    
+    user_result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+
+    user = user_result.scalars().first()
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+    
     result = await db.execute(
         select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
     )
 
     shifts = result.scalars().all()
     shift_dicts = [shift_to_dict(s) for s in shifts]
-    periods = group_shifts_by_period(shift_dicts)
-    return periods
+    
+    return group_shifts_by_period(shift_dicts)
 
 
 app.mount(
