@@ -112,3 +112,17 @@ async def test_unknown_user_login(get_test_data):
         )
 
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_logout_returns_ok(get_test_data):
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post("/logout")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"

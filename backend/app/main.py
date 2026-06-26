@@ -175,6 +175,10 @@ async def login(
     }
 
 
+@app.post("/logout")
+async def logout():
+    return {"status": "ok"}
+
 @app.post("/shifts")
 async def create_shift(
     user_id: int,
