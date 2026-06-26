@@ -21,8 +21,12 @@ async def test_admin_login_success(get_test_data):
             },
         )
 
+    data = response.json()
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    assert data["status"] == "ok"
+    assert data["name"] == get_test_data["users"]["admin"]
+    assert isinstance(data["user_id"], int)
+    assert data["is_admin"] is True
 
 
 @pytest.mark.asyncio
@@ -63,7 +67,11 @@ async def test_standard_user_login_success(get_test_data):
         )
 
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["name"] == get_test_data["users"]["standard"]
+    assert isinstance(data["user_id"], int)
+    assert data["is_admin"] is False
 
 
 @pytest.mark.asyncio
@@ -80,6 +88,26 @@ async def test_standard_user_login_wrong_password(get_test_data):
             params={
                 "name": get_test_data["users"]["standard"],
                 "password": "wrongAhem",
+            },
+        )
+
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_unknown_user_login(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        response = await client.post(
+            "/login",
+            params={
+                "name": "DefinitelyNotExistingUser",
+                "password": "whatever",
             },
         )
 
