@@ -128,3 +128,31 @@ async def test_logout_returns_ok(get_test_data):
 
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_me_returns_logged_in_user(get_test_data):
+
+    transport = ASGITransport(app=app)
+
+    async with AsyncClient(
+        transport=transport,
+        base_url=get_test_data["base_url"],
+    ) as client:
+        # Login first
+        login = await client.post(
+            "/login",
+            params={
+                "name": get_test_data["users"]["standard"],
+                "password": get_test_data["pwd_usu"],
+            },
+        )
+
+        assert login.status_code == 200
+
+        # Ask backend who we are
+        response = await client.get("/me")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["name"] == get_test_data["users"]["standard"]
+        assert data["is_admin"] is False

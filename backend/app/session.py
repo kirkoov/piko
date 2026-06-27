@@ -1,0 +1,1 @@
+SESSIONS: dict[str, int] = {}

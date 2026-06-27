@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException, Response, Cookie
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -23,6 +23,7 @@ from app.timecalc import (
     shift_difference,
 )
 from app.validators import validate_shift_data
+from app.session import SESSIONS
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
@@ -170,6 +171,7 @@ async def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     session_id = str(uuid4())
+    SESSIONS[session_id] = user.id
 
     response.set_cookie(
         key="session_id",
@@ -189,6 +191,37 @@ async def login(
 async def logout():
     return {"status": "ok"}
 
+
+@app.get("/me")
+async def me(
+    session_id: str | None = Cookie(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    if session_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Not logged in",
+        )
+
+    user_id = SESSIONS.get(session_id)
+
+    if user_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid session",
+        )
+
+    result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+
+    user = result.scalar_one()
+
+    return {
+        "user_id": user.id,
+        "name": user.name,
+        "is_admin": user.is_admin,
+    }
 
 @app.post("/shifts")
 async def create_shift(
