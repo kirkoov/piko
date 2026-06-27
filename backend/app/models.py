@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
+from datetime import datetime, timezone
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -31,6 +33,12 @@ class User(Base):
         default=0,
     )
 
+    sessions = relationship(
+        "Session",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
 
 class Shift(Base):
     __tablename__ = "shifts"
@@ -57,3 +65,37 @@ class Shift(Base):
     )
 
     user = relationship("User")
+
+
+class Session(Base):
+    __tablename__ = "sessions"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+    token: Mapped[str] = mapped_column(
+        String,
+        unique=True,
+        index=True,
+    )
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+        nullable=False,
+    )
+
+    created = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    expires = mapped_column(
+        DateTime(timezone=True),
+    )
+
+    user = relationship(
+        "User",
+        back_populates="sessions",
+    )
