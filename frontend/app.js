@@ -1,9 +1,11 @@
 // const VER = "0.1";
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 
-// const CURRENT_USER_ID = 2;
 let lang = localStorage.getItem('language') || 'fi';
+
 let currentShiftId = null;
+let currentUser = null;
+
 let pendingDelete = null;
 let showAllShifts = false;
 let expandedPeriods = {};
@@ -42,13 +44,13 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
-  const response = await fetch(`/periods?user_id=${currentUserId()}`);
+  const response = await fetch(`/periods?user_id=${currentUser.id}`);
   const periods = await response.json();
   renderPeriods(periods);
 }
 
 async function loadBalance() {
-  const balanceRes = await fetch(`/balance?user_id=${currentUserId()}`);
+  const balanceRes = await fetch(`/balance?user_id=${currentUser.id}`);
   const balance = await balanceRes.json();
 
   const minutes = balance.balance_minutes;
@@ -69,9 +71,9 @@ async function loadBalance() {
 }
 
 async function loadCurrentPeriod() {
-  const shiftsRes = await fetch(`/current-period?user_id=${currentUserId()}`);
+  const shiftsRes = await fetch(`/current-period?user_id=${currentUser.id}`);
   document.getElementById('period-title').textContent =
-    `Current period for user ID ${currentUserId()}`;
+    `${t('currentPeriod')} - ${currentUser.name}`;
   const periodData = await shiftsRes.json();
   document.getElementById('period').textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
@@ -378,7 +380,7 @@ async function createShift() {
   const [aStart, aEnd] = actual.split('-');
 
   const params = new URLSearchParams({
-    user_id: currentUserId(),
+    user_id: currentUser.id,
     date: date,
     planned_start: pStart,
     planned_end: pEnd,
@@ -510,6 +512,12 @@ async function refreshShifts() {
 // }
 
 function initApp() {
+  currentUser = loadCurrentUser();
+
+  if (!currentUser) {
+    window.location.href = '/login.html';
+    return;
+  }
   const savedLang = localStorage.getItem('language');
 
   if (savedLang) {
@@ -537,17 +545,30 @@ function initApp() {
   refreshShifts();
 }
 
-function currentUserId() {
-  const id = localStorage.getItem("user_id");
+// function currentUserId() {
+//   const id = localStorage.getItem("user_id");
 
-  if (!id) {
-    window.location.href = "/login.html";
+//   if (!id) {
+//     window.location.href = "/login.html";
+//     return null;
+//   }
+
+//   return Number(id);
+// }
+
+function loadCurrentUser() {
+  const id = Number(localStorage.getItem('user_id'));
+
+  if (!Number.isFinite(id) || id <= 0) {
     return null;
   }
 
-  return Number(id);
+  return {
+    id,
+    name: localStorage.getItem('user_name'),
+    isAdmin: localStorage.getItem('is_admin') === 'true',
+  };
 }
-
 
 document.addEventListener('DOMContentLoaded', initApp);
 
