@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException, Response, Cookie
+from fastapi import Cookie, Depends, FastAPI, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -15,6 +15,7 @@ from app.balance import calculate_balance
 from app.database import SessionLocal, engine
 from app.models import Base, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
+from app.session import SESSIONS
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -23,7 +24,6 @@ from app.timecalc import (
     shift_difference,
 )
 from app.validators import validate_shift_data
-from app.session import SESSIONS
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
@@ -211,9 +211,7 @@ async def me(
             detail="Invalid session",
         )
 
-    result = await db.execute(
-        select(User).where(User.id == user_id)
-    )
+    result = await db.execute(select(User).where(User.id == user_id))
 
     user = result.scalar_one()
 
@@ -222,6 +220,7 @@ async def me(
         "name": user.name,
         "is_admin": user.is_admin,
     }
+
 
 @app.post("/shifts")
 async def create_shift(
