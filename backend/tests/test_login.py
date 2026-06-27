@@ -27,6 +27,7 @@ async def test_admin_login_success(get_test_data):
     assert data["name"] == get_test_data["users"]["admin"]
     assert isinstance(data["user_id"], int)
     assert data["is_admin"] is True
+    assert "session_id" in response.cookies
 
 
 @pytest.mark.asyncio
@@ -72,6 +73,7 @@ async def test_standard_user_login_success(get_test_data):
     assert data["name"] == get_test_data["users"]["standard"]
     assert isinstance(data["user_id"], int)
     assert data["is_admin"] is False
+    assert "session_id" in response.cookies
 
 
 @pytest.mark.asyncio

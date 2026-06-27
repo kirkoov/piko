@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from pathlib import Path
+from uuid import uuid4
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -153,6 +154,7 @@ async def delete_user(
 
 @app.post("/login")
 async def login(
+    response: Response,
     name: str,
     password: str,
     db: AsyncSession = Depends(get_db),
@@ -167,6 +169,14 @@ async def login(
     if not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    session_id = str(uuid4())
+
+    response.set_cookie(
+        key="session_id",
+        value=session_id,
+        httponly=True,
+    )
+
     return {
         "status": "ok",
         "user_id": user.id,
@@ -178,6 +188,7 @@ async def login(
 @app.post("/logout")
 async def logout():
     return {"status": "ok"}
+
 
 @app.post("/shifts")
 async def create_shift(
