@@ -182,20 +182,13 @@ async def login(
     db.add(session)
     await db.commit()
 
-    response.set_cookie(
-        key="session_id",
-        value=token,
-        httponly=True,
-        samesite="lax",
-    )
-
     return {
-        "status": "ok",
+        "access_token": token,
+        "token_type": "Bearer",
         "user_id": user.id,
         "name": user.name,
         "is_admin": user.is_admin,
     }
-
 
 @app.post("/logout")
 async def logout(
