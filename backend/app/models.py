@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -86,14 +86,8 @@ class Session(Base):
         nullable=False,
     )
 
-    created = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-    )
-
-    expires = mapped_column(
-        DateTime(timezone=True),
-    )
+    created = datetime.now(timezone.utc)
+    expires = created + timedelta(days=30)
 
     user = relationship(
         "User",

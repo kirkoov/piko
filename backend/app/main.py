@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,11 +11,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import hash_password, verify_password
+from app.auth_session import get_current_user
 from app.balance import calculate_balance
 from app.database import SessionLocal, engine
-from app.models import Base, Shift, User
+from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
-from app.session import SESSIONS
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -170,13 +170,23 @@ async def login(
     if not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    session_id = str(uuid4())
-    SESSIONS[session_id] = user.id
+    token = str(uuid4())
+
+    session = Session(
+        token=token,
+        user_id=user.id,
+        created=datetime.now(timezone.utc),
+        expires=datetime.now(timezone.utc) + timedelta(days=30),
+    )
+
+    db.add(session)
+    await db.commit()
 
     response.set_cookie(
         key="session_id",
-        value=session_id,
+        value=token,
         httponly=True,
+        samesite="lax",
     )
 
     return {
@@ -188,33 +198,29 @@ async def login(
 
 
 @app.post("/logout")
-async def logout():
+async def logout(
+    response: Response,
+    session_id: str | None = Cookie(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    if session_id is not None:
+        result = await db.execute(select(Session).where(Session.token == session_id))
+
+        session = result.scalar_one_or_none()
+
+        if session is not None:
+            await db.delete(session)
+            await db.commit()
+
+    response.delete_cookie("session_id")
+
     return {"status": "ok"}
 
 
 @app.get("/me")
 async def me(
-    session_id: str | None = Cookie(default=None),
-    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    if session_id is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Not logged in",
-        )
-
-    user_id = SESSIONS.get(session_id)
-
-    if user_id is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid session",
-        )
-
-    result = await db.execute(select(User).where(User.id == user_id))
-
-    user = result.scalar_one()
-
     return {
         "user_id": user.id,
         "name": user.name,
@@ -356,17 +362,11 @@ async def delete_shift(
 
 
 @app.get("/balance")
-async def get_balance(user_id: int, db: AsyncSession = Depends(get_db)) -> dict:
-
-    user_result = await db.execute(select(User).where(User.id == user_id))
-    user = user_result.scalars().first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
+async def get_balance(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    user_id = user.id
     result = await db.execute(select(Shift).where(Shift.user_id == user_id))
     shifts = result.scalars().all()
     balance = calculate_balance(
