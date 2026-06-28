@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -86,8 +86,10 @@ class Session(Base):
         nullable=False,
     )
 
-    created: Mapped[datetime] = mapped_column()
-    expires: Mapped[datetime] = mapped_column()
+    # created: Mapped[datetime] = mapped_column()
+    # expires: Mapped[datetime] = mapped_column()
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     user = relationship(
         "User",

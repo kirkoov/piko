@@ -7,6 +7,10 @@ from app.database import SessionLocal
 from app.models import Session, User
 
 
+def to_utc(dt: datetime) -> datetime:
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
 async def get_current_user(request: Request) -> tuple[User, Session]:
     auth = request.headers.get("Authorization")
 
@@ -27,8 +31,11 @@ async def get_current_user(request: Request) -> tuple[User, Session]:
 
         if session is None:
             raise HTTPException(status_code=401, detail="Invalid token")
+        
+        # if session.expires < datetime.now(timezone.utc):
+        #     raise HTTPException(status_code=401, detail="Session expired")
 
-        if session.expires < datetime.now(timezone.utc):
+        if to_utc(session.expires) < datetime.now(timezone.utc):
             raise HTTPException(status_code=401, detail="Session expired")
 
         user_result = await db.execute(select(User).where(User.id == session.user_id))

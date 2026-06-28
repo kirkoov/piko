@@ -13,9 +13,12 @@ async function login() {
   const data = await response.json();
 
   if (response.ok) {
+    localStorage.setItem("access_token", data.access_token);
     localStorage.setItem('user_id', String(data.user_id));
     localStorage.setItem('user_name', data.name);
     localStorage.setItem('is_admin', String(data.is_admin));
+    
+    window.location.href = "/";
   }
 }
 

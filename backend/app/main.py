@@ -138,11 +138,12 @@ async def list_users(db: AsyncSession = Depends(get_db)) -> list[dict]:
 
 @app.delete("/users/{user_id}")
 async def delete_user(
-    user_id: int,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    result = await db.execute(select(User).where(User.id == user_id))
-    user = result.scalars().first()
+    user, _ = auth
+    # result = await db.execute(select(User).where(User.id == user.id))
+    # user = result.scalars().first()
 
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -150,7 +151,7 @@ async def delete_user(
     await db.delete(user)
     await db.commit()
 
-    return {"status": "deleted", "id": user_id}
+    return {"status": "deleted", "id": user.id}
 
 
 @app.post("/login")
@@ -217,7 +218,6 @@ async def me(
 
 @app.post("/shifts")
 async def create_shift(
-    user_id: int,
     date: str,
     planned_start: str,
     planned_end: str,
@@ -226,8 +226,11 @@ async def create_shift(
     latest_child_name: str,
     latest_child_time: str,
     note: str = "",
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
+
+    user, _ = auth
 
     try:
         datetime.strptime(date, "%Y-%m-%d")
@@ -244,7 +247,7 @@ async def create_shift(
 
     # CHECK EXISTING SHIFT
     result = await db.execute(
-        select(Shift).where(Shift.user_id == user_id, Shift.date == date)
+        select(Shift).where(Shift.user_id == user.id, Shift.date == date)
     )
 
     existing = result.scalars().first()
@@ -257,7 +260,7 @@ async def create_shift(
         }
 
     shift = Shift(
-        user_id=user_id,
+        user_id=user.id,
         date=date,
         planned_start=planned_start,
         planned_end=planned_end,
@@ -281,12 +284,13 @@ async def create_shift(
 
 @app.get("/shifts")
 async def list_shifts(
-    user_id: int,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
 
+    user, _ = auth
     result = await db.execute(
-        select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
+        select(Shift).where(Shift.user_id == user.id).order_by(Shift.date)
     )
 
     shifts = result.scalars().all()
@@ -353,7 +357,7 @@ async def get_balance(
     auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    user, _ = auth
+    user, session = auth
     result = await db.execute(select(Shift).where(Shift.user_id == user.id))
     shifts = result.scalars().all()
     balance = calculate_balance(

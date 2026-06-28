@@ -10,7 +10,13 @@ let pendingDelete = null;
 let showAllShifts = false;
 let expandedPeriods = {};
 
+function authHeaders() {
+    const token = localStorage.getItem("access_token");
 
+    return {
+        Authorization: `Bearer ${token}`,
+    };
+}
 
 function t(key) {
   return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
@@ -44,13 +50,19 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
-  const response = await fetch(`/periods?user_id=${currentUser.id}`);
+  // const response = await fetch(`/periods?user_id=${currentUser.id}`);
+  const response = await fetch("/periods", {
+    headers: authHeaders(),
+  });
   const periods = await response.json();
   renderPeriods(periods);
 }
 
 async function loadBalance() {
-  const balanceRes = await fetch(`/balance?user_id=${currentUser.id}`);
+  // const balanceRes = await fetch(`/balance?user_id=${currentUser.id}`);
+  const balanceRes = await fetch("/balance", {
+    headers: authHeaders(),
+  });
   const balance = await balanceRes.json();
 
   const minutes = balance.balance_minutes;
@@ -71,7 +83,10 @@ async function loadBalance() {
 }
 
 async function loadCurrentPeriod() {
-  const shiftsRes = await fetch(`/current-period?user_id=${currentUser.id}`);
+  // const shiftsRes = await fetch(`/current-period?user_id=${currentUser.id}`);
+  const shiftsRes = await fetch("/current-period", {
+    headers: authHeaders(),
+  });
   document.getElementById('period-title').textContent =
     `${t('currentPeriod')} - ${currentUser.name}`;
   const periodData = await shiftsRes.json();
@@ -281,8 +296,12 @@ async function togglePeriod(periodKey) {
 }
 
 async function deleteShift(id) {
+  // const response = await fetch(`/shifts/${id}`, {
+  //   method: 'DELETE',
+  // });
   const response = await fetch(`/shifts/${id}`, {
-    method: 'DELETE',
+    method: "DELETE",
+    headers: authHeaders(),
   });
 
   if (!response.ok) {
@@ -380,7 +399,6 @@ async function createShift() {
   const [aStart, aEnd] = actual.split('-');
 
   const params = new URLSearchParams({
-    user_id: currentUser.id,
     date: date,
     planned_start: pStart,
     planned_end: pEnd,
@@ -391,8 +409,12 @@ async function createShift() {
     note: note,
   });
 
+  // const response = await fetch(`/shifts?${params}`, {
+  //   method: 'POST',
+  // });
   const response = await fetch(`/shifts?${params}`, {
-    method: 'POST',
+    method: "POST",
+    headers: authHeaders(),
   });
 
   if (!response.ok) {
@@ -417,6 +439,7 @@ async function updateShift() {
   const response = await fetch(`/shifts/${currentShiftId}`, {
     method: 'PUT',
     headers: {
+      ...authHeaders(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -544,17 +567,6 @@ function initApp() {
   applyTranslations();
   refreshShifts();
 }
-
-// function currentUserId() {
-//   const id = localStorage.getItem("user_id");
-
-//   if (!id) {
-//     window.location.href = "/login.html";
-//     return null;
-//   }
-
-//   return Number(id);
-// }
 
 function loadCurrentUser() {
   const id = Number(localStorage.getItem('user_id'));
