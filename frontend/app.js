@@ -564,6 +564,10 @@ function initApp() {
 
   document.getElementById('cancel-btn').addEventListener('click', closeModal);
 
+  document
+  .getElementById('logout-btn')
+  .addEventListener('click', logout);
+
   applyTranslations();
   refreshShifts();
 }
@@ -580,6 +584,20 @@ function loadCurrentUser() {
     name: localStorage.getItem('user_name'),
     isAdmin: localStorage.getItem('is_admin') === 'true',
   };
+}
+
+async function logout() {
+  const token = localStorage.getItem("access_token");
+
+  await fetch("/logout", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  localStorage.clear();
+  window.location.href = "/login.html";
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
