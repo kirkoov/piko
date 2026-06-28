@@ -7,7 +7,7 @@ from app.database import SessionLocal
 from app.models import Session, User
 
 
-async def get_current_user(request: Request) -> User:
+async def get_current_user(request: Request) -> tuple[User, Session]:
     auth = request.headers.get("Authorization")
 
     if auth is None:
@@ -37,4 +37,4 @@ async def get_current_user(request: Request) -> User:
         if user is None:
             raise HTTPException(status_code=401, detail="User not found")
 
-        return user
+        return user, session

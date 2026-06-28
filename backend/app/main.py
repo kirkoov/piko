@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import Cookie, Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -155,7 +155,6 @@ async def delete_user(
 
 @app.post("/login")
 async def login(
-    response: Response,
     name: str,
     password: str,
     db: AsyncSession = Depends(get_db),
@@ -183,6 +182,7 @@ async def login(
     await db.commit()
 
     return {
+        "status": "ok",
         "access_token": token,
         "token_type": "Bearer",
         "user_id": user.id,
@@ -190,30 +190,24 @@ async def login(
         "is_admin": user.is_admin,
     }
 
+
 @app.post("/logout")
 async def logout(
-    response: Response,
-    session_id: str | None = Cookie(default=None),
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if session_id is not None:
-        result = await db.execute(select(Session).where(Session.token == session_id))
-
-        session = result.scalar_one_or_none()
-
-        if session is not None:
-            await db.delete(session)
-            await db.commit()
-
-    response.delete_cookie("session_id")
-
+    _, session = auth
+    await db.delete(session)
+    await db.commit()
     return {"status": "ok"}
 
 
 @app.get("/me")
 async def me(
-    user: User = Depends(get_current_user),
+    auth: tuple[User, Session] = Depends(get_current_user),
 ):
+    user, _ = auth
+
     return {
         "user_id": user.id,
         "name": user.name,
@@ -356,11 +350,11 @@ async def delete_shift(
 
 @app.get("/balance")
 async def get_balance(
-    user: User = Depends(get_current_user),
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    user_id = user.id
-    result = await db.execute(select(Shift).where(Shift.user_id == user_id))
+    user, _ = auth
+    result = await db.execute(select(Shift).where(Shift.user_id == user.id))
     shifts = result.scalars().all()
     balance = calculate_balance(
         user.starting_balance_minutes,
@@ -368,37 +362,26 @@ async def get_balance(
     )
 
     return {
-        "user_id": user_id,
+        "user_id": user.id,
         "balance_minutes": balance,
     }
 
 
 @app.get("/current-period")
 async def current_period(
-    user_id: int,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
-    user_result = await db.execute(select(User).where(User.id == user_id))
-
-    user = user_result.scalars().first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
+    user, _ = auth
     result = await db.execute(
-        select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
+        select(Shift).where(Shift.user_id == user.id).order_by(Shift.date)
     )
 
     shifts = result.scalars().all()
 
     today = date.today().isoformat()
-
     start, end = period_for_date(today)
-
     shift_dicts = [shift_to_dict(s) for s in shifts]
 
     current_shifts = shifts_in_period(
@@ -415,24 +398,13 @@ async def current_period(
 
 @app.get("/periods")
 async def list_periods(
-    user_id: int,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
-
-    user_result = await db.execute(select(User).where(User.id == user_id))
-
-    user = user_result.scalars().first()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
+    user, _ = auth
     result = await db.execute(
-        select(Shift).where(Shift.user_id == user_id).order_by(Shift.date)
+        select(Shift).where(Shift.user_id == user.id).order_by(Shift.date)
     )
-
     shifts = result.scalars().all()
     shift_dicts = [shift_to_dict(s) for s in shifts]
 
