@@ -302,10 +302,18 @@ async def list_shifts(
 async def update_shift(
     shift_id: int,
     data: ShiftUpdate,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
-    result = await db.execute(select(Shift).where(Shift.id == shift_id))
+    user, _ = auth
+
+    result = await db.execute(
+        select(Shift).where(
+            Shift.id == shift_id,
+            Shift.user_id == user.id,
+        )
+    )
 
     shift = result.scalars().first()
 
@@ -336,12 +344,19 @@ async def update_shift(
 @app.delete("/shifts/{shift_id}")
 async def delete_shift(
     shift_id: int,
+    auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
-    result = await db.execute(select(Shift).where(Shift.id == shift_id))
+    user, _ = auth
+    result = await db.execute(
+        select(Shift).where(
+            Shift.id == shift_id,
+            Shift.user_id == user.id,
+        )
+    )
 
-    shift = result.scalars().first()
+    shift = result.scalar_one_or_none()
 
     if not shift:
         raise HTTPException(status_code=404, detail="Shift not found")
@@ -357,7 +372,7 @@ async def get_balance(
     auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    user, session = auth
+    user, _ = auth
     result = await db.execute(select(Shift).where(Shift.user_id == user.id))
     shifts = result.scalars().all()
     balance = calculate_balance(

@@ -11,11 +11,11 @@ let showAllShifts = false;
 let expandedPeriods = {};
 
 function authHeaders() {
-    const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem('access_token');
 
-    return {
-        Authorization: `Bearer ${token}`,
-    };
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 }
 
 function t(key) {
@@ -51,7 +51,7 @@ function askDelete(id) {
 
 async function loadAllShifts() {
   // const response = await fetch(`/periods?user_id=${currentUser.id}`);
-  const response = await fetch("/periods", {
+  const response = await fetch('/periods', {
     headers: authHeaders(),
   });
   const periods = await response.json();
@@ -60,7 +60,7 @@ async function loadAllShifts() {
 
 async function loadBalance() {
   // const balanceRes = await fetch(`/balance?user_id=${currentUser.id}`);
-  const balanceRes = await fetch("/balance", {
+  const balanceRes = await fetch('/balance', {
     headers: authHeaders(),
   });
   const balance = await balanceRes.json();
@@ -84,7 +84,7 @@ async function loadBalance() {
 
 async function loadCurrentPeriod() {
   // const shiftsRes = await fetch(`/current-period?user_id=${currentUser.id}`);
-  const shiftsRes = await fetch("/current-period", {
+  const shiftsRes = await fetch('/current-period', {
     headers: authHeaders(),
   });
   document.getElementById('period-title').textContent =
@@ -300,7 +300,7 @@ async function deleteShift(id) {
   //   method: 'DELETE',
   // });
   const response = await fetch(`/shifts/${id}`, {
-    method: "DELETE",
+    method: 'DELETE',
     headers: authHeaders(),
   });
 
@@ -413,7 +413,7 @@ async function createShift() {
   //   method: 'POST',
   // });
   const response = await fetch(`/shifts?${params}`, {
-    method: "POST",
+    method: 'POST',
     headers: authHeaders(),
   });
 
@@ -564,9 +564,7 @@ function initApp() {
 
   document.getElementById('cancel-btn').addEventListener('click', closeModal);
 
-  document
-  .getElementById('logout-btn')
-  .addEventListener('click', logout);
+  document.getElementById('logout-btn').addEventListener('click', logout);
 
   applyTranslations();
   refreshShifts();
@@ -587,17 +585,17 @@ function loadCurrentUser() {
 }
 
 async function logout() {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem('access_token');
 
-  await fetch("/logout", {
-    method: "POST",
+  await fetch('/logout', {
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
   localStorage.clear();
-  window.location.href = "/login.html";
+  window.location.href = '/login.html';
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
