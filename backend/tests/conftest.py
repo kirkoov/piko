@@ -1,11 +1,38 @@
 import os
+from typing import Any
 
 import pytest
 import pytest_asyncio
+from httpx import ASGITransport, AsyncClient
 
 from app.database import engine
+from app.main import app
 from app.models import Base
 from init_with_data import main as seed_data
+
+TEST_DATA: dict[str, Any] = {
+    "base_url": "http://test",
+    "users": {
+        "admin": "kk",
+        "standard": "Lora",
+        "potential": "Masha",
+        "test_user_a": "A",
+        "test_user_b": "B",
+    },
+    "pwd_usu": "change_me",
+    "pwd_admin": "test123",
+    "shift_params": {
+        "user_id": 2,
+        "date": "2026-06-14",
+        "planned_start": "08:00",
+        "planned_end": "16:00",
+        "actual_start": "08:00",
+        "actual_end": "16:00",
+        "latest_child_name": "Matti",
+        "latest_child_time": "15:30",
+        "note": "Notes come here",
+    },
+}
 
 
 async def login(client, username, password):
@@ -19,37 +46,51 @@ async def login(client, username, password):
 
     assert response.status_code == 200
     token = response.json()["access_token"]
-
     client.headers.update({"Authorization": f"Bearer {token}"})
-
     return response.json()
 
 
 @pytest.fixture
 def get_test_data():
-    return {
-        "base_url": "http://test",
-        "users": {
-            "admin": "kk",
-            "standard": "Lora",
-            "potential": "Masha",
-            "test_user_a": "A",
-            "test_user_b": "B",
-        },
-        "pwd_usu": "change_me",
-        "pwd_admin": "test123",
-        "shift_params": {
-            "user_id": 2,
-            "date": "2026-06-14",
-            "planned_start": "08:00",
-            "planned_end": "16:00",
-            "actual_start": "08:00",
-            "actual_end": "16:00",
-            "latest_child_name": "Matti",
-            "latest_child_time": "15:30",
-            "note": "Notes come here",
-        },
-    }
+    return TEST_DATA
+
+
+@pytest.fixture
+def shift_params(get_test_data):
+    params = get_test_data["shift_params"].copy()
+    params.pop("user_id", None)
+    return params
+
+
+@pytest_asyncio.fixture
+async def client():
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url=TEST_DATA["base_url"],
+    ) as client:
+        yield client
+
+
+@pytest_asyncio.fixture
+async def user_client(client):
+    await login(
+        client,
+        TEST_DATA["users"]["standard"],
+        TEST_DATA["pwd_usu"],
+    )
+    yield client
+    client.headers.pop("Authorization", None)
+
+
+@pytest_asyncio.fixture
+async def admin_client(client):
+    await login(
+        client,
+        TEST_DATA["users"]["admin"],
+        TEST_DATA["pwd_admin"],
+    )
+    yield client
+    client.headers.pop("Authorization", None)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
