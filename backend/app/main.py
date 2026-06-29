@@ -142,16 +142,14 @@ async def delete_user(
     auth: tuple[User, Session] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    
+
     current_user, _ = auth
     if not current_user.is_admin:
         raise HTTPException(
             status_code=403,
             detail="Admin privileges required",
         )
-    result = await db.execute(
-        select(User).where(User.id == user_id)
-    )
+    result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
 
     if user is None:
@@ -159,7 +157,7 @@ async def delete_user(
             status_code=404,
             detail="User not found",
         )
-    
+
     if user.id == current_user.id:
         raise HTTPException(
             status_code=400,

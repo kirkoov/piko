@@ -1,7 +1,7 @@
 // const VER = "0.1";
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 
-let lang = localStorage.getItem('language') || 'fi';
+let lang = localStorage.getItem('language') || 'en';
 
 let currentShiftId = null;
 let currentUser = null;

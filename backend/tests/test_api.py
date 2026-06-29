@@ -200,11 +200,10 @@ async def test_create_shift_end_before_start(user_client, shift_params):
     assert data["detail"] == "Actual shift end must be after start"
 
 
-# @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_get_balance(user_client, get_test_data):
+@pytest.mark.asyncio
+async def test_get_balance(user_client, shift_params):
 
-    shift = get_test_data["shift_params"].copy()
+    shift = shift_params.copy()
     shift["date"] = "2120-01-03"
 
     create = await user_client.post(
@@ -214,10 +213,7 @@ async def test_get_balance(user_client, get_test_data):
 
     assert create.status_code == 200
 
-    response = await user_client.get(
-        "/balance",
-        params={"user_id": shift["user_id"]},
-    )
+    response = await user_client.get("/balance")
 
     data = response.json()
     assert response.status_code == 200
@@ -228,24 +224,22 @@ async def test_get_balance(user_client, get_test_data):
 
 
 # @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_get_balance_unknown_user(get_test_data):
+# async def test_get_balance_unknown_user(get_test_data):
 
-    # transport = ASGITransport(app=app)
+#     transport = ASGITransport(app=app)
 
-    # async with AsyncClient(
-    #     transport=transport,
-    #     base_url=get_test_data["base_url"],
-    # ) as client:
-    #     response = await client.get(
-    #         "/balance",
-    #         params={"user_id": maxsize},
-    #     )
+#     async with AsyncClient(
+#         transport=transport,
+#         base_url=get_test_data["base_url"],
+#     ) as client:
+#         response = await client.get(
+#             "/balance",
+#             params={"user_id": maxsize},
+#         )
 
-    # assert response.status_code == 404
-    # data = response.json()
-    # assert data["detail"] == "User not found"
-    pass
+#     assert response.status_code == 404
+#     data = response.json()
+#     assert data["detail"] == "User not found"
 
 
 # @pytest.mark.asyncio
@@ -284,14 +278,11 @@ async def test_get_balance_empty_user(get_test_data):
     pass
 
 
-# @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
+@pytest.mark.asyncio
+# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_get_balance_calculated(user_client, get_test_data):
 
-    response = await user_client.get(
-        "/balance",
-        params={"user_id": get_test_data["shift_params"]["user_id"]},
-    )
+    response = await user_client.get("/balance")
 
     data = response.json()
 
@@ -303,7 +294,7 @@ async def test_get_balance_calculated(user_client, get_test_data):
 
 @pytest.mark.asyncio
 async def test_get_shifts(user_client, shift_params):
-    
+
     response = await user_client.get("/shifts")
 
     assert response.status_code == 200
@@ -313,7 +304,7 @@ async def test_get_shifts(user_client, shift_params):
     assert len(data) >= 1
 
     shift = next(s for s in data if s["date"] == shift_params["date"])
-    
+
     assert "id" in shift
     assert "date" in shift
     assert "actual" in shift
@@ -364,33 +355,29 @@ async def test_delete_shift_not_found(user_client):
 
 
 # @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_get_shifts_empty_user(get_test_data):
+# @pytest.mark.skip(reason="awaiting transition due to new auth")
+# async def test_get_shifts_empty_user(get_test_data):
 
-    # transport = ASGITransport(app=app)
+#     transport = ASGITransport(app=app)
 
-    # async with AsyncClient(
-    #     transport=transport,
-    #     base_url=get_test_data["base_url"],
-    # ) as client:
-    #     response = await client.get(
-    #         "/shifts",
-    #         params={"user_id": maxsize},
-    #     )
+#     async with AsyncClient(
+#         transport=transport,
+#         base_url=get_test_data["base_url"],
+#     ) as client:
+#         response = await client.get(
+#             "/shifts",
+#             params={"user_id": maxsize},
+#         )
 
-    # assert response.status_code == 200
-    # assert response.json() == []
-    pass
+#     assert response.status_code == 200
+#     assert response.json() == []
 
 
-# @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_current_period(user_client, get_test_data):
+@pytest.mark.asyncio
+# @pytest.mark.skip(reason="awaiting transition due to new auth")
+async def test_current_period(user_client):
 
-    response = await user_client.get(
-        "/current-period",
-        params={"user_id": get_test_data["shift_params"]["user_id"]},
-    )
+    response = await user_client.get("/current-period")
 
     assert response.status_code == 200
 
@@ -403,16 +390,10 @@ async def test_current_period(user_client, get_test_data):
     assert data["period_start"] <= data["period_end"]
 
 
-# @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
+@pytest.mark.asyncio
 async def test_get_periods(user_client, get_test_data):
 
-    response = await user_client.get(
-        "/periods",
-        params={
-            "user_id": get_test_data["shift_params"]["user_id"],
-        },
-    )
+    response = await user_client.get("/periods")
 
     assert response.status_code == 200
 
@@ -466,21 +447,20 @@ async def test_get_periods_empty_user(get_test_data):
 
 
 # @pytest.mark.asyncio
-@pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_get_periods_unknown_user(get_test_data):
+# @pytest.mark.skip(reason="awaiting transition due to new auth")
+# async def test_get_periods_unknown_user(get_test_data):
 
-    # transport = ASGITransport(app=app)
+#     transport = ASGITransport(app=app)
 
-    # async with AsyncClient(
-    #     transport=transport,
-    #     base_url=get_test_data["base_url"],
-    # ) as client:
-    #     response = await client.get(
-    #         "/periods",
-    #         params={"user_id": maxsize},
-    #     )
+#     async with AsyncClient(
+#         transport=transport,
+#         base_url=get_test_data["base_url"],
+#     ) as client:
+#         response = await client.get(
+#             "/periods",
+#             params={"user_id": maxsize},
+#         )
 
-    # assert response.status_code == 404
-    # data = response.json()
-    # assert data["detail"] == "User not found"
-    pass
+#     assert response.status_code == 404
+#     data = response.json()
+#     assert data["detail"] == "User not found"
