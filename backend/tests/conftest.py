@@ -8,6 +8,23 @@ from app.models import Base
 from init_with_data import main as seed_data
 
 
+async def login(client, username, password):
+    response = await client.post(
+        "/login",
+        params={
+            "name": username,
+            "password": password,
+        },
+    )
+
+    assert response.status_code == 200
+    token = response.json()["access_token"]
+
+    client.headers.update({"Authorization": f"Bearer {token}"})
+
+    return response.json()
+
+
 @pytest.fixture
 def get_test_data():
     return {
