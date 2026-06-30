@@ -5,6 +5,8 @@ from sys import maxsize
 
 import pytest
 
+from tests.helpers import assert_ok
+
 TEST_BONUS_MINS = 239  # Provided the initial seed data never change & start @239 min
 
 
@@ -18,8 +20,8 @@ async def test_create_user(admin_client, get_test_data):
         },
     )
 
-    assert response.status_code == 200
-    data = response.json()
+    data = assert_ok(response)
+
     assert data["status"] == "created"
     assert data["name"] == get_test_data["users"]["test_user_a"]
 
@@ -64,9 +66,7 @@ async def test_delete_user(admin_client, get_test_data):
 
     response = await admin_client.delete(f"/users/{user_id}")
 
-    assert response.status_code == 200
-
-    data = response.json()
+    data = assert_ok(response)
 
     assert data["status"] == "deleted"
     assert data["id"] == user_id
@@ -90,8 +90,8 @@ async def test_delete_user_not_found(admin_client):
 async def test_get_users(admin_client, get_test_data):
     response = await admin_client.get("/users")
 
-    assert response.status_code == 200
-    data = response.json()
+    data = assert_ok(response)
+
     assert isinstance(data, list)
     # expected_users = set(get_test_data["users"].values())
     # returned_users = {u["name"] for u in data}
@@ -105,9 +105,9 @@ async def test_create_shift_success(user_client, shift_params):
         "/shifts",
         params=shift_params,
     )
-    assert response.status_code == 200
 
-    data = response.json()
+    data = assert_ok(response)
+
     assert data["status"] == "created"
     assert isinstance(data["shift_id"], int)
 
@@ -139,9 +139,8 @@ async def test_update_shift(user_client, shift_params):
         json=update_data,
     )
 
-    assert response.status_code == 200
+    data = assert_ok(response)
 
-    data = response.json()
     assert data["status"] == "updated"
     assert data["shift_id"] == shift_id
 
@@ -215,8 +214,7 @@ async def test_get_balance(user_client, shift_params):
 
     response = await user_client.get("/balance")
 
-    data = response.json()
-    assert response.status_code == 200
+    data = assert_ok(response)
     assert "balance_minutes" in data
 
     # Lora gets nothing for another usu daily shift
@@ -229,9 +227,7 @@ async def test_get_balance_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/balance")
 
-    assert response.status_code == 200
-
-    data = response.json()
+    data = assert_ok(response)
 
     assert data["balance_minutes"] == 0
 
@@ -242,9 +238,8 @@ async def test_get_balance_calculated(user_client, get_test_data):
 
     response = await user_client.get("/balance")
 
-    data = response.json()
+    data = assert_ok(response)
 
-    assert response.status_code == 200
     assert "balance_minutes" in data
     assert data["user_id"] == get_test_data["shift_params"]["user_id"]
     assert data["balance_minutes"] == TEST_BONUS_MINS
@@ -255,8 +250,8 @@ async def test_get_shifts(user_client, shift_params):
 
     response = await user_client.get("/shifts")
 
-    assert response.status_code == 200
-    data = response.json()
+    data = assert_ok(response)
+
     assert isinstance(data, list)
     assert isinstance(data[0], dict)
     assert len(data) >= 1
@@ -281,8 +276,8 @@ async def test_delete_shift(user_client, shift_params):
 
     response = await user_client.delete(f"/shifts/{shift_id}")
 
-    assert response.status_code == 200
-    assert response.json()["status"] == "deleted"
+    data = assert_ok(response)
+    assert data["status"] == "deleted"
 
 
 @pytest.mark.asyncio
@@ -318,8 +313,8 @@ async def test_get_shifts_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/shifts")
 
-    assert response.status_code == 200
-    assert response.json() == []
+    data = assert_ok(response)
+    assert data == []
 
 
 @pytest.mark.asyncio
@@ -328,9 +323,7 @@ async def test_current_period(user_client):
 
     response = await user_client.get("/current-period")
 
-    assert response.status_code == 200
-
-    data = response.json()
+    data = assert_ok(response)
 
     assert "period_start" in data
     assert "period_end" in data
@@ -344,9 +337,7 @@ async def test_get_periods(user_client):
 
     response = await user_client.get("/periods")
 
-    assert response.status_code == 200
-
-    periods = response.json()
+    periods = assert_ok(response)
 
     assert isinstance(periods, list)
     assert len(periods) >= 1
@@ -368,5 +359,5 @@ async def test_get_periods_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/periods")
 
-    assert response.status_code == 200
-    assert response.json() == []
+    data = assert_ok(response)
+    assert data == []

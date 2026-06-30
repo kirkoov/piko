@@ -26,7 +26,7 @@ def test_validate_shift_data_ok():
 
 
 def test_validate_shift_data_bad_end():
-    with pytest.raises(HTTPException):
+    with pytest.raises(HTTPException) as exc:
         validate_shift_data(
             "16:00",
             "08:00",
@@ -34,3 +34,5 @@ def test_validate_shift_data_bad_end():
             "16:00",
             "15:45",
         )
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "Planned shift end must be after start"
