@@ -15,7 +15,7 @@ TEST_DATA: dict[str, Any] = {
     "users": {
         "admin": "kk",
         "standard": "Lora",
-        "potential": "Masha",
+        "empty": "Masha",
         "test_user_a": "A",
         "test_user_b": "B",
     },
@@ -50,6 +50,29 @@ async def login(client, username, password):
     return response.json()
 
 
+async def login_as(client, role):
+    passwords = {
+        "admin": TEST_DATA["pwd_admin"],
+        "standard": TEST_DATA["pwd_usu"],
+        "empty": TEST_DATA["pwd_usu"],
+    }
+
+    usernames = {
+        "admin": TEST_DATA["users"]["admin"],
+        "standard": TEST_DATA["users"]["standard"],
+        "empty": TEST_DATA["users"]["empty"],
+    }
+
+    try:
+        return await login(
+            client,
+            usernames[role],
+            passwords[role],
+        )
+    except KeyError:
+        raise ValueError(f"Unknown role: {role}")
+
+
 @pytest.fixture
 def get_test_data():
     return TEST_DATA
@@ -72,25 +95,23 @@ async def client():
 
 
 @pytest_asyncio.fixture
-async def user_client(client):
-    await login(
-        client,
-        TEST_DATA["users"]["standard"],
-        TEST_DATA["pwd_usu"],
-    )
+async def empty_user_client(client):
+    await login_as(client, "empty")
     yield client
-    client.headers.pop("Authorization", None)
+
+
+@pytest_asyncio.fixture
+async def user_client(client):
+    await login_as(client, "standard")
+    yield client
+    # client.headers.pop("Authorization", None)
 
 
 @pytest_asyncio.fixture
 async def admin_client(client):
-    await login(
-        client,
-        TEST_DATA["users"]["admin"],
-        TEST_DATA["pwd_admin"],
-    )
+    await login_as(client, "admin")
     yield client
-    client.headers.pop("Authorization", None)
+    # client.headers.pop("Authorization", None)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
