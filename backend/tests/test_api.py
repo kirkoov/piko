@@ -222,7 +222,6 @@ async def test_get_balance(user_client, shift_params):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_get_balance_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/balance")
@@ -233,7 +232,6 @@ async def test_get_balance_empty_user(empty_user_client):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_get_balance_calculated(user_client, get_test_data):
 
     response = await user_client.get("/balance")
@@ -308,7 +306,6 @@ async def test_delete_shift_not_found(user_client):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_get_shifts_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/shifts")
@@ -318,7 +315,6 @@ async def test_get_shifts_empty_user(empty_user_client):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_current_period(user_client):
 
     response = await user_client.get("/current-period")
