@@ -1,72 +1,54 @@
 import pytest
-from httpx import ASGITransport, AsyncClient
-
-from app.main import app
 
 
-@pytest.mark.asyncio
-async def test_admin_login_success(admin_client, get_test_data):
-    ...
-    # transport = ASGITransport(app=app)
-
-    # async with AsyncClient(
-    #     transport=transport,
-    #     base_url=get_test_data["base_url"],
-    # ) as client:
-    #     response = await client.post(
-    #         "/login",
-    #         params={
-    #             "name": get_test_data["users"]["admin"],
-    #             "password": get_test_data["pwd_admin"],
-    #         },
-    #     )
-    # response = await admin_client.get("/")
-    # data = response.json()
-    # assert response.status_code == 200
-    # assert data["status"] == "ok"
-    # assert data["name"] == get_test_data["users"]["admin"]
-    # assert isinstance(data["user_id"], int)
-    # assert data["is_admin"] is True
-    # print(response)
-    # assert "session_id" in response.cookies
-
-
-@pytest.mark.asyncio
-async def test_admin_login_wrong_password(get_test_data):
-
-    transport = ASGITransport(app=app)
-
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        response = await client.post(
-            "/login",
-            params={
-                "name": get_test_data["users"]["admin"],
-                "password": "wrongAhem",
-            },
-        )
-
+def assert_invalid_credentials(response):
     assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid credentials"
 
 
 @pytest.mark.asyncio
-async def test_standard_user_login_success(get_test_data):
+async def test_admin_login_success(client, get_test_data):
+    response = await client.post(
+        "/login",
+        params={
+            "name": get_test_data["users"]["admin"],
+            "password": get_test_data["pwd_admin"],
+        },
+    )
+    assert response.status_code == 200
 
-    transport = ASGITransport(app=app)
+    data = response.json()
 
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        response = await client.post(
-            "/login",
-            params={
-                "name": get_test_data["users"]["standard"],
-                "password": get_test_data["pwd_usu"],
-            },
-        )
+    assert data["status"] == "ok"
+    assert data["name"] == get_test_data["users"]["admin"]
+    assert isinstance(data["user_id"], int)
+    assert data["is_admin"] is True
+
+
+@pytest.mark.asyncio
+async def test_admin_login_wrong_password(client, get_test_data):
+
+    response = await client.post(
+        "/login",
+        params={
+            "name": get_test_data["users"]["admin"],
+            "password": "definitely_wrong_password",
+        },
+    )
+
+    assert_invalid_credentials(response)
+
+
+@pytest.mark.asyncio
+async def test_standard_user_login_success(client, get_test_data):
+
+    response = await client.post(
+        "/login",
+        params={
+            "name": get_test_data["users"]["standard"],
+            "password": get_test_data["pwd_usu"],
+        },
+    )
 
     assert response.status_code == 200
     data = response.json()
@@ -74,86 +56,65 @@ async def test_standard_user_login_success(get_test_data):
     assert data["name"] == get_test_data["users"]["standard"]
     assert isinstance(data["user_id"], int)
     assert data["is_admin"] is False
-    assert "session_id" in response.cookies
 
 
 @pytest.mark.asyncio
-async def test_standard_user_login_wrong_password(get_test_data):
+async def test_standard_user_login_wrong_password(client, get_test_data):
 
-    transport = ASGITransport(app=app)
+    response = await client.post(
+        "/login",
+        params={
+            "name": get_test_data["users"]["standard"],
+            "password": "definitely_wrong_password",
+        },
+    )
 
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        response = await client.post(
-            "/login",
-            params={
-                "name": get_test_data["users"]["standard"],
-                "password": "wrongAhem",
-            },
-        )
+    assert_invalid_credentials(response)
+
+
+@pytest.mark.asyncio
+async def test_unknown_user_login(client):
+
+    response = await client.post(
+        "/login",
+        params={
+            "name": "DefinitelyNotAnExistingUser",
+            "password": "whatever",
+        },
+    )
+
+    assert_invalid_credentials(response)
+
+
+@pytest.mark.asyncio
+async def test_logout_returns_ok(user_client):
+
+    logout = await user_client.post("/logout")
+
+    assert logout.status_code == 200
+    assert logout.json()["status"] == "ok"
+
+    response = await user_client.get("/me")
 
     assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid token"
 
 
 @pytest.mark.asyncio
-async def test_unknown_user_login(get_test_data):
+async def test_me_returns_logged_in_admin(admin_client, get_test_data):
 
-    transport = ASGITransport(app=app)
-
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        response = await client.post(
-            "/login",
-            params={
-                "name": "DefinitelyNotExistingUser",
-                "password": "whatever",
-            },
-        )
-
-    assert response.status_code == 401
-
-
-@pytest.mark.asyncio
-async def test_logout_returns_ok(get_test_data):
-    transport = ASGITransport(app=app)
-
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        response = await client.post("/logout")
-
+    response = await admin_client.get("/me")
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    data = response.json()
+    assert data["name"] == get_test_data["users"]["admin"]
+    assert data["is_admin"] is True
 
 
 @pytest.mark.asyncio
-async def test_me_returns_logged_in_user(get_test_data):
+async def test_me_returns_logged_in_user(user_client, get_test_data):
 
-    transport = ASGITransport(app=app)
-
-    async with AsyncClient(
-        transport=transport,
-        base_url=get_test_data["base_url"],
-    ) as client:
-        # Login first
-        login = await client.post(
-            "/login",
-            params={
-                "name": get_test_data["users"]["standard"],
-                "password": get_test_data["pwd_usu"],
-            },
-        )
-
-        assert login.status_code == 200
-
-        # Ask backend who we are
-        response = await client.get("/me")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["name"] == get_test_data["users"]["standard"]
-        assert data["is_admin"] is False
+    response = await user_client.get("/me")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == get_test_data["users"]["standard"]
+    assert data["is_admin"] is False
