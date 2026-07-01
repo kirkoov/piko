@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import hash_password, verify_password
 from app.auth_session import get_current_user
 from app.balance import calculate_balance
+from app.config import DATE_FORMAT, SESSION_LIFETIME
 from app.database import SessionLocal, engine
 from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
@@ -195,7 +196,7 @@ async def login(
         token=token,
         user_id=user.id,
         created=datetime.now(timezone.utc),
-        expires=datetime.now(timezone.utc) + timedelta(days=30),
+        expires=datetime.now(timezone.utc) + SESSION_LIFETIME,
     )
 
     db.add(session)
@@ -252,7 +253,7 @@ async def create_shift(
     user, _ = auth
 
     try:
-        datetime.strptime(date, "%Y-%m-%d")
+        datetime.strptime(date, DATE_FORMAT)
     except ValueError:
         raise HTTPException(400, "Invalid date")
 

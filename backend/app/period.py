@@ -1,26 +1,27 @@
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 
-PERIOD_START = date(2026, 6, 8)
-PERIOD_LENGTH = 21
+from app.config import DATE_FORMAT, PAY_PERIOD_LENGTH, PAY_PERIOD_START_DAY
+
+PERIOD_START = date(2026, 6, PAY_PERIOD_START_DAY)
 
 
 def period_for_date(date_str: str) -> tuple[str, str]:
     target = datetime.strptime(
         date_str,
-        "%Y-%m-%d",
+        DATE_FORMAT,
     ).date()
 
     days = (target - PERIOD_START).days
 
-    period_index = days // PERIOD_LENGTH
+    period_index = days // PAY_PERIOD_LENGTH
 
     start = PERIOD_START + timedelta(
-        days=period_index * PERIOD_LENGTH,
+        days=period_index * PAY_PERIOD_LENGTH,
     )
 
     end = start + timedelta(
-        days=PERIOD_LENGTH - 1,
+        days=PAY_PERIOD_LENGTH - 1,
     )
 
     return (
