@@ -6,10 +6,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import hash_password
 from app.auth_session import get_current_user
 from app.balance import calculate_balance
 from app.config import DATE_FORMAT
@@ -18,6 +16,7 @@ from app.dependencies import get_db
 from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
 from app.routers.auth import router as auth_router
+from app.routers.users import router as users_router
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -57,6 +56,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Piko", lifespan=lifespan)
 
 app.include_router(auth_router)
+app.include_router(users_router)
 
 
 def shift_to_dict(s: Shift) -> dict:
@@ -102,37 +102,6 @@ def shift_to_dict(s: Shift) -> dict:
             s.latest_child_time,
         ),
     }
-
-
-@app.post("/users")
-async def create_user(
-    name: str,
-    password: str,
-    db: AsyncSession = Depends(get_db),
-) -> dict:
-
-    user = User(
-        name=name,
-        password_hash=hash_password(password),
-    )
-    db.add(user)
-
-    try:
-        await db.commit()
-
-    except IntegrityError:
-        await db.rollback()
-        return {"status": "error", "message": f"User '{name}' already exists"}
-
-    return {"status": "created", "name": name}
-
-
-@app.get("/users")
-async def list_users(db: AsyncSession = Depends(get_db)) -> list[dict]:
-    result = await db.execute(select(User))
-    users = result.scalars().all()
-
-    return [{"id": u.id, "name": u.name} for u in users]
 
 
 @app.delete("/users/{user_id}")

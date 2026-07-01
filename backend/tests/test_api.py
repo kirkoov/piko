@@ -13,7 +13,7 @@ TEST_BONUS_MINS = 239  # Provided the initial seed data never change & start @23
 @pytest.mark.asyncio
 async def test_create_user(admin_client, get_test_data):
     response = await admin_client.post(
-        "/users",
+        f"{get_test_data['api_prefix']}/users",
         params={
             "name": get_test_data["users"]["test_user_a"],
             "password": get_test_data["pwd_usu"],
@@ -35,16 +35,18 @@ async def test_create_user_duplicate(admin_client, get_test_data):
     }
 
     await admin_client.post(
-        "/users",
+        f"{get_test_data['api_prefix']}/users",
         params=PARAMS,
     )
 
     response = await admin_client.post(
-        "/users",
+        f"{get_test_data['api_prefix']}/users",
         params=PARAMS,
     )
 
-    assert response.json()["status"] == "error"
+    data = response.json()
+    assert data["status"] == "error"
+    assert data["message"] == f"User '{PARAMS['name']}' already exists"
 
 
 @pytest.mark.asyncio
@@ -53,7 +55,7 @@ async def test_delete_user(admin_client, get_test_data):
     test_user_name = "DeleteMe"
 
     create = await admin_client.post(
-        "/users",
+        f"{get_test_data['api_prefix']}/users",
         params={
             "name": test_user_name,
             "password": get_test_data["pwd_usu"],
@@ -61,7 +63,8 @@ async def test_delete_user(admin_client, get_test_data):
     )
 
     assert create.status_code == 200
-    users = await admin_client.get("/users")
+    users = await admin_client.get(f"{get_test_data['api_prefix']}/users")
+
     user_id = next(u["id"] for u in users.json() if u["name"] == test_user_name)
 
     response = await admin_client.delete(f"/users/{user_id}")
@@ -71,7 +74,7 @@ async def test_delete_user(admin_client, get_test_data):
     assert data["status"] == "deleted"
     assert data["id"] == user_id
 
-    users = await admin_client.get("/users")
+    users = await admin_client.get(f"{get_test_data['api_prefix']}/users")
     names = {u["name"] for u in users.json()}
 
     assert test_user_name not in names
@@ -88,14 +91,14 @@ async def test_delete_user_not_found(admin_client):
 
 @pytest.mark.asyncio
 async def test_get_users(admin_client, get_test_data):
-    response = await admin_client.get("/users")
+    response = await admin_client.get(f"{get_test_data['api_prefix']}/users")
 
     data = assert_ok(response)
 
     assert isinstance(data, list)
-    # expected_users = set(get_test_data["users"].values())
-    # returned_users = {u["name"] for u in data}
-    # assert expected_users.issubset(returned_users)
+    expected_users = set(get_test_data["users"].values())
+    returned_users = {u["name"] for u in data}
+    assert expected_users.issubset(returned_users)
 
 
 @pytest.mark.asyncio
