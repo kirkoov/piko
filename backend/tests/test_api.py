@@ -62,15 +62,18 @@ async def test_delete_user(admin_client, get_test_data):
         },
     )
 
-    assert create.status_code == 200
-    users = await admin_client.get(f"{get_test_data['api_prefix']}/users")
+    data = assert_ok(create)
+    assert data["status"] == "created"
+    assert data["name"] == test_user_name
 
+    users = await admin_client.get(f"{get_test_data['api_prefix']}/users")
     user_id = next(u["id"] for u in users.json() if u["name"] == test_user_name)
 
-    response = await admin_client.delete(f"/users/{user_id}")
+    response = await admin_client.delete(
+        f"{get_test_data['api_prefix']}/users/{user_id}"
+    )
 
     data = assert_ok(response)
-
     assert data["status"] == "deleted"
     assert data["id"] == user_id
 
@@ -81,9 +84,11 @@ async def test_delete_user(admin_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_delete_user_not_found(admin_client):
+async def test_delete_user_not_found(admin_client, get_test_data):
 
-    response = await admin_client.delete(f"/users/{maxsize}")
+    response = await admin_client.delete(
+        f"{get_test_data['api_prefix']}/users/{maxsize}"
+    )
 
     assert response.status_code == 404
     assert response.json()["detail"] == "User not found"
