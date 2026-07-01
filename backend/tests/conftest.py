@@ -12,6 +12,7 @@ from init_with_data import main as seed_data
 
 TEST_DATA: dict[str, Any] = {
     "base_url": "http://test",
+    "api_prefix": "/api/v0.2",
     "users": {
         "admin": "kk",
         "standard": "Lora",
@@ -37,7 +38,7 @@ TEST_DATA: dict[str, Any] = {
 
 async def login(client, username, password):
     response = await client.post(
-        "/login",
+        f"{TEST_DATA['api_prefix']}/auth/login",
         params={
             "name": username,
             "password": password,

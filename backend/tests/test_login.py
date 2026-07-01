@@ -6,7 +6,7 @@ from tests.helpers import assert_invalid_credentials, assert_ok
 @pytest.mark.asyncio
 async def test_admin_login_success(client, get_test_data):
     response = await client.post(
-        "/login",
+        f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": get_test_data["users"]["admin"],
             "password": get_test_data["pwd_admin"],
@@ -25,7 +25,7 @@ async def test_admin_login_success(client, get_test_data):
 async def test_admin_login_wrong_password(client, get_test_data):
 
     response = await client.post(
-        "/login",
+        f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": get_test_data["users"]["admin"],
             "password": "definitely_wrong_password",
@@ -39,7 +39,7 @@ async def test_admin_login_wrong_password(client, get_test_data):
 async def test_standard_user_login_success(client, get_test_data):
 
     response = await client.post(
-        "/login",
+        f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": get_test_data["users"]["standard"],
             "password": get_test_data["pwd_usu"],
@@ -58,7 +58,7 @@ async def test_standard_user_login_success(client, get_test_data):
 async def test_standard_user_login_wrong_password(client, get_test_data):
 
     response = await client.post(
-        "/login",
+        f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": get_test_data["users"]["standard"],
             "password": "definitely_wrong_password",
@@ -69,10 +69,10 @@ async def test_standard_user_login_wrong_password(client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_unknown_user_login(client):
+async def test_unknown_user_login(client, get_test_data):
 
     response = await client.post(
-        "/login",
+        f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": "DefinitelyNotAnExistingUser",
             "password": "whatever",
@@ -83,14 +83,14 @@ async def test_unknown_user_login(client):
 
 
 @pytest.mark.asyncio
-async def test_logout_returns_ok(user_client):
+async def test_logout_returns_ok(user_client, get_test_data):
 
-    logout = await user_client.post("/logout")
+    logout = await user_client.post(f"{get_test_data['api_prefix']}/auth/logout")
 
     assert logout.status_code == 200
     assert logout.json()["status"] == "ok"
 
-    response = await user_client.get("/me")
+    response = await user_client.get(f"{get_test_data['api_prefix']}/auth/me")
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid token"
@@ -99,7 +99,7 @@ async def test_logout_returns_ok(user_client):
 @pytest.mark.asyncio
 async def test_me_returns_logged_in_admin(admin_client, get_test_data):
 
-    response = await admin_client.get("/me")
+    response = await admin_client.get(f"{get_test_data['api_prefix']}/auth/me")
 
     data = assert_ok(response)
 
@@ -110,7 +110,7 @@ async def test_me_returns_logged_in_admin(admin_client, get_test_data):
 @pytest.mark.asyncio
 async def test_me_returns_logged_in_user(user_client, get_test_data):
 
-    response = await user_client.get("/me")
+    response = await user_client.get(f"{get_test_data['api_prefix']}/auth/me")
 
     data = assert_ok(response)
 

@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 from pathlib import Path
-from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
@@ -10,13 +9,15 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth import hash_password, verify_password
+from app.auth import hash_password
 from app.auth_session import get_current_user
 from app.balance import calculate_balance
-from app.config import DATE_FORMAT, SESSION_LIFETIME
-from app.database import SessionLocal, engine
+from app.config import DATE_FORMAT
+from app.database import engine
+from app.dependencies import get_db
 from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
+from app.routers.auth import router as auth_router
 from app.timecalc import (
     duration,
     evening_bonus,
@@ -54,6 +55,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Piko", lifespan=lifespan)
+
+app.include_router(auth_router)
 
 
 def shift_to_dict(s: Shift) -> dict:
@@ -99,11 +102,6 @@ def shift_to_dict(s: Shift) -> dict:
             s.latest_child_time,
         ),
     }
-
-
-async def get_db():
-    async with SessionLocal() as session:
-        yield session
 
 
 @app.post("/users")
@@ -171,68 +169,6 @@ async def delete_user(
     return {
         "status": "deleted",
         "id": user.id,
-    }
-
-
-@app.post("/login")
-async def login(
-    name: str,
-    password: str,
-    db: AsyncSession = Depends(get_db),
-):
-    result = await db.execute(select(User).where(User.name == name))
-
-    user = result.scalar_one_or_none()
-
-    if user is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    if not verify_password(password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = str(uuid4())
-
-    session = Session(
-        token=token,
-        user_id=user.id,
-        created=datetime.now(timezone.utc),
-        expires=datetime.now(timezone.utc) + SESSION_LIFETIME,
-    )
-
-    db.add(session)
-    await db.commit()
-
-    return {
-        "status": "ok",
-        "access_token": token,
-        "token_type": "Bearer",
-        "user_id": user.id,
-        "name": user.name,
-        "is_admin": user.is_admin,
-    }
-
-
-@app.post("/logout")
-async def logout(
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    _, session = auth
-    await db.delete(session)
-    await db.commit()
-    return {"status": "ok"}
-
-
-@app.get("/me")
-async def me(
-    auth: tuple[User, Session] = Depends(get_current_user),
-):
-    user, _ = auth
-
-    return {
-        "user_id": user.id,
-        "name": user.name,
-        "is_admin": user.is_admin,
     }
 
 
