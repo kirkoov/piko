@@ -5,11 +5,7 @@ class UserCreate(BaseModel):
     name: str
 
 
-class ShiftCreate(BaseModel):
-    user_id: int
-
-    date: str
-
+class ShiftBase(BaseModel):
     planned_start: str
     planned_end: str
 
@@ -20,3 +16,11 @@ class ShiftCreate(BaseModel):
     latest_child_time: str
 
     note: str = ""
+
+
+class ShiftCreate(ShiftBase):
+    date: str
+
+
+class ShiftUpdate(ShiftBase):
+    pass

@@ -1,16 +1,14 @@
 from contextlib import asynccontextmanager
-from datetime import date, datetime
+from datetime import date
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth_session import get_current_user
 from app.balance import calculate_balance
-from app.config import DATE_FORMAT
 from app.database import engine
 from app.dependencies import get_db
 from app.models import Base, Session, Shift, User
@@ -19,21 +17,10 @@ from app.routers.auth import router as auth_router
 from app.routers.shifts import router as shifts_router
 from app.routers.users import router as users_router
 from app.serializers import shift_to_dict
-from app.validators import validate_shift_data
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
 PROJECT_ROOT = BASE_DIR.parent  # piko/
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
-
-
-class ShiftUpdate(BaseModel):
-    planned_start: str
-    planned_end: str
-    actual_start: str
-    actual_end: str
-    latest_child_name: str
-    latest_child_time: str
-    note: str = ""
 
 
 @asynccontextmanager
@@ -53,141 +40,6 @@ app = FastAPI(title="Piko", lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(shifts_router)
-
-
-@app.post("/shifts")
-async def create_shift(
-    date: str,
-    planned_start: str,
-    planned_end: str,
-    actual_start: str,
-    actual_end: str,
-    latest_child_name: str,
-    latest_child_time: str,
-    note: str = "",
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict:
-
-    user, _ = auth
-
-    try:
-        datetime.strptime(date, DATE_FORMAT)
-    except ValueError:
-        raise HTTPException(400, "Invalid date")
-
-    validate_shift_data(
-        planned_start,
-        planned_end,
-        actual_start,
-        actual_end,
-        latest_child_time,
-    )
-
-    # CHECK EXISTING SHIFT
-    result = await db.execute(
-        select(Shift).where(Shift.user_id == user.id, Shift.date == date)
-    )
-
-    existing = result.scalars().first()
-
-    if existing:
-        return {
-            "status": "error",
-            "message": "Shift already exists for this user on this date",
-            "shift_id": existing.id,
-        }
-
-    shift = Shift(
-        user_id=user.id,
-        date=date,
-        planned_start=planned_start,
-        planned_end=planned_end,
-        actual_start=actual_start,
-        actual_end=actual_end,
-        latest_child_name=latest_child_name,
-        latest_child_time=latest_child_time,
-        note=note,
-    )
-
-    db.add(shift)
-
-    await db.commit()
-    await db.refresh(shift)
-
-    return {
-        "status": "created",
-        "shift_id": shift.id,
-    }
-
-
-@app.put("/shifts/{shift_id}")
-async def update_shift(
-    shift_id: int,
-    data: ShiftUpdate,
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict:
-
-    user, _ = auth
-
-    result = await db.execute(
-        select(Shift).where(
-            Shift.id == shift_id,
-            Shift.user_id == user.id,
-        )
-    )
-
-    shift = result.scalars().first()
-
-    if not shift:
-        raise HTTPException(status_code=404, detail="Shift not found")
-
-    validate_shift_data(
-        data.planned_start,
-        data.planned_end,
-        data.actual_start,
-        data.actual_end,
-        data.latest_child_time,
-    )
-
-    shift.planned_start = data.planned_start
-    shift.planned_end = data.planned_end
-    shift.actual_start = data.actual_start
-    shift.actual_end = data.actual_end
-    shift.latest_child_name = data.latest_child_name
-    shift.latest_child_time = data.latest_child_time
-    shift.note = data.note
-
-    await db.commit()
-
-    return {"status": "updated", "shift_id": shift_id}
-
-
-@app.delete("/shifts/{shift_id}")
-async def delete_shift(
-    shift_id: int,
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict:
-
-    user, _ = auth
-    result = await db.execute(
-        select(Shift).where(
-            Shift.id == shift_id,
-            Shift.user_id == user.id,
-        )
-    )
-
-    shift = result.scalar_one_or_none()
-
-    if not shift:
-        raise HTTPException(status_code=404, detail="Shift not found")
-
-    await db.delete(shift)
-    await db.commit()
-
-    return {"status": "deleted", "shift_id": shift_id}
 
 
 @app.get("/balance")

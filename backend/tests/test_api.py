@@ -107,11 +107,11 @@ async def test_get_users(admin_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_create_shift_success(user_client, shift_params):
+async def test_create_shift_success(user_client, get_test_data):
 
     response = await user_client.post(
-        "/shifts",
-        params=shift_params,
+        f"{get_test_data['api_prefix']}/shifts",
+        json=get_test_data["shift_params"],
     )
 
     data = assert_ok(response)
@@ -126,8 +126,8 @@ async def test_update_shift(user_client, get_test_data):
     shift["date"] = "2100-01-02"
 
     create = await user_client.post(
-        "/shifts",
-        params=shift,
+        f"{get_test_data['api_prefix']}/shifts",
+        json=shift,
     )
 
     data = assert_ok(create)
@@ -144,7 +144,7 @@ async def test_update_shift(user_client, get_test_data):
     }
 
     response = await user_client.put(
-        f"/shifts/{shift_id}",
+        f"{get_test_data['api_prefix']}/shifts/{shift_id}",
         json=update_data,
     )
 
@@ -165,12 +165,15 @@ async def test_update_shift(user_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_create_shift_duplicate(user_client, shift_params):
-    await user_client.post("/shifts", params=shift_params)
+async def test_create_shift_duplicate(user_client, get_test_data):
+    assert_ok(
+        await user_client.post(
+            f"{get_test_data['api_prefix']}/shifts", json=get_test_data["shift_params"]
+        )
+    )
 
     response = await user_client.post(
-        "/shifts",
-        params=shift_params,
+        f"{get_test_data['api_prefix']}/shifts", json=get_test_data["shift_params"]
     )
 
     data = response.json()
@@ -179,33 +182,108 @@ async def test_create_shift_duplicate(user_client, shift_params):
 
 
 @pytest.mark.asyncio
-async def test_create_shift_bad_date(user_client, shift_params):
-    bad = shift_params.copy()
+async def test_create_shift_bad_date(user_client, get_test_data):
+
+    bad = get_test_data["shift_params"].copy()
     bad["date"] = "banana"
 
-    response = await user_client.post(
-        "/shifts",
-        params=bad,
-    )
+    response = await user_client.post(f"{get_test_data['api_prefix']}/shifts", json=bad)
 
     assert response.status_code != 200
 
 
 @pytest.mark.asyncio
-async def test_create_shift_end_before_start(user_client, shift_params):
+async def test_create_shift_end_before_start(user_client, get_test_data):
 
-    bad = shift_params.copy()
+    bad = get_test_data["shift_params"].copy()
     bad["actual_start"] = "16:00"
     bad["actual_end"] = "08:00"
 
-    response = await user_client.post(
-        "/shifts",
-        params=bad,
-    )
+    response = await user_client.post(f"{get_test_data['api_prefix']}/shifts", json=bad)
 
     assert response.status_code == 400
-    data = response.json()
-    assert data["detail"] == "Actual shift end must be after start"
+    assert response.json()["detail"] == "Actual shift end must be after start"
+
+
+@pytest.mark.asyncio
+async def test_get_shifts(user_client, get_test_data):
+
+    assert_ok(
+        await user_client.post(
+            f"{get_test_data['api_prefix']}/shifts",
+            json=get_test_data["shift_params"],
+        )
+    )
+
+    response = await user_client.get(f"{get_test_data['api_prefix']}/shifts")
+
+    data = assert_ok(response)
+
+    assert len(data) > 0
+
+    shift = data[0]
+
+    assert "id" in shift
+    assert "planned" in shift
+    assert "actual" in shift
+    assert "date" in shift
+
+
+@pytest.mark.asyncio
+async def test_update_shift_not_found(user_client, get_test_data):
+
+    response = await user_client.put(
+        f"{get_test_data['api_prefix']}/shifts/{maxsize}",
+        json={
+            "planned_start": "08:00",
+            "planned_end": "16:00",
+            "actual_start": "08:00",
+            "actual_end": "16:00",
+            "latest_child_name": "Test",
+            "latest_child_time": "15:00",
+            "note": "This update is supposed to be never saved!",
+        },
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_shifts_empty_user(empty_user_client, get_test_data):
+
+    response = await empty_user_client.get(f"{get_test_data['api_prefix']}/shifts")
+
+    data = assert_ok(response)
+    assert data == []
+
+
+@pytest.mark.asyncio
+async def test_delete_shift(user_client, get_test_data):
+
+    shift = get_test_data["shift_params"].copy()
+    shift["date"] = "2099-12-31"
+
+    create = await user_client.post(f"{get_test_data['api_prefix']}/shifts", json=shift)
+
+    data = assert_ok(create)
+    shift_id = data["shift_id"]
+
+    response = await user_client.delete(
+        f"{get_test_data['api_prefix']}/shifts/{shift_id}"
+    )
+
+    data = assert_ok(response)
+    assert data["status"] == "deleted"
+
+
+@pytest.mark.asyncio
+async def test_delete_shift_not_found(user_client, get_test_data):
+
+    response = await user_client.delete(
+        f"{get_test_data['api_prefix']}/shifts/{maxsize}"
+    )
+
+    assert response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -250,80 +328,6 @@ async def test_get_balance_calculated(user_client, get_test_data):
     assert "balance_minutes" in data
     assert data["user_id"] == get_test_data["shift_params"]["user_id"]
     assert data["balance_minutes"] == TEST_BONUS_MINS
-
-
-@pytest.mark.asyncio
-async def test_get_shifts(user_client, get_test_data):
-
-    await user_client.post(
-        f"{get_test_data['api_prefix']}/shifts",
-        params=get_test_data["shift_params"],
-    )
-
-    response = await user_client.get(f"{get_test_data['api_prefix']}/shifts")
-
-    data = assert_ok(response)
-
-    assert len(data) > 0
-
-    shift = data[0]
-
-    assert "id" in shift
-    assert "planned" in shift
-    assert "actual" in shift
-    assert "date" in shift
-
-
-@pytest.mark.asyncio
-async def test_delete_shift(user_client, shift_params):
-
-    shift = shift_params.copy()
-    shift["date"] = "2099-12-31"
-
-    create = await user_client.post("/shifts", params=shift)
-
-    shift_id = create.json()["shift_id"]
-
-    response = await user_client.delete(f"/shifts/{shift_id}")
-
-    data = assert_ok(response)
-    assert data["status"] == "deleted"
-
-
-@pytest.mark.asyncio
-async def test_update_shift_not_found(user_client):
-
-    response = await user_client.put(
-        f"/shifts/{maxsize}",
-        json={
-            "planned_start": "08:00",
-            "planned_end": "16:00",
-            "actual_start": "08:00",
-            "actual_end": "16:00",
-            "latest_child_name": "Test",
-            "latest_child_time": "15:00",
-            "note": "This update is supposed to be never saved!",
-        },
-    )
-
-    assert response.status_code == 404
-
-
-@pytest.mark.asyncio
-async def test_delete_shift_not_found(user_client):
-
-    response = await user_client.delete(f"/shifts/{maxsize}")
-
-    assert response.status_code == 404
-
-
-@pytest.mark.asyncio
-async def test_get_shifts_empty_user(empty_user_client, get_test_data):
-
-    response = await empty_user_client.get(f"{get_test_data['api_prefix']}/shifts")
-
-    data = assert_ok(response)
-    assert data == []
 
 
 @pytest.mark.asyncio
