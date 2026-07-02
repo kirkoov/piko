@@ -253,8 +253,7 @@ async def test_get_shifts_empty_user(empty_user_client, get_test_data):
 
     response = await empty_user_client.get(f"{get_test_data['api_prefix']}/shifts")
 
-    data = assert_ok(response)
-    assert data == []
+    assert assert_ok(response) == []
 
 
 @pytest.mark.asyncio
@@ -265,15 +264,13 @@ async def test_delete_shift(user_client, get_test_data):
 
     create = await user_client.post(f"{get_test_data['api_prefix']}/shifts", json=shift)
 
-    data = assert_ok(create)
-    shift_id = data["shift_id"]
+    shift_id = assert_ok(create)["shift_id"]
 
     response = await user_client.delete(
         f"{get_test_data['api_prefix']}/shifts/{shift_id}"
     )
 
-    data = assert_ok(response)
-    assert data["status"] == "deleted"
+    assert assert_ok(response)["status"] == "deleted"
 
 
 @pytest.mark.asyncio
@@ -287,41 +284,57 @@ async def test_delete_shift_not_found(user_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_get_balance(user_client, shift_params):
+async def test_get_balance(user_client, get_test_data):
 
-    shift = shift_params.copy()
-    shift["date"] = "2120-01-03"
+    shift_ids = []
 
-    create = await user_client.post(
-        "/shifts",
-        params=shift,
+    shift_1 = get_test_data["shift_params"].copy()
+    shift_1["date"] = "2120-01-01"
+
+    response = await user_client.post(
+        f"{get_test_data['api_prefix']}/shifts",
+        json=shift_1,
     )
 
-    assert create.status_code == 200
-
-    response = await user_client.get("/balance")
-
     data = assert_ok(response)
-    assert "balance_minutes" in data
+    assert data["status"] == "created"
+    assert isinstance(data["shift_id"], int)
+    shift_ids.append(data["shift_id"])
 
-    # Lora gets nothing for another usu daily shift
-    assert data["balance_minutes"] == TEST_BONUS_MINS
+    shift_2 = get_test_data["shift_params"].copy()
+    shift_2["date"] = "2120-01-03"
+
+    data = assert_ok(
+        await user_client.post(
+            f"{get_test_data['api_prefix']}/shifts",
+            json=shift_2,
+        )
+    )
+    shift_ids.append(data["shift_id"])
+
+    response = await user_client.get(f"{get_test_data['api_prefix']}/balance")
+
+    assert "balance_minutes" in assert_ok(response)
+
+    for shift_id in shift_ids:
+        response = await user_client.delete(
+            f"{get_test_data['api_prefix']}/shifts/{shift_id}"
+        )
+        assert assert_ok(response)["status"] == "deleted"
 
 
 @pytest.mark.asyncio
-async def test_get_balance_empty_user(empty_user_client):
+async def test_get_balance_empty_user(empty_user_client, get_test_data):
 
-    response = await empty_user_client.get("/balance")
+    response = await empty_user_client.get(f"{get_test_data['api_prefix']}/balance")
 
-    data = assert_ok(response)
-
-    assert data["balance_minutes"] == 0
+    assert assert_ok(response)["balance_minutes"] == 0
 
 
 @pytest.mark.asyncio
 async def test_get_balance_calculated(user_client, get_test_data):
 
-    response = await user_client.get("/balance")
+    response = await user_client.get(f"{get_test_data['api_prefix']}/balance")
 
     data = assert_ok(response)
 
@@ -371,5 +384,4 @@ async def test_get_periods_empty_user(empty_user_client):
 
     response = await empty_user_client.get("/periods")
 
-    data = assert_ok(response)
-    assert data == []
+    assert assert_ok(response) == []

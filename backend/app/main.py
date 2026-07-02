@@ -8,12 +8,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth_session import get_current_user
-from app.balance import calculate_balance
 from app.database import engine
 from app.dependencies import get_db
 from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
 from app.routers.auth import router as auth_router
+from app.routers.balance import router as balance_router
 from app.routers.shifts import router as shifts_router
 from app.routers.users import router as users_router
 from app.serializers import shift_to_dict
@@ -40,25 +40,7 @@ app = FastAPI(title="Piko", lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(shifts_router)
-
-
-@app.get("/balance")
-async def get_balance(
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    user, _ = auth
-    result = await db.execute(select(Shift).where(Shift.user_id == user.id))
-    shifts = result.scalars().all()
-    balance = calculate_balance(
-        user.starting_balance_minutes,
-        shifts,
-    )
-
-    return {
-        "user_id": user.id,
-        "balance_minutes": balance,
-    }
+app.include_router(balance_router)
 
 
 @app.get("/current-period")
