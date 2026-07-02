@@ -16,14 +16,9 @@ from app.dependencies import get_db
 from app.models import Base, Session, Shift, User
 from app.period import group_shifts_by_period, period_for_date, shifts_in_period
 from app.routers.auth import router as auth_router
+from app.routers.shifts import router as shifts_router
 from app.routers.users import router as users_router
-from app.timecalc import (
-    duration,
-    evening_bonus,
-    morning_bonus,
-    recommended_shift,
-    shift_difference,
-)
+from app.serializers import shift_to_dict
 from app.validators import validate_shift_data
 
 BASE_DIR = Path(__file__).resolve().parents[1]  # backend/
@@ -57,51 +52,7 @@ app = FastAPI(title="Piko", lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(users_router)
-
-
-def shift_to_dict(s: Shift) -> dict:
-    period_start, period_end = period_for_date(
-        s.date,
-    )
-
-    return {
-        "id": s.id,
-        "date": s.date,
-        "period_start": period_start,
-        "period_end": period_end,
-        "planned": f"{s.planned_start}-{s.planned_end}",
-        "actual": f"{s.actual_start}-{s.actual_end}",
-        "planned_minutes": duration(
-            s.planned_start,
-            s.planned_end,
-        ),
-        "actual_minutes": duration(
-            s.actual_start,
-            s.actual_end,
-        ),
-        "delta_minutes": shift_difference(
-            s.planned_start,
-            s.planned_end,
-            s.actual_start,
-            s.actual_end,
-        ),
-        "morning_bonus": morning_bonus(
-            s.actual_start,
-            s.actual_end,
-        ),
-        "evening_bonus": evening_bonus(
-            s.actual_start,
-            s.actual_end,
-        ),
-        "latest_child_name": s.latest_child_name,
-        "latest_child_time": s.latest_child_time,
-        "note": s.note,
-        "recommended_shift": recommended_shift(
-            s.planned_start,
-            s.planned_end,
-            s.latest_child_time,
-        ),
-    }
+app.include_router(shifts_router)
 
 
 @app.post("/shifts")
@@ -168,22 +119,6 @@ async def create_shift(
         "status": "created",
         "shift_id": shift.id,
     }
-
-
-@app.get("/shifts")
-async def list_shifts(
-    auth: tuple[User, Session] = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> list[dict]:
-
-    user, _ = auth
-    result = await db.execute(
-        select(Shift).where(Shift.user_id == user.id).order_by(Shift.date)
-    )
-
-    shifts = result.scalars().all()
-
-    return [shift_to_dict(s) for s in shifts]
 
 
 @app.put("/shifts/{shift_id}")

@@ -5,6 +5,7 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
+from app.config import API_PREFIX
 from app.database import engine
 from app.main import app
 from app.models import Base
@@ -12,7 +13,7 @@ from init_with_data import main as seed_data
 
 TEST_DATA: dict[str, Any] = {
     "base_url": "http://test",
-    "api_prefix": "/api/v0.2",
+    "api_prefix": API_PREFIX,
     "users": {
         "admin": "kk",
         "standard": "Lora",

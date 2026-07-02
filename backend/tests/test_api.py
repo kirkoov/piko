@@ -121,8 +121,8 @@ async def test_create_shift_success(user_client, shift_params):
 
 
 @pytest.mark.asyncio
-async def test_update_shift(user_client, shift_params):
-    shift = shift_params.copy()
+async def test_update_shift(user_client, get_test_data):
+    shift = get_test_data["shift_params"].copy()
     shift["date"] = "2100-01-02"
 
     create = await user_client.post(
@@ -130,7 +130,8 @@ async def test_update_shift(user_client, shift_params):
         params=shift,
     )
 
-    shift_id = create.json()["shift_id"]
+    data = assert_ok(create)
+    shift_id = data["shift_id"]
 
     update_data = {
         "planned_start": "08:00",
@@ -152,9 +153,9 @@ async def test_update_shift(user_client, shift_params):
     assert data["status"] == "updated"
     assert data["shift_id"] == shift_id
 
-    response = await user_client.get("/shifts")
+    response = await user_client.get(f"{get_test_data['api_prefix']}/shifts")
 
-    shifts = response.json()
+    shifts = assert_ok(response)
 
     updated = next(s for s in shifts if s["id"] == shift_id)
 
@@ -252,22 +253,25 @@ async def test_get_balance_calculated(user_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_get_shifts(user_client, shift_params):
+async def test_get_shifts(user_client, get_test_data):
 
-    response = await user_client.get("/shifts")
+    await user_client.post(
+        f"{get_test_data['api_prefix']}/shifts",
+        params=get_test_data["shift_params"],
+    )
+
+    response = await user_client.get(f"{get_test_data['api_prefix']}/shifts")
 
     data = assert_ok(response)
 
-    assert isinstance(data, list)
-    assert isinstance(data[0], dict)
-    assert len(data) >= 1
+    assert len(data) > 0
 
-    shift = next(s for s in data if s["date"] == shift_params["date"])
+    shift = data[0]
 
     assert "id" in shift
-    assert "date" in shift
-    assert "actual" in shift
     assert "planned" in shift
+    assert "actual" in shift
+    assert "date" in shift
 
 
 @pytest.mark.asyncio
@@ -314,9 +318,9 @@ async def test_delete_shift_not_found(user_client):
 
 
 @pytest.mark.asyncio
-async def test_get_shifts_empty_user(empty_user_client):
+async def test_get_shifts_empty_user(empty_user_client, get_test_data):
 
-    response = await empty_user_client.get("/shifts")
+    response = await empty_user_client.get(f"{get_test_data['api_prefix']}/shifts")
 
     data = assert_ok(response)
     assert data == []
