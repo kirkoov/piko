@@ -344,9 +344,9 @@ async def test_get_balance_calculated(user_client, get_test_data):
 
 
 @pytest.mark.asyncio
-async def test_current_period(user_client):
+async def test_get_current_period(user_client, get_test_data):
 
-    response = await user_client.get("/current-period")
+    response = await user_client.get(f"{get_test_data['api_prefix']}/periods/current")
 
     data = assert_ok(response)
 
@@ -358,9 +358,18 @@ async def test_current_period(user_client):
 
 
 @pytest.mark.asyncio
-async def test_get_periods(user_client):
+async def test_get_current_period_empty_user(empty_user_client, get_test_data):
 
-    response = await user_client.get("/periods")
+    response = await empty_user_client.get(
+        f"{get_test_data['api_prefix']}/periods/current"
+    )
+    assert assert_ok(response)["shifts"] == []
+
+
+@pytest.mark.asyncio
+async def test_get_periods(user_client, get_test_data):
+
+    response = await user_client.get(f"{get_test_data['api_prefix']}/periods")
 
     periods = assert_ok(response)
 
@@ -380,8 +389,8 @@ async def test_get_periods(user_client):
 
 @pytest.mark.asyncio
 # @pytest.mark.skip(reason="awaiting transition due to new auth")
-async def test_get_periods_empty_user(empty_user_client):
+async def test_get_periods_empty_user(empty_user_client, get_test_data):
 
-    response = await empty_user_client.get("/periods")
+    response = await empty_user_client.get(f"{get_test_data['api_prefix']}/periods")
 
     assert assert_ok(response) == []
