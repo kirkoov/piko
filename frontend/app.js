@@ -1,5 +1,6 @@
 // const VER = "0.1";
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
+import { api } from './js/api.js';
 
 let lang = localStorage.getItem('language') || 'en';
 
@@ -59,10 +60,10 @@ async function loadAllShifts() {
 }
 
 async function loadBalance() {
-  // const balanceRes = await fetch(`/balance?user_id=${currentUser.id}`);
-  const balanceRes = await fetch('/balance', {
+  const balanceRes = await fetch(api('/balance'), {
     headers: authHeaders(),
   });
+
   const balance = await balanceRes.json();
 
   const minutes = balance.balance_minutes;
@@ -587,11 +588,9 @@ function loadCurrentUser() {
 async function logout() {
   const token = localStorage.getItem('access_token');
 
-  await fetch('/logout', {
+  await fetch(api('/auth/logout'), {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: authHeaders(),
   });
 
   localStorage.clear();

@@ -7,7 +7,7 @@ global.translations = {
   en: {},
 };
 
-import { renderShifts, initApp } from '../app.js';
+import { renderShifts, initApp } from '../../app.js';
 
 const html = fs.readFileSync('./index.html', 'utf8');
 

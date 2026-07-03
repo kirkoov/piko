@@ -1,10 +1,14 @@
+import { api } from './js/api.js';
+
 async function login() {
   const username = document.getElementById('username').value;
 
   const password = document.getElementById('password').value;
 
   const response = await fetch(
-    `/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+    api(
+      `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+    ),
     {
       method: 'POST',
     }

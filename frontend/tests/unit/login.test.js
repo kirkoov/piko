@@ -1,7 +1,8 @@
 import { vi, describe, it, expect } from 'vitest';
 import fs from 'fs';
 
-import { initLogin } from '../login.js';
+import { initLogin } from '../../login.js';
+import { api } from '../../js/api.js';
 
 const html = fs.readFileSync('./login.html', 'utf8');
 
@@ -41,6 +42,8 @@ describe('successful login', () => {
         json: () =>
           Promise.resolve({
             status: 'ok',
+            access_token: 'test-token',
+            token_type: 'Bearer',
             user_id: 5,
             name: 'alice',
             is_admin: false,
@@ -61,5 +64,6 @@ describe('successful login', () => {
     expect(localStorage.getItem('user_id')).toBe('5');
     expect(localStorage.getItem('user_name')).toBe('alice');
     expect(localStorage.getItem('is_admin')).toBe('false');
+    expect(localStorage.getItem('access_token')).toBe('test-token');
   });
 });

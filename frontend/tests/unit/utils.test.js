@@ -1,4 +1,4 @@
-import { isValidTime, isValidShift, shiftEndAfterStart } from '../utils.js';
+import { isValidTime, isValidShift, shiftEndAfterStart } from '../../utils.js';
 
 import { describe, it, expect } from 'vitest';
 
