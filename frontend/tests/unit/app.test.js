@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import fs from 'fs';
 
@@ -85,5 +85,55 @@ describe('Add Shift workflow', () => {
     document.getElementById('m_latest_child_time').value =
       shift.latest_child_time;
     document.getElementById('m_note').value = shift.note;
+  });
+});
+
+describe('initApp current period', () => {
+  it('loads current period and balance', async () => {
+    document.documentElement.innerHTML = html;
+
+    localStorage.setItem('user_id', '2');
+    localStorage.setItem('user_name', 'Lora');
+    localStorage.setItem('is_admin', 'false');
+    localStorage.setItem('access_token', 'test-token');
+    localStorage.setItem('language', 'en');
+
+    global.fetch = vi.fn((url) => {
+      if (url.includes('/balance')) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              balance_minutes: 15,
+            }),
+        });
+      }
+
+      if (url.includes('/periods/current')) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              period_start: '2026-06-01',
+              period_end: '2026-06-14',
+              shifts: [],
+            }),
+        });
+      }
+
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    globalThis.__periodElement = document.getElementById('period');
+
+    await initApp();
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const el = document.getElementById('period');
+
+    expect(document.getElementById('period').textContent).not.toBe('');
+    expect(document.getElementById('balance').textContent).not.toBe('');
   });
 });

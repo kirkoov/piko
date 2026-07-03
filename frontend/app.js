@@ -84,15 +84,19 @@ async function loadBalance() {
 }
 
 async function loadCurrentPeriod() {
-  // const shiftsRes = await fetch(`/current-period?user_id=${currentUser.id}`);
-  const shiftsRes = await fetch('/current-period', {
+  const shiftsRes = await fetch(api('/periods/current'), {
     headers: authHeaders(),
   });
   document.getElementById('period-title').textContent =
     `${t('currentPeriod')} - ${currentUser.name}`;
+
   const periodData = await shiftsRes.json();
+
   document.getElementById('period').textContent =
     `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
+
+  const el = document.getElementById('period');
+
   const shifts = periodData.shifts;
   renderShifts(shifts);
 }
@@ -529,13 +533,7 @@ async function refreshShifts() {
   }
 }
 
-// function listen_func_for_action_on_id(id_tag, action, func) {
-//   document
-//     .getElementById(id_tag)
-//     .addEventListener(action, func);
-// }
-
-function initApp() {
+async function initApp() {
   currentUser = loadCurrentUser();
 
   if (!currentUser) {
@@ -568,7 +566,7 @@ function initApp() {
   document.getElementById('logout-btn').addEventListener('click', logout);
 
   applyTranslations();
-  refreshShifts();
+  await refreshShifts();
 }
 
 function loadCurrentUser() {
