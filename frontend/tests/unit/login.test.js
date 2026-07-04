@@ -1,7 +1,7 @@
 import { vi, describe, it, expect } from 'vitest';
 import fs from 'fs';
 
-import { initLogin } from '../../login.js';
+import { initLogin } from '../../js/login.js';
 import { api } from '../../js/api.js';
 
 const html = fs.readFileSync('./login.html', 'utf8');
