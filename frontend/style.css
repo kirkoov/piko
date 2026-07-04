@@ -39,6 +39,14 @@ button {
   color: #c00;
 }
 
+.edit-btn {
+  color: #444;
+}
+
+.edit-btn:hover {
+  color: green;
+}
+
 .card-panel {
   background: white;
   padding: 16px;
@@ -83,6 +91,7 @@ button {
   margin-top: 5px;
   border-left: 2px solid #ccc;
   padding-left: 0.5rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #ddd;
 }
 

@@ -45,6 +45,16 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
+
+  // Icons
+  const saveBtn = document.getElementById("save-btn");
+  saveBtn.querySelector(".btn-icon").innerHTML = icons.save;
+  saveBtn.title = t("save");
+
+  const cancelBtn = document.getElementById("cancel-btn");
+  cancelBtn.querySelector(".btn-icon").innerHTML = icons.cancelEdit;
+  cancelBtn.title = t("cancel");
+
 }
 
 function askDelete(id) {
@@ -211,8 +221,8 @@ function renderShifts(shifts) {
             </button>
         ${
           pendingDelete === s.id
-            ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
-            : `<button class="ask-delete-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
+            ? `<button class="delete-btn icon-btn" title="${t('reallyDelete')}" data-id="${s.id}">${icons.reallyDelete}</button>`
+            : `<button class="ask-delete-btn icon-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
         }
 
             </div>
@@ -262,7 +272,8 @@ function renderPeriods(periods) {
                     <p>${s.actual}</p>
 
                     <button
-                      class="edit-btn"
+                      class="edit-btn icon-btn"
+                      title="${t('edit')}"
                       data-id="${s.id}"
                       data-date="${s.date}"
                       data-planned="${s.planned}"
@@ -271,13 +282,13 @@ function renderPeriods(periods) {
                       data-child-time="${s.latest_child_time}"
                       data-note="${htmlEscape(s.note)}"
                     >
-                      ${t('edit')}
+                      ${icons.edit}
                     </button>
 
                     ${
                       pendingDelete === s.id
-                        ? `<button class="icon-btn delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
-                        : `<button class="icon-btn ask-delete-btn" data-id="${s.id}">${icons.trash}</button>`
+                        ? `<button class="delete-btn icon-btn" title="${t('reallyDelete')}" data-id="${s.id}">${icons.reallyDelete}</button>`
+                        : `<button class="ask-delete-btn icon-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
                     }
                   </div>
                   `
