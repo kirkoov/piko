@@ -1,6 +1,8 @@
 const translations = {
   en: {
     appTitle: 'KindaGrinda',
+    log_in: 'Log in',
+    log_out: 'Log out',
     save: 'Save',
     cancel: 'Cancel',
     min: 'min',
@@ -36,6 +38,8 @@ const translations = {
 
   fi: {
     appTitle: 'Päiko',
+    log_in: 'Log in',
+    log_out: 'Log out',
     save: 'Save',
     cancel: 'Cancel',
     min: 'min',
@@ -71,6 +75,8 @@ const translations = {
 
   ru: {
     appTitle: 'ДетсАдик',
+    log_in: 'Войти',
+    log_out: 'Выйти',
     save: 'Сохранить',
     cancel: 'Отмена',
     min: 'мин',

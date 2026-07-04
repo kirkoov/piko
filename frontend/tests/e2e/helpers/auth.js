@@ -3,6 +3,10 @@
 import { expect } from '@playwright/test';
 
 export async function login(page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('language', 'en');
+  });
+
   await page.goto('/login.html');
 
   await page.fill('#username', 'Lora');

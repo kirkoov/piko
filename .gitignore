@@ -63,3 +63,7 @@ coverage/
 
 # npm logs
 npm-debug.log*
+
+#Playwright
+test-results/
+playwright-report/

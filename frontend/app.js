@@ -2,7 +2,7 @@
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 import { api } from './js/api.js';
 
-let lang = localStorage.getItem('language') || 'en';
+let lang = localStorage.getItem('language') || 'ru';
 
 let currentShiftId = null;
 let currentUser = null;
@@ -51,8 +51,7 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
-  // const response = await fetch(`/periods?user_id=${currentUser.id}`);
-  const response = await fetch('/periods', {
+  const response = await fetch(api('/periods'), {
     headers: authHeaders(),
   });
   const periods = await response.json();
@@ -301,10 +300,7 @@ async function togglePeriod(periodKey) {
 }
 
 async function deleteShift(id) {
-  // const response = await fetch(`/shifts/${id}`, {
-  //   method: 'DELETE',
-  // });
-  const response = await fetch(`/shifts/${id}`, {
+  const response = await fetch(api(`/shifts/${id}`), {
     method: 'DELETE',
     headers: authHeaders(),
   });
@@ -414,10 +410,7 @@ async function createShift() {
     note: note,
   });
 
-  // const response = await fetch(`/shifts?${params}`, {
-  //   method: 'POST',
-  // });
-  const response = await fetch(`/shifts?${params}`, {
+  const response = await fetch(api(`/shifts?${params}`), {
     method: 'POST',
     headers: authHeaders(),
   });
@@ -441,7 +434,7 @@ async function updateShift() {
   const [pStart, pEnd] = planned.split('-');
   const [aStart, aEnd] = actual.split('-');
 
-  const response = await fetch(`/shifts/${currentShiftId}`, {
+  const response = await fetch(api(`/shifts/${currentShiftId}`), {
     method: 'PUT',
     headers: {
       ...authHeaders(),
