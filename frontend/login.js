@@ -1,4 +1,5 @@
 import { api } from './js/api.js';
+import { icons } from './static/js/icons.js';
 
 async function login() {
   const username = document.getElementById('username').value;
@@ -27,7 +28,11 @@ async function login() {
 }
 
 function initLogin() {
-  document.getElementById('login-btn').addEventListener('click', login);
+  const loginBtn = document.getElementById('login-btn');
+  loginBtn.querySelector('.btn-icon').innerHTML = icons.login;
+  // loginBtn.title = t('log_in');
+
+  loginBtn.addEventListener('click', login);
 }
 
 document.addEventListener('DOMContentLoaded', initLogin);

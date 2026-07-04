@@ -35,7 +35,21 @@ function htmlEscape(str) {
 }
 
 function applyTranslations() {
+  // Icons
   document.title = t('appTitle');
+
+  const saveBtn = document.getElementById('save-btn');
+  saveBtn.querySelector('.btn-icon').innerHTML = icons.save;
+  saveBtn.title = t('save');
+
+  const cancelBtn = document.getElementById('cancel-btn');
+  cancelBtn.querySelector('.btn-icon').innerHTML = icons.cancelEdit;
+  cancelBtn.title = t('cancel');
+
+  const logoutBtn = document.getElementById('logout-btn');
+  logoutBtn.querySelector('.btn-icon').innerHTML = icons.logout;
+  logoutBtn.title = t('logout');
+
   // Text nodes
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     el.textContent = t(el.dataset.i18n);
@@ -45,16 +59,6 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
-
-  // Icons
-  const saveBtn = document.getElementById("save-btn");
-  saveBtn.querySelector(".btn-icon").innerHTML = icons.save;
-  saveBtn.title = t("save");
-
-  const cancelBtn = document.getElementById("cancel-btn");
-  cancelBtn.querySelector(".btn-icon").innerHTML = icons.cancelEdit;
-  cancelBtn.title = t("cancel");
-
 }
 
 function askDelete(id) {
@@ -63,9 +67,14 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
+  if (!showAllShifts) return;
+
   const response = await fetch(api('/periods'), {
     headers: authHeaders(),
   });
+
+  if (!showAllShifts) return;
+
   const periods = await response.json();
   renderPeriods(periods);
 }
@@ -95,9 +104,14 @@ async function loadBalance() {
 }
 
 async function loadCurrentPeriod() {
+  if (showAllShifts) return;
+
   const shiftsRes = await fetch(api('/periods/current'), {
     headers: authHeaders(),
   });
+
+  if (showAllShifts) return;
+
   document.getElementById('period-title').textContent =
     `${t('currentPeriod')} - ${currentUser.name}`;
 
