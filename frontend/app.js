@@ -2,6 +2,8 @@
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 import { api } from './js/api.js';
 
+import { icons } from './static/js/icons.js';
+
 let lang = localStorage.getItem('language') || 'ru';
 
 let currentShiftId = null;
@@ -195,7 +197,8 @@ function renderShifts(shifts) {
                     : ''
                 }
             <button
-              class="edit-btn"
+              class="edit-btn icon-btn"
+              title="${t('edit')}"
               data-id="${s.id}"
               data-date="${s.date}"
               data-planned="${s.planned}"
@@ -204,12 +207,12 @@ function renderShifts(shifts) {
               data-child-time="${s.latest_child_time}"
               data-note="${htmlEscape(s.note)}"
             >
-              ${t('edit')}
+              ${icons.edit}
             </button>
         ${
           pendingDelete === s.id
             ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
-            : `<button class="ask-delete-btn" data-id="${s.id}">${t('delete')}</button>`
+            : `<button class="ask-delete-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
         }
 
             </div>
@@ -273,8 +276,8 @@ function renderPeriods(periods) {
 
                     ${
                       pendingDelete === s.id
-                        ? `<button class="delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
-                        : `<button class="ask-delete-btn" data-id="${s.id}">${t('delete')}</button>`
+                        ? `<button class="icon-btn delete-btn" data-id="${s.id}">${t('reallyDelete')}</button>`
+                        : `<button class="icon-btn ask-delete-btn" data-id="${s.id}">${icons.trash}</button>`
                     }
                   </div>
                   `
