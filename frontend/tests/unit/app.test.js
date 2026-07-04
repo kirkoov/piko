@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderShifts, initApp } from '../../app.js';
+import { renderShifts, initApp } from '../../js/app.js';
 import fs from 'fs';
 import { api } from '../../js/api.js';
 
