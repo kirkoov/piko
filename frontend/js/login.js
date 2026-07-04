@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { icons } from '../static/js/icons.js';
+import { icons } from './icons.js';
 
 async function login() {
   const username = document.getElementById('username').value;

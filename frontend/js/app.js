@@ -1,8 +1,7 @@
-// const VER = "0.1";
-import { isValidTime, isValidShift, shiftEndAfterStart } from '../utils.js';
+import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 import { api } from './api.js';
 
-import { icons } from '../static/js/icons.js';
+import { icons } from './icons.js';
 
 let lang = localStorage.getItem('language') || 'ru';
 
