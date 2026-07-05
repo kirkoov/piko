@@ -65,5 +65,8 @@ coverage/
 npm-debug.log*
 
 #Playwright
-test-results/
-playwright-report/
+**/playwright-report/
+**/test-results/
+
+# SQLite databases
+*.db
