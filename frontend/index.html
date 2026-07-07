@@ -20,28 +20,41 @@
     <link rel="manifest" href="/assets/manifest/site.webmanifest" />
   </head>
   <body>
-    <h1 data-i18n="appTitle">Piko App 0.1</h1>
-    <select id="language">
-      <option value="-">Choose language</option>
-      <option value="ru">русский</option>
-      <option value="fi">Suomi</option>
-      <option value="en">English</option>
-    </select>
+    <header>
+      <h1 data-i18n="appTitle">Piko App 0.1</h1>
+      <select id="language">
+        <option value="-">Choose language</option>
+        <option value="ru">русский</option>
+        <option value="fi">Suomi</option>
+        <option value="en">English</option>
+      </select>
+    </header>
 
-    <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
-    <div id="period"></div>
+    <main>
+      <section id="period-section">
+        <h2 id="period-title" data-i18n="currentPeriod">Period</h2>
 
-    <button id="toggle-shifts" data-i18n="showAllShifts">
-      Show all shifts
-    </button>
+        <div id="period"></div>
 
-    <h2 data-i18n="balance">Balance</h2>
-    <div id="balance"></div>
+        <button id="toggle-shifts" data-i18n="showAllShifts">
+          Show all shifts
+        </button>
+      </section>
 
-    <h2 data-i18n="shifts">Shifts</h2>
-    <div id="shifts"></div>
+      <section id="balance-section">
+        <h2 data-i18n="balance">Balance</h2>
 
-    <button id="add-shift-btn" data-i18n="addShift">Add Shift</button>
+        <div id="balance"></div>
+      </section>
+
+      <section id="shifts-section">
+        <h2 data-i18n="shifts">Shifts</h2>
+
+        <div id="shifts"></div>
+
+        <button id="add-shift-btn" data-i18n="addShift">Add Shift</button>
+      </section>
+    </main>
 
     <div id="modal" class="modal" style="display: none">
       <div class="modal-content">
@@ -75,20 +88,19 @@
 
         <button id="save-btn">
           <span class="btn-icon"></span>
-          <!-- <span data-i18n="save">Save</span> -->
         </button>
 
         <button id="cancel-btn">
           <span class="btn-icon"></span>
-          <!-- <span data-i18n="cancel">Cancel</span> -->
         </button>
       </div>
     </div>
 
-    <button id="logout-btn">
-      <span class="btn-icon"></span>
-      <!-- <span data-i18n="log_out">Logout</button> -->
-    </button>
+    <footer>
+      <button id="logout-btn">
+        <span class="btn-icon"></span>
+      </button>
+    </footer>
 
     <script src="js/translations.js"></script>
     <script type="module" src="js/app.js"></script>

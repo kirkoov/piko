@@ -159,3 +159,17 @@ input {
 .period-arrow.expanded {
   transform: rotate(90deg);
 }
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+footer {
+  margin-top: 2rem;
+}
