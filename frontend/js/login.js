@@ -1,5 +1,8 @@
+import { DEFAULT_LANGUAGE } from './config.js';
 import { api } from './api.js';
 import { icons } from './icons.js';
+
+localStorage.setItem('language', DEFAULT_LANGUAGE);
 
 async function login() {
   const username = document.getElementById('username').value;

@@ -1,9 +1,9 @@
+import { DEFAULT_LANGUAGE } from './config.js';
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 import { api } from './api.js';
-
 import { icons } from './icons.js';
 
-let lang = localStorage.getItem('language') || 'ru';
+let lang = localStorage.getItem('language') || DEFAULT_LANGUAGE;
 
 let currentShiftId = null;
 let currentUser = null;
