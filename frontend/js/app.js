@@ -5,6 +5,7 @@ import {
   isValidShift,
   shiftEndAfterStart,
   formatDate,
+  htmlEscape,
 } from './utils.js';
 import { api } from './api.js';
 import { icons } from './icons.js';
@@ -28,15 +29,6 @@ function authHeaders() {
 
 function t(key) {
   return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
-}
-
-function htmlEscape(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 function applyTranslations() {
