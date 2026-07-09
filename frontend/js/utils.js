@@ -1,3 +1,5 @@
+import { DEFAULT_LANGUAGE } from './config.js';
+
 export function isValidTime(time) {
   return /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
 }
@@ -16,4 +18,15 @@ export function shiftEndAfterStart(shift) {
   const endMin = eh * 60 + em;
 
   return endMin > startMin;
+}
+
+export function formatDate(dateString, lang = DEFAULT_LANGUAGE) {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString(lang, {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 }

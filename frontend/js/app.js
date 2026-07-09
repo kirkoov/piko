@@ -1,6 +1,11 @@
 import { registerEventHandlers } from './events.js';
 import { DEFAULT_LANGUAGE } from './config.js';
-import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
+import {
+  isValidTime,
+  isValidShift,
+  shiftEndAfterStart,
+  formatDate,
+} from './utils.js';
 import { api } from './api.js';
 import { icons } from './icons.js';
 
@@ -118,7 +123,7 @@ async function loadCurrentPeriod() {
   const periodData = await shiftsRes.json();
 
   document.getElementById('period').textContent =
-    `${formatDate(periodData.period_start)} - ${formatDate(periodData.period_end)}`;
+    `${formatDate(periodData.period_start, lang)} - ${formatDate(periodData.period_end, lang)}`;
 
   const el = document.getElementById('period');
 
@@ -159,9 +164,9 @@ function renderShifts(shifts) {
       if (showAllShifts && periodKey !== previousPeriod) {
         header = `
               <h3>${t('period')}:
-                  ${formatDate(s.period_start)}
+                  ${formatDate(s.period_start, lang)}
                   -
-                  ${formatDate(s.period_end)}
+                  ${formatDate(s.period_end, lang)}
               </h3>
           `;
         previousPeriod = periodKey;
@@ -177,7 +182,7 @@ function renderShifts(shifts) {
       return `
             ${header}
             <div class="shift-card">
-                <b>${formatDate(s.date)}</b>
+                <b>${formatDate(s.date, lang)}</b>
 
                 <p>
                     ${t('planned')}:
@@ -260,9 +265,9 @@ function renderPeriods(periods) {
           <div class="period-header" data-period-key="${key}">
             <h3>
               <span class="period-arrow ${arrowClass}">▶</span>
-              ${formatDate(p.period_start)}
+              ${formatDate(p.period_start, lang)}
               -
-              ${formatDate(p.period_end)}
+              ${formatDate(p.period_end, lang)}
           </h3>
 
             <p>
@@ -282,7 +287,7 @@ function renderPeriods(periods) {
                   .map(
                     (s) => `
                     <div class="shift-subcard">
-                    <b>${formatDate(s.date)}</b>
+                    <b>${formatDate(s.date, lang)}</b>
                     <p>${s.actual}</p>
 
                     <button
@@ -493,17 +498,6 @@ function openAddShift() {
   clearModal();
   document.getElementById('modal_title').textContent = t('addShift');
   document.getElementById('modal').style.display = 'block';
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  return date.toLocaleDateString(lang, {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
 }
 
 function minutesToText(minutes) {
