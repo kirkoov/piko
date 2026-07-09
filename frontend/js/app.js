@@ -1,3 +1,4 @@
+import { registerEventHandlers } from './events.js';
 import { DEFAULT_LANGUAGE } from './config.js';
 import { isValidTime, isValidShift, shiftEndAfterStart } from './utils.js';
 import { api } from './api.js';
@@ -567,23 +568,14 @@ async function initApp() {
     document.getElementById('language').value = savedLang;
   }
 
-  document
-    .getElementById('language')
-    .addEventListener('change', changeLanguage);
-
-  document
-    .getElementById('toggle-shifts')
-    .addEventListener('click', toggleShiftsView);
-
-  document
-    .getElementById('add-shift-btn')
-    .addEventListener('click', openAddShift);
-
-  document.getElementById('save-btn').addEventListener('click', saveShift);
-
-  document.getElementById('cancel-btn').addEventListener('click', closeModal);
-
-  document.getElementById('logout-btn').addEventListener('click', logout);
+  registerEventHandlers({
+    changeLanguage,
+    toggleShiftsView,
+    openAddShift,
+    saveShift,
+    closeModal,
+    logout,
+  });
 
   applyTranslations();
   await refreshShifts();
