@@ -71,3 +71,6 @@ playwright/.cache/
 
 # SQLite databases
 *.db
+
+# Archives
+**/*.zip
