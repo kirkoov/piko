@@ -424,21 +424,27 @@ async function createShift() {
   const [pStart, pEnd] = planned.split('-');
   const [aStart, aEnd] = actual.split('-');
 
-  const params = new URLSearchParams({
-    date: date,
+  const payload = {
+    date,
     planned_start: pStart,
     planned_end: pEnd,
     actual_start: aStart,
     actual_end: aEnd,
     latest_child_name: childName,
     latest_child_time: childTime,
-    note: note,
+    note,
+  };
+
+  const response = await fetch(api('/shifts'), {
+    method: 'POST',
+    headers: {
+      ...authHeaders(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
   });
 
-  const response = await fetch(api(`/shifts?${params}`), {
-    method: 'POST',
-    headers: authHeaders(),
-  });
+  // console.log(response.status, await response.clone().text());
 
   if (!response.ok) {
     const err = await response.json();

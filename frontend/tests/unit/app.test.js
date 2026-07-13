@@ -89,8 +89,8 @@ describe('renderShifts', () => {
   });
 });
 
-describe('Add Shift workflow', () => {
-  it('opens empty modal when Add Shift is clicked', () => {
+describe('Add shift workflow', () => {
+  it('opens empty modal when Add shift is clicked', () => {
     document.documentElement.innerHTML = html;
 
     // Pretend previous edit left values in fields

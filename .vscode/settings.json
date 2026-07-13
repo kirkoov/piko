@@ -29,7 +29,8 @@
     ],
     "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
     "cSpell.words": [
-        "autouse"
+        "autouse",
+        "networkidle"
     ],
     "python.analysis.extraPaths": [
         "./backend/app"
