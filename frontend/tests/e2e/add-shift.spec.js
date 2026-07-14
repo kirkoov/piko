@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { login } from './helpers/auth.js';
 import { api } from '../../js/api.js';
 
-test('user can add a shift', async ({ page, request }) => {
+test('user can add a shift', async ({ page }) => {
   await login(page);
 
   await page.getByRole('button', { name: /add shift/i }).click();
