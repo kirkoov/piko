@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import hash_password
-from app.auth_session import get_current_user
+from app.auth_session import require_admin
 from app.config import API_PREFIX
 from app.dependencies import get_db
 from app.models import Session, User
@@ -17,6 +17,7 @@ router = APIRouter(
 
 @router.get("")
 async def list_users(
+    _: tuple[User, Session] = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     result = await db.execute(select(User))
@@ -29,6 +30,7 @@ async def list_users(
 async def create_user(
     name: str,
     password: str,
+    _: tuple[User, Session] = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
@@ -51,16 +53,12 @@ async def create_user(
 @router.delete("/{user_id}")
 async def delete_user(
     user_id: int,
-    auth: tuple[User, Session] = Depends(get_current_user),
+    auth: tuple[User, Session] = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
 
     current_user, _ = auth
-    if not current_user.is_admin:
-        raise HTTPException(
-            status_code=403,
-            detail="Admin privileges required",
-        )
+
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
 

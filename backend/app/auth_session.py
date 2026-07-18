@@ -1,26 +1,28 @@
 from datetime import datetime, timezone
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 
 from app.database import SessionLocal
 from app.models import Session, User
+
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def to_utc(dt: datetime) -> datetime:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
-async def get_current_user(request: Request) -> tuple[User, Session]:
-    auth = request.headers.get("Authorization")
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> tuple[User, Session]:
 
-    if auth is None:
+    if credentials is None:
         raise HTTPException(status_code=401, detail="Missing Authorization header")
 
-    scheme, sep, token = auth.partition(" ")
-
-    if sep == "":
-        raise HTTPException(status_code=401, detail="Malformed Authorization header")
+    scheme = credentials.scheme
+    token = credentials.credentials
 
     if scheme != "Bearer" or not token:
         raise HTTPException(status_code=401, detail="Invalid authentication scheme")
@@ -32,9 +34,6 @@ async def get_current_user(request: Request) -> tuple[User, Session]:
         if session is None:
             raise HTTPException(status_code=401, detail="Invalid token")
 
-        # if session.expires < datetime.now(timezone.utc):
-        #     raise HTTPException(status_code=401, detail="Session expired")
-
         if to_utc(session.expires) < datetime.now(timezone.utc):
             raise HTTPException(status_code=401, detail="Session expired")
 
@@ -45,3 +44,17 @@ async def get_current_user(request: Request) -> tuple[User, Session]:
             raise HTTPException(status_code=401, detail="User not found")
 
         return user, session
+
+
+async def require_admin(
+    auth: tuple[User, Session] = Depends(get_current_user),
+) -> tuple[User, Session]:
+    user, session = auth
+
+    if not user.is_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin privileges required",
+        )
+
+    return user, session
