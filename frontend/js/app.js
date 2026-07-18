@@ -184,7 +184,7 @@ function renderShifts(shifts) {
 
       return `
             ${header}
-            <div class="shift-card">
+            <div class="shift-card" data-shift-id="${s.id}">
                 <b>${formatDate(s.date, lang)}</b>
 
                 <p>
@@ -289,7 +289,7 @@ function renderPeriods(periods) {
               ? p.shifts
                   .map(
                     (s) => `
-                    <div class="shift-subcard">
+                    <div class="shift-subcard" data-shift-id="${s.id}">
                     <b>${formatDate(s.date, lang)}</b>
                     <p>${s.actual}</p>
 
