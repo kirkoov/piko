@@ -64,6 +64,8 @@ function askDelete(id) {
 }
 
 async function loadAllShifts() {
+  console.trace('loadAllShifts');
+
   if (!showAllShifts) return;
 
   const response = await fetch(api('/periods'), {
@@ -245,6 +247,9 @@ function renderShifts(shifts) {
 }
 
 function renderPeriods(periods) {
+  // console.log('renderPeriods', performance.now());
+  // console.trace();
+
   document.getElementById('shifts').innerHTML = periods
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
@@ -320,6 +325,7 @@ function renderPeriods(periods) {
 }
 
 async function togglePeriod(periodKey) {
+  console.log('togglePeriod()', periodKey);
   expandedPeriods[periodKey] = !expandedPeriods[periodKey];
   await loadAllShifts();
 }
@@ -537,6 +543,9 @@ async function toggleShiftsView() {
 }
 
 async function refreshShifts() {
+
+  console.trace('refreshShifts');
+
   await loadBalance();
 
   if (showAllShifts) {

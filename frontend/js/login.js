@@ -4,30 +4,59 @@ import { icons } from './icons.js';
 
 localStorage.setItem('language', DEFAULT_LANGUAGE);
 
+// async function login() {
+//   const username = document.getElementById('username').value;
+
+//   const password = document.getElementById('password').value;
+
+//   const response = await fetch(
+//     api(
+//       `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+//     ),
+//     {
+//       method: 'POST',
+//     }
+//   );
+
+//   const data = await response.json();
+
+//   if (response.ok) {
+//     localStorage.setItem('access_token', data.access_token);
+//     localStorage.setItem('user_id', String(data.user_id));
+//     localStorage.setItem('user_name', data.name);
+//     localStorage.setItem('is_admin', String(data.is_admin));
+
+//     window.location.href = '/';
+//   }
+// }
+
 async function login() {
   const username = document.getElementById('username').value;
-
   const password = document.getElementById('password').value;
 
   const response = await fetch(
     api(
       `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
     ),
-    {
-      method: 'POST',
-    }
+    { method: 'POST' }
   );
+
+  console.log('LOGIN STATUS', response.status);
 
   const data = await response.json();
 
-  if (response.ok) {
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('user_id', String(data.user_id));
-    localStorage.setItem('user_name', data.name);
-    localStorage.setItem('is_admin', String(data.is_admin));
+  console.log('LOGIN DATA', data);
 
-    window.location.href = '/';
+  if (!response.ok) {
+    throw new Error(`Login failed: ${response.status}`);
   }
+
+  localStorage.setItem('access_token', data.access_token);
+  localStorage.setItem('user_id', String(data.user_id));
+  localStorage.setItem('user_name', data.name);
+  localStorage.setItem('is_admin', String(data.is_admin));
+
+  window.location.href = '/';
 }
 
 function initLogin() {

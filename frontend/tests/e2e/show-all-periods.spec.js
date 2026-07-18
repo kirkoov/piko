@@ -11,6 +11,15 @@ test('Show All displays multiple periods', async ({ page }) => {
 
   const periodHeaders = page.locator('.period-header');
 
+  const keys = await periodHeaders.evaluateAll((nodes) =>
+    nodes.map((n) => ({
+      key: n.dataset.periodKey,
+      text: n.textContent.trim(),
+    }))
+  );
+
+  // console.log(keys);
+
   await expect(periodHeaders).toHaveCount(3);
 
   // First seeded period

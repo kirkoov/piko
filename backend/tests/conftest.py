@@ -128,3 +128,5 @@ async def setup_database():
     await seed_data()
 
     yield
+
+    await engine.dispose()

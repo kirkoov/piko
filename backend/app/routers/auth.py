@@ -23,6 +23,9 @@ async def login(
     password: str,
     db: AsyncSession = Depends(get_db),
 ):
+
+    print(f"LOGIN REQUEST: name={name!r} password={password!r}")
+
     result = await db.execute(select(User).where(User.name == name))
 
     user = result.scalar_one_or_none()

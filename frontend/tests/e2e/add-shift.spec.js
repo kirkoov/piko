@@ -60,4 +60,25 @@ test('user can add a shift', async ({ page }) => {
   expect(shift.latest_child_name).toBe('Test Child');
   expect(shift.latest_child_time).toBe('15:55');
   expect(shift.note).toBe('Playwright test');
+
+  //
+  // ---- Cleanup ----
+  //
+
+  // Re-open the future period (refreshShifts() may collapse it)
+  await page.locator('[data-period-key="2126-07-15-2126-08-04"]').click();
+
+  const deleteButton = page.locator('.ask-delete-btn').last();
+  await expect(deleteButton).toBeVisible();
+
+  await deleteButton.click();
+
+  // Confirm deletion.
+  await page.locator('.delete-btn').click();
+
+  // Wait until refresh completes.
+  await page.waitForLoadState('networkidle');
+
+  // Verify the shift is gone.
+  await expect(page.locator('#shifts')).not.toContainText('07/18/2126');
 });
