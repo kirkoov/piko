@@ -65,9 +65,6 @@ test('user can add a shift', async ({ page }) => {
   // ---- Cleanup ----
   //
 
-  // Re-open the future period (refreshShifts() may collapse it)
-  await page.locator('[data-period-key="2126-07-15-2126-08-04"]').click();
-
   const deleteButton = page.locator('.ask-delete-btn').last();
   await expect(deleteButton).toBeVisible();
 

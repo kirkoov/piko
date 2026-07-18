@@ -19,6 +19,9 @@ let pendingDelete = null;
 let showAllShifts = false;
 let expandedPeriods = {};
 
+let currentShifts = [];
+let currentPeriods = [];
+
 function authHeaders() {
   const token = localStorage.getItem('access_token');
 
@@ -60,12 +63,15 @@ function applyTranslations() {
 
 function askDelete(id) {
   pendingDelete = id;
-  refreshShifts();
+
+  if (showAllShifts) {
+    renderPeriods(currentPeriods);
+  } else {
+    renderShifts(currentShifts);
+  }
 }
 
 async function loadAllShifts() {
-  console.trace('loadAllShifts');
-
   if (!showAllShifts) return;
 
   const response = await fetch(api('/periods'), {
@@ -75,6 +81,7 @@ async function loadAllShifts() {
   if (!showAllShifts) return;
 
   const periods = await response.json();
+  currentPeriods = periods;
   renderPeriods(periods);
 }
 
@@ -122,6 +129,8 @@ async function loadCurrentPeriod() {
   const el = document.getElementById('period');
 
   const shifts = periodData.shifts;
+  currentShifts = shifts;
+
   renderShifts(shifts);
 }
 
@@ -247,9 +256,6 @@ function renderShifts(shifts) {
 }
 
 function renderPeriods(periods) {
-  // console.log('renderPeriods', performance.now());
-  // console.trace();
-
   document.getElementById('shifts').innerHTML = periods
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
@@ -325,7 +331,6 @@ function renderPeriods(periods) {
 }
 
 async function togglePeriod(periodKey) {
-  console.log('togglePeriod()', periodKey);
   expandedPeriods[periodKey] = !expandedPeriods[periodKey];
   await loadAllShifts();
 }
@@ -450,8 +455,6 @@ async function createShift() {
     body: JSON.stringify(payload),
   });
 
-  // console.log(response.status, await response.clone().text());
-
   if (!response.ok) {
     const err = await response.json();
     alert(err.detail || 'Create failed');
@@ -543,9 +546,6 @@ async function toggleShiftsView() {
 }
 
 async function refreshShifts() {
-
-  console.trace('refreshShifts');
-
   await loadBalance();
 
   if (showAllShifts) {

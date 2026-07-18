@@ -7,7 +7,9 @@ export default defineConfig({
     baseURL: 'http://127.0.0.1:8000',
     headless: true,
   },
-  // });
+
+  workers: 1, // E2E tests share a SQLite test database.
+  // Run serially to avoid cross-test interference.
 
   webServer: {
     command:
