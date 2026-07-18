@@ -158,6 +158,30 @@ function bindShiftButtons() {
   });
 }
 
+function renderShiftActions(s) {
+  return `
+    <button
+      class="edit-btn icon-btn"
+      title="${t('edit')}"
+      data-id="${s.id}"
+      data-date="${s.date}"
+      data-planned="${s.planned}"
+      data-actual="${s.actual}"
+      data-child-name="${htmlEscape(s.latest_child_name)}"
+      data-child-time="${s.latest_child_time}"
+      data-note="${htmlEscape(s.note)}"
+    >
+      ${icons.edit}
+    </button>
+
+    ${
+      pendingDelete === s.id
+        ? `<button class="delete-btn icon-btn" title="${t('reallyDelete')}" data-id="${s.id}">${icons.reallyDelete}</button>`
+        : `<button class="ask-delete-btn icon-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
+    }
+  `;
+}
+
 function renderShifts(shifts) {
   let previousPeriod = '';
   document.getElementById('shifts').innerHTML = shifts
@@ -228,24 +252,7 @@ function renderShifts(shifts) {
                     ? `<p>${t('eveningBonus')}: +${s.evening_bonus} ${t('min')}</p>`
                     : ''
                 }
-            <button
-              class="edit-btn icon-btn"
-              title="${t('edit')}"
-              data-id="${s.id}"
-              data-date="${s.date}"
-              data-planned="${s.planned}"
-              data-actual="${s.actual}"
-              data-child-name="${htmlEscape(s.latest_child_name)}"
-              data-child-time="${s.latest_child_time}"
-              data-note="${htmlEscape(s.note)}"
-            >
-              ${icons.edit}
-            </button>
-        ${
-          pendingDelete === s.id
-            ? `<button class="delete-btn icon-btn" title="${t('reallyDelete')}" data-id="${s.id}">${icons.reallyDelete}</button>`
-            : `<button class="ask-delete-btn icon-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
-        }
+        ${renderShiftActions(s)}
 
             </div>
         `;
@@ -293,25 +300,7 @@ function renderPeriods(periods) {
                     <b>${formatDate(s.date, lang)}</b>
                     <p>${s.actual}</p>
 
-                    <button
-                      class="edit-btn icon-btn"
-                      title="${t('edit')}"
-                      data-id="${s.id}"
-                      data-date="${s.date}"
-                      data-planned="${s.planned}"
-                      data-actual="${s.actual}"
-                      data-child-name="${htmlEscape(s.latest_child_name)}"
-                      data-child-time="${s.latest_child_time}"
-                      data-note="${htmlEscape(s.note)}"
-                    >
-                      ${icons.edit}
-                    </button>
-
-                    ${
-                      pendingDelete === s.id
-                        ? `<button class="delete-btn icon-btn" title="${t('reallyDelete')}" data-id="${s.id}">${icons.reallyDelete}</button>`
-                        : `<button class="ask-delete-btn icon-btn" title="${t('delete')}" data-id="${s.id}">${icons.trash}</button>`
-                    }
+                    ${renderShiftActions(s)}
                   </div>
                   `
                   )

@@ -17,6 +17,6 @@ export default defineConfig({
       'DATABASE_URL=sqlite+aiosqlite:///../frontend/tests/test.db uv run uvicorn app.main:app',
     url: 'http://127.0.0.1:8000',
     cwd: '../backend',
-    reuseExistingServer: true,
+    reuseExistingServer: false,
   },
 });
