@@ -1,8 +1,11 @@
 import asyncio
+from datetime import date as d
+from datetime import timedelta
 
 from app.auth import hash_password
 from app.database import SessionLocal
 from app.models import Shift, User
+from app.period import period_for_date
 
 
 async def main():
@@ -27,9 +30,14 @@ async def main():
         db.add_all([kk, lora, masha])
         await db.flush()
 
+        today = d.today()
+
+        period_start_str, _ = period_for_date(today.isoformat())
+        period_start = d.fromisoformat(period_start_str)
+
         shifts = [
             (
-                "2026-06-08",
+                (period_start + timedelta(days=0)).isoformat(),
                 "13:30",
                 "21:30",
                 "13:30",
@@ -40,7 +48,7 @@ async def main():
             ),
             # Child leaves early, Lora leaves too
             (
-                "2026-06-09",
+                (period_start + timedelta(days=1)).isoformat(),
                 "14:30",
                 "22:30",
                 "14:30",
@@ -50,7 +58,7 @@ async def main():
                 "Left with latest child",
             ),
             (
-                "2026-06-10",
+                (period_start + timedelta(days=2)).isoformat(),
                 "14:15",
                 "21:30",
                 "14:15",
@@ -61,7 +69,7 @@ async def main():
             ),
             # SMS before shift -> shift moved earlier
             (
-                "2026-06-11",
+                (period_start + timedelta(days=3)).isoformat(),
                 "13:00",
                 "21:00",
                 "13:00",
@@ -71,7 +79,7 @@ async def main():
                 "Shift adjusted before start",
             ),
             (
-                "2026-06-12",
+                (period_start + timedelta(days=4)).isoformat(),
                 "14:30",
                 "21:30",
                 "14:30",
@@ -81,7 +89,7 @@ async def main():
                 "",
             ),
             (
-                "2026-06-29",
+                (period_start + timedelta(days=21)).isoformat(),
                 "14:30",
                 "21:30",
                 "14:30",
@@ -91,7 +99,7 @@ async def main():
                 "",
             ),
             (
-                "2026-06-30",
+                (period_start + timedelta(days=22)).isoformat(),
                 "14:30",
                 "21:30",
                 "14:30",
@@ -101,7 +109,7 @@ async def main():
                 "",
             ),
             (
-                "2026-07-01",
+                (period_start + timedelta(days=23)).isoformat(),
                 "14:30",
                 "21:30",
                 "14:30",
@@ -111,7 +119,7 @@ async def main():
                 "",
             ),
             (
-                "2026-07-02",
+                (period_start + timedelta(days=24)).isoformat(),
                 "14:30",
                 "21:30",
                 "14:30",
@@ -123,7 +131,7 @@ async def main():
         ]
 
         for (
-            date,
+            shift_date,
             p_start,
             p_end,
             a_start,
@@ -135,7 +143,7 @@ async def main():
             db.add(
                 Shift(
                     user_id=lora.id,
-                    date=date,
+                    date=shift_date,
                     planned_start=p_start,
                     planned_end=p_end,
                     actual_start=a_start,

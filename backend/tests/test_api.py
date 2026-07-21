@@ -399,7 +399,7 @@ async def test_get_periods_empty_user(empty_user_client, get_test_data):
 
 @pytest.mark.asyncio
 # @pytest.mark.skip(reason="Earlier tests may have change pwd and spoilt the run")
-async def test_change_user_password(admin_client, client, get_test_data):
+async def test_change_user_password(admin_client, user_client, get_test_data):
 
     temp_name = f"TempUser-{uuid.uuid4().hex[:8]}"
 
@@ -427,7 +427,7 @@ async def test_change_user_password(admin_client, client, get_test_data):
     assert data["status"] == "password changed"
     assert data["id"] == user_id
 
-    response = await client.post(
+    response = await user_client.post(
         f"{get_test_data['api_prefix']}/auth/login",
         params={
             "name": temp_name,

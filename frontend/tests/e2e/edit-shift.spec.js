@@ -4,20 +4,13 @@ import { login } from './helpers/auth';
 test('user can edit a shift', async ({ page }) => {
   await login(page);
 
-  const shiftCard = page.locator('[data-shift-id="6"]');
+  const shiftCard = page.locator('.shift-card').first();
 
   await expect(shiftCard).toBeVisible();
 
   await shiftCard.locator('.edit-btn').click();
 
   await expect(page.locator('#modal')).toBeVisible();
-
-  //   console.log(
-  //     'Modal class:',
-  //     await page.locator('#modal').getAttribute('class')
-  //   );
-  //   console.log('Modal HTML:\n', await page.locator('#modal').innerHTML());
-  //   console.log('Planned inputs:', await page.locator('#planned').count());
 
   // Modify the shift.
 

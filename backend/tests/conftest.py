@@ -37,6 +37,13 @@ TEST_DATA: dict[str, Any] = {
 }
 
 
+def make_client():
+    return AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url=TEST_DATA["base_url"],
+    )
+
+
 async def login(client, username, password):
     response = await client.post(
         f"{TEST_DATA['api_prefix']}/auth/login",
@@ -89,31 +96,29 @@ def shift_params(get_test_data):
 
 @pytest_asyncio.fixture
 async def client():
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url=TEST_DATA["base_url"],
-    ) as client:
+    async with make_client() as client:
         yield client
 
 
 @pytest_asyncio.fixture
-async def empty_user_client(client):
-    await login_as(client, "empty")
-    yield client
+async def empty_user_client():
+    async with make_client() as client:
+        await login_as(client, "empty")
+        yield client
 
 
 @pytest_asyncio.fixture
-async def user_client(client):
-    await login_as(client, "standard")
-    yield client
-    # client.headers.pop("Authorization", None)
+async def user_client():
+    async with make_client() as client:
+        await login_as(client, "standard")
+        yield client
 
 
 @pytest_asyncio.fixture
-async def admin_client(client):
-    await login_as(client, "admin")
-    yield client
-    # client.headers.pop("Authorization", None)
+async def admin_client():
+    async with make_client() as client:
+        await login_as(client, "admin")
+        yield client
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True)
