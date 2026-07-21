@@ -1,6 +1,7 @@
 # DATABASE_URL=sqlite+aiosqlite:///./test.db uv run pytest
 
 
+import uuid
 from sys import maxsize
 
 import pytest
@@ -24,6 +25,7 @@ async def test_create_user(admin_client, get_test_data):
 
     assert data["status"] == "created"
     assert data["name"] == get_test_data["users"]["test_user_a"]
+    assert isinstance(data["id"], int)
 
 
 @pytest.mark.asyncio
@@ -388,9 +390,50 @@ async def test_get_periods(user_client, get_test_data):
 
 
 @pytest.mark.asyncio
-# @pytest.mark.skip(reason="awaiting transition due to new auth")
 async def test_get_periods_empty_user(empty_user_client, get_test_data):
 
     response = await empty_user_client.get(f"{get_test_data['api_prefix']}/periods")
 
     assert assert_ok(response) == []
+
+
+@pytest.mark.asyncio
+# @pytest.mark.skip(reason="Earlier tests may have change pwd and spoilt the run")
+async def test_change_user_password(admin_client, client, get_test_data):
+
+    temp_name = f"TempUser-{uuid.uuid4().hex[:8]}"
+
+    response = await admin_client.post(
+        f"{get_test_data['api_prefix']}/users",
+        params={
+            "name": temp_name,
+            "password": "initial_password",
+        },
+    )
+
+    data = assert_ok(response)
+    assert data["status"] == "created"
+    user_id = data["id"]
+
+    response = await admin_client.put(
+        f"{get_test_data['api_prefix']}/users/{user_id}/password",
+        params={
+            "password": "new_password",
+        },
+    )
+
+    data = assert_ok(response)
+
+    assert data["status"] == "password changed"
+    assert data["id"] == user_id
+
+    response = await client.post(
+        f"{get_test_data['api_prefix']}/auth/login",
+        params={
+            "name": temp_name,
+            "password": "new_password",
+        },
+    )
+
+    data = assert_ok(response)
+    assert "access_token" in data

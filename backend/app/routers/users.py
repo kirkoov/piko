@@ -47,7 +47,7 @@ async def create_user(
         await db.rollback()
         return {"status": "error", "message": f"User '{name}' already exists"}
 
-    return {"status": "created", "name": name}
+    return {"status": "created", "id": user.id, "name": name}
 
 
 @router.delete("/{user_id}")
@@ -79,5 +79,37 @@ async def delete_user(
 
     return {
         "status": "deleted",
+        "id": user.id,
+    }
+
+
+@router.put("/{user_id}/password")
+async def change_user_password(
+    user_id: int,
+    password: str,
+    _: tuple[User, Session] = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    if not password:
+        raise HTTPException(
+            status_code=400,
+            detail="Password cannot be empty",
+        )
+
+    user.password_hash = hash_password(password)
+
+    await db.commit()
+
+    return {
+        "status": "password changed",
         "id": user.id,
     }
