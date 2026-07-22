@@ -127,6 +127,20 @@ async function loadCurrentPeriod() {
   renderShifts(shifts);
 }
 
+async function loadUsers() {
+  const response = await fetch(api('/users'), {
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load users');
+  }
+
+  const users = await response.json();
+
+  renderUsers(users);
+}
+
 function bindShiftButtons() {
   document.querySelectorAll('.edit-btn').forEach((el) => {
     el.addEventListener('click', () => {
@@ -148,6 +162,32 @@ function bindShiftButtons() {
 
   document.querySelectorAll('.delete-btn').forEach((el) => {
     el.addEventListener('click', () => deleteShift(Number(el.dataset.id)));
+  });
+}
+
+function bindUserButtons() {
+  document.querySelectorAll('.change-password-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      changeUserPasswordDialog(Number(el.dataset.userId));
+    });
+  });
+
+  document.querySelectorAll('.toggle-admin-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      toggleAdmin(Number(el.dataset.userId));
+    });
+  });
+
+  document.querySelectorAll('.ask-delete-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      askDeleteUser(Number(el.dataset.userId));
+    });
+  });
+
+  document.querySelectorAll('.delete-user-btn').forEach((el) => {
+    el.addEventListener('click', () => {
+      deleteUser(Number(el.dataset.userId));
+    });
   });
 }
 
@@ -253,6 +293,51 @@ function renderShifts(shifts) {
     .join('');
 
   bindShiftButtons();
+}
+
+function renderUsers(users) {
+  const usersDiv = document.getElementById('users');
+
+  usersDiv.innerHTML = '';
+
+  for (const user of users) {
+    const row = document.createElement('div');
+    row.className = 'user-row';
+
+    row.innerHTML = `
+      <span class="user-name">
+        ${user.is_admin ? '★ ' : ''}
+        ${htmlEscape(user.name)}
+      </span>
+
+      <div class="user-actions">
+
+        <button
+          class="change-password-btn"
+          data-user-id="${user.id}">
+          ${t('changePassword')}
+        </button>
+
+        <button
+          class="toggle-admin-btn"
+          data-user-id="${user.id}">
+          ${user.is_admin ? t('removeAdmin') : t('makeAdmin')}
+        </button>
+
+        <button
+          class="ask-delete-btn icon-btn"
+          title="${t('delete')}"
+          data-user-id="${user.id}">
+          ${icons.trash}
+        </button>
+
+      </div>
+    `;
+
+    usersDiv.appendChild(row);
+  }
+
+  bindUserButtons();
 }
 
 function renderPeriods(periods) {
@@ -527,7 +612,7 @@ async function toggleShiftsView() {
   }
 }
 
-function toggleAdminSection() {
+async function toggleAdminSection() {
   adminExpanded = !adminExpanded;
 
   document.getElementById('admin-panel').style.display = adminExpanded
@@ -536,6 +621,10 @@ function toggleAdminSection() {
 
   document.getElementById('toggle-admin').innerHTML =
     `${adminExpanded ? '▼' : '▶'} Administration`;
+
+  if (adminExpanded) {
+    await loadUsers();
+  }
 }
 
 async function refreshShifts() {

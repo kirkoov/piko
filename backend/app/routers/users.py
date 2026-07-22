@@ -23,7 +23,7 @@ async def list_users(
     result = await db.execute(select(User))
     users = result.scalars().all()
 
-    return [{"id": u.id, "name": u.name} for u in users]
+    return [{"id": u.id, "name": u.name, "is_admin": u.is_admin} for u in users]
 
 
 @router.post("")

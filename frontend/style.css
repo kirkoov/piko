@@ -173,3 +173,27 @@ main {
 footer {
   margin-top: 2rem;
 }
+
+/* Admin section begins */
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 0.6rem 0;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.user-name {
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+/* Admin section ends */
