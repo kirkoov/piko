@@ -1,6 +1,7 @@
 export function registerEventHandlers({
   changeLanguage,
   toggleShiftsView,
+  toggleAdminSection,
   openAddShift,
   saveShift,
   closeModal,
@@ -13,6 +14,10 @@ export function registerEventHandlers({
   document
     .getElementById('toggle-shifts')
     .addEventListener('click', toggleShiftsView);
+
+  document
+    .getElementById('toggle-admin')
+    .addEventListener('click', toggleAdminSection);
 
   document
     .getElementById('add-shift-btn')

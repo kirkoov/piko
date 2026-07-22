@@ -25,3 +25,27 @@ EVENING_BONUS_END = "22:00"
 
 MORNING_BONUS_POINTS = 9
 EVENING_BONUS_POINTS = 4
+
+
+# -----------------------------
+# Administration
+# -----------------------------
+
+ENFORCE_MIN_ADMIN_COUNT = True
+MIN_NUM_ADMINS = 1
+
+ALLOW_ADMIN_ROLE_CHANGES = True
+
+DELETE_USER_REQUIRES_CONFIRMATION = True
+DELETE_USER_CASCADE_SHIFTS = True
+
+ARCHIVE_USER_BEFORE_DELETE = True
+
+# -----------------------------
+# Deleted user archive
+# -----------------------------
+
+DELETED_USERS_ARCHIVE_DIR = "deleted_users"
+
+DELETED_USERS_RETENTION_DAYS = 365 * 3
+DELETED_USERS_MAX_ARCHIVE_SIZE_MB = 1024

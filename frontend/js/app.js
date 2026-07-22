@@ -7,7 +7,7 @@ import {
   formatDate,
   htmlEscape,
 } from './utils.js';
-import { api } from './api.js';
+import { api, authHeaders } from './api.js';
 import { icons } from './icons.js';
 
 let lang = localStorage.getItem('language') || DEFAULT_LANGUAGE;
@@ -17,18 +17,11 @@ let currentUser = null;
 
 let pendingDelete = null;
 let showAllShifts = false;
+let adminExpanded = false;
 let expandedPeriods = {};
 
 let currentShifts = [];
 let currentPeriods = [];
-
-function authHeaders() {
-  const token = localStorage.getItem('access_token');
-
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
 
 function t(key) {
   return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
@@ -534,6 +527,17 @@ async function toggleShiftsView() {
   }
 }
 
+function toggleAdminSection() {
+  adminExpanded = !adminExpanded;
+
+  document.getElementById('admin-panel').style.display = adminExpanded
+    ? 'block'
+    : 'none';
+
+  document.getElementById('toggle-admin').innerHTML =
+    `${adminExpanded ? '▼' : '▶'} Administration`;
+}
+
 async function refreshShifts() {
   await loadBalance();
 
@@ -560,12 +564,17 @@ async function initApp() {
 
   registerEventHandlers({
     changeLanguage,
+    toggleAdminSection,
     toggleShiftsView,
     openAddShift,
     saveShift,
     closeModal,
     logout,
   });
+
+  if (currentUser.isAdmin) {
+    document.getElementById('admin-section').style.display = 'block';
+  }
 
   applyTranslations();
   await refreshShifts();

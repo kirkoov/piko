@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderShifts, initApp } from '../../js/app.js';
 import fs from 'fs';
-import { api } from '../../js/api.js';
+import { api, authHeaders } from '../../js/api.js';
 
 global.translations = {
   fi: {},

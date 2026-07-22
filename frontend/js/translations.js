@@ -34,6 +34,7 @@ const translations = {
     addShiftNotePhldr: 'Note',
     showAllShiftsBalance: 'Balance',
     showAllShiftsBalanceShifts: 'Shifts',
+    administration: 'Administration',
   },
 
   fi: {
@@ -71,6 +72,7 @@ const translations = {
     addShiftNotePhldr: 'Note',
     showAllShiftsBalance: 'Balance',
     showAllShiftsBalanceShifts: 'Shifts',
+    administration: 'Administration',
   },
 
   ru: {
@@ -108,5 +110,6 @@ const translations = {
     addShiftNotePhldr: 'Примечание',
     showAllShiftsBalance: 'Накапало',
     showAllShiftsBalanceShifts: 'Смен',
+    administration: 'Раздел админа',
   },
 };
