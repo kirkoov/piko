@@ -1,38 +1,36 @@
 {
-    "cSpell.ignoreWords": [
-        "ASGI",
-        "Aamulisä",
-        "Artem",
-        "Cадо",
-        "Grinda",
-        "Masha",
-        "Petya",
-        "Phldr",
-        "Piko",
-        "Päiko",
-        "Vanya",
-        "Vitest",
-        "fastapi",
-        "htmlcov",
-        "ipynb",
-        "mypy",
-        "pwdlib",
-        "quot",
-        "sessionmaker",
-        "subcard",
-        "timecalc",
-        "uvicorn",
-        "vitest",
-        "Детс",
-        "Детсадо",
-        "Мазо"
-    ],
-    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
-    "cSpell.words": [
-        "autouse",
-        "networkidle"
-    ],
-    "python.analysis.extraPaths": [
-        "./backend/app"
-    ]
+  "cSpell.ignoreWords": [
+    "ASGI",
+    "Aamulisä",
+    "Artem",
+    "Cадо",
+    "Grinda",
+    "Masha",
+    "Petya",
+    "Phldr",
+    "Piko",
+    "Päiko",
+    "Vanya",
+    "Vitest",
+    "fastapi",
+    "htmlcov",
+    "ipynb",
+    "mypy",
+    "pwdlib",
+    "quot",
+    "sessionmaker",
+    "subcard",
+    "timecalc",
+    "uvicorn",
+    "vitest",
+    "Детс",
+    "Детсадо",
+    "Мазо"
+  ],
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+  "cSpell.words": ["autouse", "httpx", "networkidle"],
+  "python.analysis.extraPaths": ["./backend/app"],
+  "[shellscript]": {
+    "editor.defaultFormatter": "mkhl.shfmt"
+  }
 }

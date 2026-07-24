@@ -12,7 +12,7 @@ rm -f test.db
 cd ../../backend
 
 DATABASE_URL=sqlite+aiosqlite:///../frontend/tests/test.db \
-./init_db.sh
+	./init_db.sh
 
 cd ../frontend/tests
 
