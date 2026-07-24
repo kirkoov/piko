@@ -7,7 +7,7 @@ import {
   formatDate,
   htmlEscape,
 } from './utils.js';
-import { api, authHeaders } from './api.js';
+import { api, authHeaders, changeUserPassword } from './api.js';
 import { icons } from './icons.js';
 
 let lang = localStorage.getItem('language') || DEFAULT_LANGUAGE;
@@ -417,6 +417,29 @@ async function deleteShift(id) {
   pendingDelete = null;
 
   await refreshShifts();
+}
+
+async function changeUserPasswordDialog(userId) {
+  const password = prompt(t('newPassword'));
+
+  if (password === null) {
+    return;
+  }
+
+  if (password.trim() === '') {
+    alert(t('passwordCannotBeEmpty'));
+    return;
+  }
+
+  try {
+    await changeUserPassword(userId, password);
+
+    alert(t('passwordChanged'));
+
+    await loadUsers();
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 function openEditor(id, date, planned, actual, childName, childTime, note) {

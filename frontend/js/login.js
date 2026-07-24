@@ -4,29 +4,70 @@ import { icons } from './icons.js';
 
 localStorage.setItem('language', DEFAULT_LANGUAGE);
 
+// async function login() {
+//   const username = document.getElementById('username').value;
+//   const password = document.getElementById('password').value;
+
+//   const response = await fetch(
+//     api(
+//       `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+//     ),
+//     { method: 'POST' }
+//   );
+
+//   const data = await response.json();
+
+//   if (!response.ok) {
+//     throw new Error(`Login failed: ${response.status}`);
+//   }
+
+//   localStorage.setItem('access_token', data.access_token);
+//   localStorage.setItem('user_id', String(data.user_id));
+//   localStorage.setItem('user_name', data.name);
+//   localStorage.setItem('is_admin', String(data.is_admin));
+
+//   window.location.href = '/';
+// }
+
 async function login() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+  try {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
 
-  const response = await fetch(
-    api(
-      `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
-    ),
-    { method: 'POST' }
-  );
+    if (!username) {
+      alert('Username cannot be empty.');
+      return;
+    }
 
-  const data = await response.json();
+    if (!password) {
+      alert('Password cannot be empty.');
+      return;
+    }
 
-  if (!response.ok) {
-    throw new Error(`Login failed: ${response.status}`);
+    const response = await fetch(
+      api(
+        `/auth/login?name=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+      ),
+      { method: 'POST' }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.detail ?? 'Login failed.');
+      return;
+    }
+
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('user_id', String(data.user_id));
+    localStorage.setItem('user_name', data.name);
+    localStorage.setItem('is_admin', String(data.is_admin));
+
+    window.location.href = '/';
+  } catch (err) {
+    console.error(err);
+    alert('Unable to contact the server.');
   }
-
-  localStorage.setItem('access_token', data.access_token);
-  localStorage.setItem('user_id', String(data.user_id));
-  localStorage.setItem('user_name', data.name);
-  localStorage.setItem('is_admin', String(data.is_admin));
-
-  window.location.href = '/';
 }
 
 function initLogin() {
