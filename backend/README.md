@@ -9,23 +9,25 @@ This package contains a ready-to-run local version for evaluation on Windows.
 ## System requirements
 
 - Windows 10 or Windows 11
-- Internet connection (first launch only)
+- Internet connection (required only during the initial setup)
 - Python 3.10 or newer
 
 ---
 
-## 1. Install Python
+## Install Python
 
-Download Python from the
+Download and install Python from the
 [official Python website](https://www.python.org/downloads/).
 
 ### Important
 
-During installation, enable: ☑ **Add Python to PATH**
+During installation, enable:
+
+- **Add Python to PATH**
 
 ---
 
-## 2. Install uv
+## Install uv
 
 Open **PowerShell** and run:
 
@@ -35,7 +37,7 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 
 After installation, close PowerShell and open it again.
 
-Verify:
+Verify the installation:
 
 ```powershell
 uv --version
@@ -43,9 +45,9 @@ uv --version
 
 ---
 
-## 3. Extract the archive
+## Extract the archive
 
-Extract the ZIP file to any folder, for example:
+Extract the ZIP archive to any folder, for example:
 
 ```text
 C:\Piko
@@ -53,7 +55,7 @@ C:\Piko
 
 ---
 
-## 4. Start the backend
+## Start the backend
 
 Open **PowerShell**.
 
@@ -69,36 +71,39 @@ Install the required Python packages:
 uv sync
 ```
 
-Start the server:
+Start the backend:
 
 ```powershell
 uv run uvicorn app.main:app
 ```
 
-The backend will start at:
+The backend will be available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Leave this PowerShell window open.
+Leave this PowerShell window open while using Piko.
 
 ---
 
-## 5. Start the frontend
+## Open Piko
 
-Open a **second PowerShell** window.
+Open a second **PowerShell** window.
+
+Change to the frontend directory:
 
 ```powershell
 cd C:\Piko\frontend
+```
+
+Serve the application files:
+
+```powershell
 python -m http.server 8080
 ```
 
----
-
-## 6. Open Piko
-
-Open your browser and navigate to:
+Open your web browser and navigate to:
 
 ```text
 http://localhost:8080/login.html
@@ -106,7 +111,7 @@ http://localhost:8080/login.html
 
 ---
 
-## Included sample database
+## Sample database
 
 This release already contains a pre-populated SQLite database.
 
@@ -114,7 +119,7 @@ No database initialization is required.
 
 ---
 
-## Stopping Piko
+## Stop Piko
 
 Press **Ctrl+C** in each PowerShell window.
 
@@ -124,23 +129,21 @@ Press **Ctrl+C** in each PowerShell window.
 
 ### `python` is not recognised
 
-Python is not installed or was not added to the system PATH.
+Python is either not installed or was not added to the system `PATH`.
 
-Reinstall Python and enable:
-
-- Enable **Add Python to PATH** during installation.
-
----
+Reinstall Python and ensure that **Add Python to PATH** is selected during installation.
 
 ### `uv` is not recognised
 
-Close PowerShell and open it again.
+Close PowerShell, open it again, and run:
 
-If necessary, reinstall uv using the command above.
+```powershell
+uv --version
+```
 
----
+If the command is still not recognised, reinstall `uv` using the command shown above.
 
-### Backend does not start
+### The backend does not start
 
 Ensure that no other application is already using port **8000**.
 
@@ -148,6 +151,6 @@ Ensure that no other application is already using port **8000**.
 
 ## Thank you
 
-Thank you for taking the time to test **Piko**.
+Thank you for taking the time to evaluate **Piko**.
 
-Your feedback is highly appreciated.
+Your feedback is greatly appreciated.
