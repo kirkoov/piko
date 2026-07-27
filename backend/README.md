@@ -27,7 +27,7 @@ During installation, enable:
 
 ---
 
-## Install uv
+## Install uv (needs to be reviewed)
 
 Open **PowerShell** and run:
 

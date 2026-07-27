@@ -51,20 +51,36 @@ zip -r "$OUT" . \
 	-x \
 	"*.zip" \
 	"*.log" \
+	".git/*" \
 	"*/.git/*" \
+	".venv/*" \
 	"*/.venv/*" \
+	"node_modules/*" \
 	"*/node_modules/*" \
+	"tests/*" \
 	"*/tests/*" \
+	"test-results/*" \
 	"*/test-results/*" \
+	"playwright-report/*" \
 	"*/playwright-report/*" \
+	"coverage/*" \
 	"*/coverage/*" \
+	"__pycache__/*" \
+	"*/__pycache__/*" \
+	".pytest_cache/*" \
+	"*/.pytest_cache/*" \
+	".mypy_cache/*" \
+	"*/.mypy_cache/*" \
+	".ruff_cache/*" \
+	"*/.ruff_cache/*" \
+	".vscode/*" \
+	".idea/*" \
 	"*.DS_Store" \
 	"*.swp" \
 	"*.swo" \
-	".vscode/*" \
-	".idea/*" \
 	"*~" \
-	".history/*"
+	".history/*" \
+	"*.sh"
 
 ls -lh "$OUT"
 

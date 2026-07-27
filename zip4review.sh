@@ -27,6 +27,5 @@ zip -r piko.zip piko \
 	"*/coverage/*" \
 	"*/.vscode/*" \
 	"*/.idea/*" \
-	"*/.DS_Store"
-
-cd -
+	"*/.DS_Store"z \
+	"piko/*.sh"
