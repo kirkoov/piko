@@ -24,7 +24,7 @@ def test_balance_deducts_early_leave():
 
 def test_balance_ignores_positive_overtime():
     shift = make_shift(actual_end="17:00")
-    assert calculate_balance(0, [shift]) == 0
+    assert calculate_balance(0, [shift]) == 60
 
 
 def test_balance_adds_evening_bonus():

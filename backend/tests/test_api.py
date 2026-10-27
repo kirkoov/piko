@@ -165,6 +165,12 @@ async def test_update_shift(user_client, get_test_data):
     assert updated["note"] == "Matti leaves later"
     assert updated["latest_child_name"] == "Sara"
 
+    response = await user_client.delete(
+        f"{get_test_data['api_prefix']}/shifts/{shift_id}"
+    )
+
+    assert assert_ok(response)["status"] == "deleted"
+
 
 @pytest.mark.asyncio
 async def test_create_shift_duplicate(user_client, get_test_data):

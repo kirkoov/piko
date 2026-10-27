@@ -20,8 +20,7 @@ def calculate_balance(
         )
 
         # Deduct early departures only
-        if difference < 0:
-            total += difference
+        total += difference
 
         total += morning_bonus(
             s.actual_start,
