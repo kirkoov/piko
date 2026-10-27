@@ -38,6 +38,11 @@ app.include_router(balance_router)
 app.include_router(periods_router)
 
 
+@app.get("/hi")
+def greet(who):
+    return f"Hello {who}"
+
+
 app.mount(
     "/",
     StaticFiles(directory=str(FRONTEND_DIR), html=True),
