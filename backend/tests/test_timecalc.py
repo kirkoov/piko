@@ -1,6 +1,7 @@
 from app.timecalc import (
     duration,
     evening_bonus,
+    evening_minutes,
     morning_bonus,
     overlap_minutes,
     recommended_shift,
@@ -48,6 +49,10 @@ def test_morning_bonus():
 
 def test_evening_bonus():
     assert evening_bonus("18:00", "19:00") == 8
+
+
+def test_evening_minutes():
+    assert evening_minutes("18:00", "21:42") == 222
 
 
 def test_morning_bonus_partial_block():

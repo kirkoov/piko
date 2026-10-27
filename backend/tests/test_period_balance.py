@@ -64,18 +64,21 @@ def test_group_shifts_by_period():
             "delta_minutes": 0,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 210,
         },
         {
             "date": "2026-06-09",
             "delta_minutes": 45,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 210,
         },
         {
             "date": "2026-06-29",
             "delta_minutes": 0,
             "morning_bonus": 0,
             "evening_bonus": 24,
+            "evening_minutes": 180,
         },
     ]
 
@@ -98,17 +101,22 @@ def test_period_balance():
             "delta_minutes": 0,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 210,
         },
         {
             "date": "2026-06-09",
             "delta_minutes": 45,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 180,
         },
     ]
+
     periods = group_shifts_by_period(shifts)
+
     assert periods[0]["period_start"] == "2026-06-08"
     assert periods[0]["balance_minutes"] == 101
+    assert periods[0]["evening_minutes"] == 390
 
 
 def test_multiple_period_balances():
@@ -118,20 +126,46 @@ def test_multiple_period_balances():
             "delta_minutes": 0,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 210,
         },
         {
             "date": "2026-06-09",
             "delta_minutes": 45,
             "morning_bonus": 0,
             "evening_bonus": 28,
+            "evening_minutes": 210,
         },
         {
             "date": "2026-06-29",
             "delta_minutes": 0,
             "morning_bonus": 0,
             "evening_bonus": 24,
+            "evening_minutes": 180,
         },
     ]
     periods = group_shifts_by_period(shifts)
     assert periods[0]["balance_minutes"] == 101
     assert periods[1]["balance_minutes"] == 24
+
+
+def test_period_evening_minutes():
+    shifts = [
+        {
+            "date": "2026-06-08",
+            "delta_minutes": 0,
+            "morning_bonus": 0,
+            "evening_bonus": 28,
+            "evening_minutes": 210,
+        },
+        {
+            "date": "2026-06-09",
+            "delta_minutes": 45,
+            "morning_bonus": 0,
+            "evening_bonus": 28,
+            "evening_minutes": 180,
+        },
+    ]
+
+    periods = group_shifts_by_period(shifts)
+
+    assert periods[0]["evening_minutes"] == 390

@@ -236,6 +236,8 @@ async def test_get_shifts(user_client, get_test_data):
     assert "actual" in shift
     assert "date" in shift
 
+    assert "evening_minutes" in shift
+
 
 @pytest.mark.asyncio
 async def test_update_shift_not_found(user_client, get_test_data):

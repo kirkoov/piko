@@ -52,6 +52,7 @@ def group_shifts_by_period(shifts) -> list[dict]:
 
     result = []
     for (start, end), period_shifts in sorted(groups.items()):
+        evening_minutes = sum(s["evening_minutes"] for s in period_shifts)
         balance = sum(
             s["delta_minutes"] + s["morning_bonus"] + s["evening_bonus"]
             for s in period_shifts
@@ -61,6 +62,7 @@ def group_shifts_by_period(shifts) -> list[dict]:
                 "period_start": start,
                 "period_end": end,
                 "balance_minutes": balance,
+                "evening_minutes": evening_minutes,
                 "shift_count": len(period_shifts),
                 "shifts": period_shifts,
             }

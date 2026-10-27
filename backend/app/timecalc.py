@@ -71,13 +71,23 @@ def morning_bonus(actual_start: str, actual_end: str) -> int:
     return completed_blocks * MORNING_BONUS_POINTS
 
 
-def evening_bonus(actual_start: str, actual_end: str) -> int:
-    minutes = overlap_minutes(
+def evening_minutes(actual_start: str, actual_end: str) -> int:
+    return overlap_minutes(
         actual_start,
         actual_end,
         EVENING_BONUS_START,
         EVENING_BONUS_END,
     )
+
+
+def evening_bonus(actual_start: str, actual_end: str) -> int:
+    # minutes = overlap_minutes(
+    #     actual_start,
+    #     actual_end,
+    #     EVENING_BONUS_START,
+    #     EVENING_BONUS_END,
+    # )
+    minutes = evening_minutes(actual_start, actual_end)
     completed_blocks = minutes // BONUS_BLOCK_MINUTES
     return completed_blocks * EVENING_BONUS_POINTS
 

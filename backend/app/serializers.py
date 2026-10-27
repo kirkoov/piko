@@ -3,6 +3,7 @@ from app.period import period_for_date
 from app.timecalc import (
     duration,
     evening_bonus,
+    evening_minutes,
     morning_bonus,
     recommended_shift,
     shift_difference,
@@ -36,6 +37,10 @@ def shift_to_dict(s: Shift) -> dict:
             s.actual_end,
         ),
         "morning_bonus": morning_bonus(
+            s.actual_start,
+            s.actual_end,
+        ),
+        "evening_minutes": evening_minutes(
             s.actual_start,
             s.actual_end,
         ),
