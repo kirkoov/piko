@@ -3,6 +3,7 @@ from decimal import Decimal
 from app.balance import calculate_balance
 from app.models import Shift
 from app.period import group_shifts_by_period
+from app.timecalc import evening_compensation_exact
 
 
 def make_shift(
@@ -200,3 +201,16 @@ def test_balance_applies_evening_compensation_per_period():
     ]
 
     assert calculate_balance(0, shifts) == 62
+
+
+def test_employer_period_reconstruction():
+    base_difference = Decimal("-61")
+    evening = evening_compensation_exact(1203)
+    night = Decimal("27")
+    overtime = Decimal("21") * Decimal("0.50")
+
+    total = base_difference + evening + night + overtime
+
+    assert evening == Decimal("180.45")
+    assert overtime == Decimal("10.50")
+    assert total == Decimal("156.95")
