@@ -32,6 +32,7 @@ const t_data = {
       delta_minutes: 5,
       morning_bonus: 0,
       evening_bonus: 0,
+      evening_minutes: 0,
       latest_child_name: 'Matti',
       latest_child_time: '15:30',
       note: 'Late bus',

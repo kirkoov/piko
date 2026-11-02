@@ -281,8 +281,8 @@ function renderShifts(shifts) {
                 }
 
                 ${
-                  s.evening_bonus > 0
-                    ? `<p>${t('eveningBonus')}: +${s.evening_bonus} ${t('min')}</p>`
+                  s.evening_minutes > 0
+                    ? `<p>${t('eveningWork')}: ${s.evening_minutes} ${t('min')}</p>`
                     : ''
                 }
         ${renderShiftActions(s)}
