@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 
 from app.config import DATE_FORMAT, PAY_PERIOD_LENGTH, PAY_PERIOD_START_DAY
+from app.timecalc import evening_compensation
 
 PERIOD_START = date(2026, 6, PAY_PERIOD_START_DAY)
 
@@ -53,6 +54,7 @@ def group_shifts_by_period(shifts) -> list[dict]:
     result = []
     for (start, end), period_shifts in sorted(groups.items()):
         evening_minutes = sum(s["evening_minutes"] for s in period_shifts)
+        evening_compensation_minutes = evening_compensation(evening_minutes)
         balance = sum(
             s["delta_minutes"] + s["morning_bonus"] + s["evening_bonus"]
             for s in period_shifts
@@ -63,6 +65,7 @@ def group_shifts_by_period(shifts) -> list[dict]:
                 "period_end": end,
                 "balance_minutes": balance,
                 "evening_minutes": evening_minutes,
+                "evening_compensation_minutes": evening_compensation_minutes,
                 "shift_count": len(period_shifts),
                 "shifts": period_shifts,
             }

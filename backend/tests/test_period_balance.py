@@ -22,7 +22,7 @@ def test_balance_deducts_early_leave():
     assert calculate_balance(0, [shift]) == -60
 
 
-def test_balance_ignores_positive_overtime():
+def test_balance_counts_positive_shift_difference():
     shift = make_shift(actual_end="17:00")
     assert calculate_balance(0, [shift]) == 60
 
@@ -117,6 +117,7 @@ def test_period_balance():
     assert periods[0]["period_start"] == "2026-06-08"
     assert periods[0]["balance_minutes"] == 101
     assert periods[0]["evening_minutes"] == 390
+    assert periods[0]["evening_compensation_minutes"] == 58.5
 
 
 def test_multiple_period_balances():

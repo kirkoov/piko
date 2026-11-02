@@ -26,6 +26,8 @@ EVENING_BONUS_END = "22:00"
 MORNING_BONUS_POINTS = 9
 EVENING_BONUS_POINTS = 4
 
+EVENING_BONUS_PERCENT = 15  # After the prod screenshots were brought for analysis
+
 
 # -----------------------------
 # Administration

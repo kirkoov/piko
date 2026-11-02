@@ -3,6 +3,7 @@ from datetime import datetime
 from app.config import (
     BONUS_BLOCK_MINUTES,
     EVENING_BONUS_END,
+    EVENING_BONUS_PERCENT,
     EVENING_BONUS_POINTS,
     EVENING_BONUS_START,
     MORNING_BONUS_END,
@@ -90,6 +91,10 @@ def evening_bonus(actual_start: str, actual_end: str) -> int:
     minutes = evening_minutes(actual_start, actual_end)
     completed_blocks = minutes // BONUS_BLOCK_MINUTES
     return completed_blocks * EVENING_BONUS_POINTS
+
+
+def evening_compensation(evening_minutes: int) -> float:
+    return evening_minutes * EVENING_BONUS_PERCENT / 100
 
 
 def to_minutes(t: str) -> int:
