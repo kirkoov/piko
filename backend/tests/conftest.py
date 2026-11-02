@@ -121,7 +121,11 @@ async def admin_client():
         yield client
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(
+    scope="session",
+    loop_scope="session",
+    autouse=True,
+)
 async def setup_database():
 
     if os.path.exists("test.db"):
