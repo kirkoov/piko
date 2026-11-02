@@ -605,7 +605,8 @@ function minutesToText(minutes) {
 }
 
 function formatDelta(minutes) {
-  const sign = minutes > 0 ? '+' : '';
+  // const sign = minutes > 0 ? '+' : '';
+  const sign = minutes > 0 ? '+' : minutes < 0 ? '-' : '';
 
   const hours = Math.floor(Math.abs(minutes) / 60);
   const mins = Math.abs(minutes) % 60;
