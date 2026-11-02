@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from app.config import (
     BONUS_BLOCK_MINUTES,
@@ -97,8 +98,16 @@ def evening_bonus(actual_start: str, actual_end: str) -> int:
 #     return evening_minutes * EVENING_BONUS_PERCENT / 100
 
 
+# def evening_compensation(evening_minutes: int) -> int:
+#     return int(evening_minutes * EVENING_BONUS_PERCENT / 100)
+
+
+def evening_compensation_exact(evening_minutes: int) -> Decimal:
+    return Decimal(evening_minutes) * Decimal(EVENING_BONUS_PERCENT) / Decimal(100)
+
+
 def evening_compensation(evening_minutes: int) -> int:
-    return int(evening_minutes * EVENING_BONUS_PERCENT / 100)
+    return int(evening_compensation_exact(evening_minutes))
 
 
 def to_minutes(t: str) -> int:

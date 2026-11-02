@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from app.balance import calculate_balance
 from app.models import Shift
 from app.period import group_shifts_by_period
@@ -112,6 +114,7 @@ def test_period_balance():
     assert periods[0]["evening_minutes"] == 390
     # assert periods[0]["evening_compensation_minutes"] == 58.5
     assert periods[0]["evening_compensation_minutes"] == 58
+    assert periods[0]["evening_compensation_exact_minutes"] == Decimal("58.50")
 
 
 def test_multiple_period_balances():

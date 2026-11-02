@@ -1,7 +1,10 @@
+from decimal import Decimal
+
 from app.timecalc import (
     duration,
     evening_bonus,
     evening_compensation,
+    evening_compensation_exact,
     evening_minutes,
     morning_bonus,
     overlap_minutes,
@@ -150,3 +153,7 @@ def test_overlap_partial():
 def test_evening_compensation():
     # assert evening_compensation(1203) == 180.45
     assert evening_compensation(1203) == 180
+
+
+def test_evening_compensation_exact():
+    assert evening_compensation_exact(1203) == Decimal("180.45")
