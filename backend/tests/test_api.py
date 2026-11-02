@@ -8,7 +8,7 @@ import pytest
 
 from tests.helpers import assert_ok
 
-TEST_BONUS_MINS = 239  # Provided the initial seed data never change & start @239 min
+TEST_BONUS_MINS = 272  # Provided the initial seed data never change
 
 
 @pytest.mark.asyncio
