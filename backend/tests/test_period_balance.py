@@ -4,12 +4,14 @@ from app.period import group_shifts_by_period
 
 
 def make_shift(
+    date="2026-06-08",
     planned_start="08:00",
     planned_end="16:00",
     actual_start="08:00",
     actual_end="16:00",
 ):
     return Shift(
+        date=date,
         planned_start=planned_start,
         planned_end=planned_end,
         actual_start=actual_start,
@@ -27,16 +29,6 @@ def test_balance_counts_positive_shift_difference():
     assert calculate_balance(0, [shift]) == 60
 
 
-def test_balance_adds_evening_bonus():
-    shift = make_shift(
-        planned_start="14:00",
-        planned_end="22:00",
-        actual_start="14:00",
-        actual_end="22:00",
-    )
-    assert calculate_balance(0, [shift]) == 32
-
-
 def test_balance_adds_morning_bonus():
     shift = make_shift(
         planned_start="05:00",
@@ -47,14 +39,14 @@ def test_balance_adds_morning_bonus():
     assert calculate_balance(0, [shift]) == 36
 
 
-def test_balance_combines_deduction_and_bonus():
+def test_balance_combines_deduction_and_evening_compensation():
     shift = make_shift(
         planned_start="14:00",
         planned_end="22:00",
         actual_start="14:00",
         actual_end="21:00",
     )
-    assert calculate_balance(0, [shift]) == -36
+    assert calculate_balance(0, [shift]) == -33
 
 
 def test_group_shifts_by_period():
@@ -115,7 +107,8 @@ def test_period_balance():
     periods = group_shifts_by_period(shifts)
 
     assert periods[0]["period_start"] == "2026-06-08"
-    assert periods[0]["balance_minutes"] == 101
+    # assert periods[0]["balance_minutes"] == 101
+    assert periods[0]["balance_minutes"] == 103
     assert periods[0]["evening_minutes"] == 390
     # assert periods[0]["evening_compensation_minutes"] == 58.5
     assert periods[0]["evening_compensation_minutes"] == 58
@@ -146,8 +139,10 @@ def test_multiple_period_balances():
         },
     ]
     periods = group_shifts_by_period(shifts)
-    assert periods[0]["balance_minutes"] == 101
-    assert periods[1]["balance_minutes"] == 24
+    # assert periods[0]["balance_minutes"] == 101
+    # assert periods[1]["balance_minutes"] == 24
+    assert periods[0]["balance_minutes"] == 108
+    assert periods[1]["balance_minutes"] == 27
 
 
 def test_period_evening_minutes():
@@ -171,3 +166,34 @@ def test_period_evening_minutes():
     periods = group_shifts_by_period(shifts)
 
     assert periods[0]["evening_minutes"] == 390
+
+
+def test_balance_adds_evening_compensation():
+    shift = make_shift(
+        planned_start="14:00",
+        planned_end="22:00",
+        actual_start="14:00",
+        actual_end="22:00",
+    )
+    assert calculate_balance(0, [shift]) == 36
+
+
+def test_balance_applies_evening_compensation_per_period():
+    shifts = [
+        make_shift(
+            date="2026-06-08",
+            planned_start="18:00",
+            planned_end="21:30",
+            actual_start="18:00",
+            actual_end="21:30",
+        ),
+        make_shift(
+            date="2026-06-29",
+            planned_start="18:00",
+            planned_end="21:30",
+            actual_start="18:00",
+            actual_end="21:30",
+        ),
+    ]
+
+    assert calculate_balance(0, shifts) == 62
