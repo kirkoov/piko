@@ -88,6 +88,20 @@ describe('renderShifts', () => {
       shift.recommended_shift
     );
   });
+  it('shows a minus sign for a negative delta', () => {
+    document.documentElement.innerHTML = html;
+
+    renderShifts([
+      {
+        ...t_data.shifts[0],
+        period_start: t_data.period_start,
+        period_end: t_data.period_end,
+        delta_minutes: -5,
+      },
+    ]);
+
+    expect(document.getElementById('shifts').textContent).toContain('Δ -0h 5m');
+  });
 });
 
 describe('Add shift workflow', () => {
