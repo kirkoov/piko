@@ -117,7 +117,8 @@ def test_period_balance():
     assert periods[0]["period_start"] == "2026-06-08"
     assert periods[0]["balance_minutes"] == 101
     assert periods[0]["evening_minutes"] == 390
-    assert periods[0]["evening_compensation_minutes"] == 58.5
+    # assert periods[0]["evening_compensation_minutes"] == 58.5
+    assert periods[0]["evening_compensation_minutes"] == 58
 
 
 def test_multiple_period_balances():

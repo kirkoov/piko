@@ -93,8 +93,12 @@ def evening_bonus(actual_start: str, actual_end: str) -> int:
     return completed_blocks * EVENING_BONUS_POINTS
 
 
-def evening_compensation(evening_minutes: int) -> float:
-    return evening_minutes * EVENING_BONUS_PERCENT / 100
+# def evening_compensation(evening_minutes: int) -> float:
+#     return evening_minutes * EVENING_BONUS_PERCENT / 100
+
+
+def evening_compensation(evening_minutes: int) -> int:
+    return int(evening_minutes * EVENING_BONUS_PERCENT / 100)
 
 
 def to_minutes(t: str) -> int:
