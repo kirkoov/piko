@@ -23,6 +23,13 @@ let expandedPeriods = {};
 let currentShifts = [];
 let currentPeriods = [];
 
+const employerPeriodReference = {
+  '2026-08-31-2026-09-20': {
+    balanceMinutes: 157,
+    workMinutes: 6824,
+  },
+};
+
 function t(key) {
   return translations[lang]?.[key] ?? translations.en?.[key] ?? key;
 }
@@ -344,6 +351,7 @@ function renderPeriods(periods) {
   document.getElementById('shifts').innerHTML = periods
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
+      const employerReference = employerPeriodReference[key];
       const expanded = expandedPeriods[key];
       const arrowClass = expanded ? 'expanded' : '';
 
@@ -361,6 +369,12 @@ function renderPeriods(periods) {
             <p>
               ${t('showAllShiftsBalance')}:
               ${formatDelta(p.balance_minutes)}
+              ${
+                employerReference
+                  ? ` · Employer ${formatDelta(employerReference.balanceMinutes)}
+                    · Δ ${formatDelta(employerReference.balanceMinutes - p.balance_minutes)}`
+                  : ''
+              }
             </p>
 
             <p>
