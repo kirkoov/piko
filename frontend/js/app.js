@@ -352,6 +352,9 @@ function renderPeriods(periods) {
     .map((p) => {
       const key = `${p.period_start}-${p.period_end}`;
       const employerReference = employerPeriodReference[key];
+      const pikoWorkMinutes = employerReference
+        ? p.shifts.reduce((total, shift) => total + shift.actual_minutes, 0)
+        : 0;
       const expanded = expandedPeriods[key];
       const arrowClass = expanded ? 'expanded' : '';
 
@@ -376,6 +379,16 @@ function renderPeriods(periods) {
                   : ''
               }
             </p>
+
+            ${
+              employerReference
+                ? `<p>
+              Work: Piko ${minutesToText(pikoWorkMinutes)}
+              · Employer ${minutesToText(employerReference.workMinutes)}
+              · Δ ${formatDelta(employerReference.workMinutes - pikoWorkMinutes)}
+            </p>`
+                : ''
+            }
 
             <p>
               ${t('showAllShiftsBalanceShifts')}: ${p.shift_count}
