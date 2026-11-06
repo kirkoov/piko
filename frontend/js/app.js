@@ -495,7 +495,8 @@ async function changeUserPasswordDialog(userId) {
 
 function openEditor(id, date, planned, actual, childName, childTime, note) {
   currentShiftId = id;
-  document.getElementById('modal').style.display = 'block';
+  document.getElementById('modal').classList.add('is-open');
+  document.getElementById('modal').scrollTop = 0;
   document.getElementById('modal_title').textContent = t('editShift');
   document.getElementById('m_date').disabled = true;
   document.getElementById('m_date').value = date;
@@ -508,7 +509,7 @@ function openEditor(id, date, planned, actual, childName, childTime, note) {
 
 function closeModal() {
   currentShiftId = null;
-  document.getElementById('modal').style.display = 'none';
+  document.getElementById('modal').classList.remove('is-open');
 }
 
 function clearModal() {
@@ -645,7 +646,8 @@ function openAddShift() {
   currentShiftId = null;
   clearModal();
   document.getElementById('modal_title').textContent = t('addShift');
-  document.getElementById('modal').style.display = 'block';
+  document.getElementById('modal').classList.add('is-open');
+  document.getElementById('modal').scrollTop = 0;
 }
 
 function minutesToText(minutes) {

@@ -65,9 +65,14 @@ describe('renderShifts', () => {
       },
     ]);
 
+    document.getElementById('modal').scrollTop = 200;
+
     document.querySelector('.edit-btn').click();
 
-    expect(document.getElementById('modal').style.display).toBe('block');
+    expect(document.getElementById('modal').classList.contains('is-open')).toBe(
+      true
+    );
+    expect(document.getElementById('modal').scrollTop).toBe(0);
     expect(document.getElementById('m_date').value).toBe(shift.date);
     expect(document.getElementById('m_planned').value).toBe(shift.planned);
     expect(document.getElementById('m_actual').value).toBe(shift.actual);
