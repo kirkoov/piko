@@ -11,7 +11,6 @@ import { api, authHeaders, changeUserPassword } from './api.js';
 import { icons } from './icons.js';
 
 let lang = localStorage.getItem('language') || DEFAULT_LANGUAGE;
-
 let currentShiftId = null;
 let currentUser = null;
 
@@ -22,6 +21,8 @@ let expandedPeriods = {};
 
 let currentShifts = [];
 let currentPeriods = [];
+
+let previousBalanceMinutes = null;
 
 const employerPeriodReference = {
   '2026-08-31-2026-09-20': {
@@ -105,8 +106,18 @@ async function loadBalance() {
 
   document.getElementById('balance').innerHTML =
     `<div class="balance-card ${balanceClass}">
-        ${sign}${minutes} ${t('min')} (${hours}${t('h')} ${mins}${t('m')})
-     </div>`;
+      <div class="balance-label">${t('balance')}</div>
+      <div>${sign}${minutes} ${t('min')} (${hours}${t('h')} ${mins}${t('m')})</div>
+   </div>`;
+
+  const balanceCard = document.querySelector('#balance .balance-card');
+  if (previousBalanceMinutes !== null && previousBalanceMinutes !== minutes) {
+    balanceCard.classList.remove('balance-updated');
+    void balanceCard.offsetWidth;
+    balanceCard.classList.add('balance-updated');
+  }
+
+  previousBalanceMinutes = minutes;
 }
 
 async function loadCurrentPeriod() {
@@ -360,7 +371,6 @@ function renderPeriods(periods) {
 
       return `
         <div class="shift-card">
-
           <div class="period-header" data-period-key="${key}">
             <h3>
               <span class="period-arrow ${arrowClass}">▶</span>
@@ -398,18 +408,32 @@ function renderPeriods(periods) {
 
           ${
             expanded
-              ? p.shifts
+              ? `
+              <div class="shift-grid">
+                ${p.shifts
                   .map(
                     (s) => `
-                    <div class="shift-subcard" data-shift-id="${s.id}">
-                    <b>${formatDate(s.date, lang)}</b>
-                    <p>${s.actual}</p>
+                      <div class="shift-subcard" data-shift-id="${s.id}">
+                        <b>${formatDate(s.date, lang)}</b>
+                        <p>${s.actual}</p>
 
-                    ${renderShiftActions(s)}
-                  </div>
-                  `
+                        <p class="${
+                          s.delta_minutes > 0
+                            ? 'delta-positive'
+                            : s.delta_minutes < 0
+                              ? 'delta-negative'
+                              : 'delta-neutral'
+                        }">
+                          Δ ${formatDelta(s.delta_minutes)}
+                        </p>
+
+                        ${renderShiftActions(s)}
+                      </div>
+                    `
                   )
-                  .join('')
+                  .join('')}
+              </div>
+            `
               : ''
           }
         </div>
